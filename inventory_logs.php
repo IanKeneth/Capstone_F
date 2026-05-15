@@ -1,0 +1,179 @@
+<?php
+session_start();
+require_once "auth/conn.php";
+
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: ../login.php");
+    exit();
+}
+
+$filter = isset($_GET['filter']) ? $_GET['filter'] : 'All';
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+$whereClauses = [];
+$params = [];
+
+if ($filter === 'In') {
+    $whereClauses[] = "il.action = 'Added'";
+    } elseif ($filter === 'Out') {
+        $whereClauses[] = "il.action = 'Removed'";
+    } elseif ($filter === 'Retail') { 
+
+        $whereClauses[] = "il.notes LIKE :retail_note";
+        $params[':retail_note'] = '%Retail%';
+    } elseif ($filter === 'Wholesale') { 
+        $whereClauses[] = "(il.notes LIKE :wholesale_note OR il.notes LIKE :return_note)";
+        $params[':wholesale_note'] = '%Wholesale%';
+        $params[':return_note'] = '%Returned%';
+    }
+
+    if (!empty($search)) {
+        $whereClauses[] = "(p.product_name LIKE :search OR il.notes LIKE :search OR il.admin_name LIKE :search)";
+        $params[':search'] = '%' . $search . '%';
+    }
+
+$whereSQL = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
+
+$query = "SELECT il.*, p.product_name, p.variation
+        FROM inventory_logs il 
+        JOIN products p ON il.product_id = p.id
+        $whereSQL
+        ORDER BY il.created_at DESC";
+
+$stmt = $pdo->prepare($query);
+$stmt->execute($params);
+$logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$totalIn = $pdo->query("SELECT SUM(quantity_change) FROM inventory_logs WHERE action = 'Added'")->fetchColumn() ?? 0;
+$totalOut = $pdo->query("SELECT SUM(quantity_change) FROM inventory_logs WHERE action = 'Removed'")->fetchColumn() ?? 0;
+
+function e(mixed $value): string {
+    return htmlspecialchars((string)($value ?? ''), ENT_QUOTES, 'UTF-8');
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        :root { --primary: #f28c28; --success: #27ae60; --danger: #e53e3e; --retail: #7b1fa2; --wholesale: #1976d2; }
+        .report-container { padding: 30px; background: #f8fafc; min-height: 100vh; }
+        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .s-card { background: white; padding: 20px; border-radius: 16px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .controls-row { display: flex; justify-content: space-between; margin-bottom: 25px; gap: 15px; flex-wrap: wrap; }
+        
+        .filter-btn { padding: 10px 15px; border-radius: 8px; background: white; color: #64748b; text-decoration: none; border: 1px solid #e2e8f0; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
+        .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        .badge { padding: 5px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; }
+        .badge-retail { background: #f3e5f5; color: var(--danger); }
+        .badge-wholesale { background: #e3f2fd; color: var(--wholesale); }
+        .badge-in { background: #dcfce7; color: var(--success); }
+        .badge-out { background: #fee2e2; color: var(--danger); }
+        
+        .log-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .log-table th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 0.75rem; color: #475569; }
+        .log-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-header"><i class="fa-solid fa-boxes-stacked"></i> <span>Inventory Log</span></div>
+            <nav style="flex-grow: 1;">
+                <a href="index.php" class="nav-item"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
+                <a href="inventory.php" class="nav-item "><i class="fa-solid fa-boxes-packing"></i> <span>Inventory</span></a>
+                <a href="inventory_logs.php" class="nav-item active"><i class="fa-solid fa-route"></i> <span>Inventory Logs</span></a>
+                <a href="dispatchers.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Dispatchers</span></a>
+                <a href="audit_trail.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Audit Trail</span></a>
+                <a href="retailer.php" class="nav-item "><i class="fa-solid fa-shop"></i> <span>Retailer</span></a>
+                <a href="sales.php" class="nav-item "><i class="fa-solid fa-coins"></i> <span>Sales History</span></a>
+                <a href="settings.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <button id="sidebarToggle" class="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
+                    <h1 style="white-space: nowrap; margin-right: 20px;">Inventory Logs Overview</h1>
+                </div>
+            </header>
+            <section class="report-container">
+                <div class="summary-cards">
+                    <div class="s-card">
+                        <i class="fa-solid fa-circle-arrow-down fa-2x" style="color:var(--success)"></i>
+                        <div><small>Total Stock In</small><h3><?= number_format($totalIn) ?></h3></div>
+                    </div>
+                    <div class="s-card">
+                        <i class="fa-solid fa-circle-arrow-up fa-2x" style="color:var(--danger)"></i>
+                        <div><small>Total Stock Out</small><h3><?= number_format($totalOut) ?></h3></div>
+                    </div>
+                </div>
+
+                <div class="controls-row">
+                    <div class="filter-group" style="display:flex; gap:8px;">
+                        <a href="?filter=All" class="filter-btn <?= $filter === 'All' ? 'active' : '' ?>">All</a>
+                        <a href="?filter=In" class="filter-btn <?= $filter === 'In' ? 'active' : '' ?>">In </a>
+                        <a href="?filter=Out" class="filter-btn <?= $filter === 'Out' ? 'active' : '' ?>">Out </a>
+                        <a href="?filter=Retail" class="filter-btn <?= $filter === 'Retail' ? 'active' : '' ?>">Retail </a>
+                        <a href="?filter=Wholesale" class="filter-btn <?= $filter === 'Wholesale' ? 'active' : '' ?>">Wholesale</a>
+                    </div>
+                    <form method="GET">
+                        <input type="text" name="search" placeholder="Search product or note..." value="<?= e($search) ?>" style="padding:10px; border-radius:8px; border:1px solid #ddd;">
+                    </form>
+                </div>
+
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Admin/Source</th>
+                            <th>Product</th>
+                            <th>Action Type</th>
+                            <th>Movement</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <?php foreach ($logs as $log): ?>
+                        <tr>
+                            <td><?= date('M d, Y h:i A', strtotime($log['created_at'])) ?></td>
+                            <td><i class="fa-solid fa-user-tag" style="color:#94a3b8"></i> <?= e($log['admin_name']) ?></td>
+                            <td><b><?= e($log['product_name']) ?></b> <br><small><?= e($log['variation']) ?></small></td>
+                            <td>
+                                <?php if(strpos($log['notes'], 'Retail') !== false): ?>
+                                    <span class="badge badge-retail">OUT</span>
+                                <?php elseif(strpos($log['notes'], 'Remit') !== false): ?>
+                                    <span class="badge badge-wholesale">WHOLESALE</span>
+                                <?php else: ?>
+                                    <span class="badge <?= $log['action'] == 'Added' ? 'badge-in' : 'badge-out' ?>">
+                                        <?= $log['action'] == 'Added' ? 'IN' : 'OUT' ?>
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                            <td style="font-weight:bold; color: <?= $log['action'] == 'Added' ? 'var(--success)' : 'var(--danger)' ?>;">
+                                <?= $log['action'] == 'Added' ? '+' : '-' ?> <?= number_format($log['quantity_change']) ?>
+                            </td>
+                            <td style="color: #64748b; font-style: italic; font-size: 0.8rem;"><?= e($log['notes']) ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+
+                </table>
+            </section>
+        </main>
+    </div>
+    <script>
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        });
+        </script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f7;
+    color: #333;
+    overflow-x: hidden;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 240px;
+    background-color: #ffffff;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.sidebar.collapsed {
+    width: 75px;
+}
+
+.sidebar-header {
+    height: 70px;
+    padding: 0 25px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #f28c28;
+    display: flex;
+    align-items: center;
+    position: relative; 
+}
+
+nav {
+    flex: 1;
+}
+
+.nav-item {
+    padding: 15px 25px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid #f9f9f9;
+    font-weight: 500;
+    color: #555;
+    transition: background 0.3s ease, color 0.3s ease;
+    position: relative; 
+    text-decoration: none;
+    color: inherit;
+}
+
+.nav-item:visited {
+    color: inherit;
+}
+
+.nav-item:hover {
+    background-color: #fffaf5;
+    color: #f28c28;
+}
+
+.nav-item.active {
+    background-color: #fff5eb;
+    color: #f28c28;
+    border-right: 4px solid #f28c28; 
+}
+
+.sidebar span {
+    position: absolute;
+    left: 65px; 
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(0);
+}
+
+.sidebar.collapsed span {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px); 
+    pointer-events: none;
+}
+
+.icon {
+    min-width: 25px;
+    font-size: 1.1rem;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    flex-shrink: 0;
+    transition: transform 0.4s ease; 
+}
+
+.sidebar-footer {
+    border-top: 1px solid #f0f0f0;
+}
+
+.main-content {
+    flex: 1;
+    padding: 0;
+    min-width: 0;
+}
+
+.header {
+    background-color: #f28c28;
+    height: 70px;
+    padding: 0 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header h1 {
+    color: white;
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.hamburger-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.hamburger-btn:hover {
+    transform: scale(1.1);
+}
+
+
+.user-profile {
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.analytics-row, .data-row {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.sales-analytics { flex: 2; }
+.sales-stat { flex: 1; }
+.stock-levels { flex: 1; }
+.recent-orders { flex: 2; }
+
+.chart-placeholder {
+    height: 150px;
+    background: #fafafa;
+    border-bottom: 2px solid #f28c28;
+    position: relative;
+    margin-top: 10px;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.stat-change {
+    color: #27ae60;
+    font-size: 0.9rem;
+}
+
+.stat-change i { margin-right: 5px; }
+
+ul { list-style: none; padding: 0; }
+
+ul li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    color: #888;
+    font-size: 0.8rem;
+    padding-bottom: 10px;
+}
+
+td {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.status-shipped { color: #27ae60; }
+.status-pending { color: #f28c28; }
+
+.status-shipped i, .status-pending i {
+    font-size: 0.8rem;
+    margin-right: 5px;
+}
+
+@media (max-width: 768px) {
+    .analytics-row, .data-row {
+        flex-direction: column;
+        padding: 10px;
+    }
+    .sidebar { width: 75px; }
+    .sidebar span { display: none; }
+}
