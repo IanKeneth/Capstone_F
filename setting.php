@@ -10,7 +10,7 @@ if (!isset($_SESSION['admin_id'])) {
 $admin_id = $_SESSION['admin_id'];
 
 try {
-    $stmt = $pdo->prepare("SELECT name, email, profile_pic FROM admin WHERE id = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT name, username, profile_pic FROM admin WHERE id = ? LIMIT 1");
     $stmt->execute([$admin_id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -21,7 +21,7 @@ try {
     }
 
     $admin_name = $user['name'];
-    $admin_email = $user['email'];
+    $admin_username = $user['username'];
     $admin_pic = $user['profile_pic'];
 
 } catch (PDOException $e) {
@@ -63,18 +63,47 @@ function e($value): string {
         .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.8); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
         .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #f28c28; border-radius: 50%; animation: spin 1s linear infinite; }
+        .sidebar-logo {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            border-radius: 50%;
+            transition: all 0.3s ease; 
+            align-items: center;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            padding: 50px;
+            gap: 15px
+        }
+        .input-wrapper .toggle-password {
+            position: absolute;
+            left: 830px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+            z-index: 10;
+            transition: color 0.2s ease;
+        }
+        .input-wrapper .toggle-password:hover {
+            color: #f28c28;
+        }
+        .settings-input {
+            padding-right: 45px !important; 
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-        <p style="margin-top: 15px; font-weight: bold; color: #f28c28;">Updating Profile...</p>
-    </div>
-
     <div class="container">
         <aside class="sidebar">
-            <div class="sidebar-header"><i class="fa-solid fa-boxes-stacked"></i> <span>Settings</span></div>
+             <div class="sidebar-header">
+                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+                
+            </div>
             <nav style="flex-grow: 1;">
                 <a href="index.php" class="nav-item"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
                 <a href="inventory.php" class="nav-item"><i class="fa-solid fa-boxes-packing"></i> <span>Inventory</span></a>
@@ -144,26 +173,32 @@ function e($value): string {
                                     <input type="text" name="full_name" class="settings-input" value="<?= e($admin_name) ?>" required>
                                 </div>
                                 <div class="input-wrapper">
-                                    <i class="fa-solid fa-envelope"></i>
-                                    <input type="email" name="email" class="settings-input" value="<?= e($admin_email) ?>" readonly>
+                                    <i class="fa-solid fa-user"></i>
+                                    <input type="text" name="username" class="settings-input" value="<?= e($admin_username) ?>" readonly>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="settings-card" style="margin-top:15px;">
-                        <span class="card-title">Security</span>
+                        <span class="card-title" style="font-weight:bold; display:block; margin-bottom:15px;">Security</span>
+                        
                         <div class="input-wrapper" style="margin-bottom: 12px;">
                             <i class="fa-solid fa-lock"></i>
-                            <input type="password" name="current_password" class="settings-input" placeholder="Current Password">
+                            <input type="password" name="current_password" class="settings-input" placeholder="Current Password" autocomplete="new-password">
+                            <i class="fa-regular fa-eye toggle-password"></i>
                         </div>
+                        
                         <div class="input-wrapper" style="margin-bottom: 12px;">
                             <i class="fa-solid fa-lock"></i>
-                            <input type="password" name="new_password" class="settings-input" placeholder="New Password">
+                            <input type="password" name="new_password" class="settings-input" placeholder="New Password" autocomplete="new-password">
+                            <i class="fa-regular fa-eye toggle-password"></i>
                         </div>
+                        
                         <div class="input-wrapper">
                             <i class="fa-solid fa-lock"></i>
-                            <input type="password" name="confirm_password" class="settings-input" placeholder="Confirm New Password">
+                            <input type="password" name="confirm_password" class="settings-input" placeholder="Confirm New Password" autocomplete="new-password">
+                            <i class="fa-regular fa-eye toggle-password"></i>
                         </div>
                     </div>
 
@@ -176,6 +211,32 @@ function e($value): string {
     </div>
 
     <script>
+        // Toggle Password Visibility Logic
+document.querySelectorAll('.toggle-password').forEach(eyeIcon => {
+    eyeIcon.addEventListener('click', function () {
+        // Find the input field right next to this specific eye icon
+        const passwordInput = this.parentElement.querySelector('.settings-input');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            // Change icon to eye-slash (slashed eye)
+            this.classList.remove('fa-eye');
+            this.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            // Change icon back to normal eye
+            this.classList.remove('fa-eye-slash');
+            this.classList.add('fa-eye');
+        }
+    });
+});
+        // Add this inside your existing <script> tags
+    window.addEventListener('DOMContentLoaded', () => {
+        // This targets the current password input and forces it to be empty
+        setTimeout(() => {
+            document.querySelector('input[name="current_password"]').value = '';
+        }, 50); // A tiny 50ms delay completely shatters the browser's autofill attempt
+    });
         document.getElementById('profileForm').addEventListener('submit', function() {
             document.getElementById('loadingOverlay').style.display = 'flex';
         });

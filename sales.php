@@ -2,6 +2,7 @@
 session_start();
 require_once "auth/conn.php";
 
+
 if (!isset($_SESSION['admin_id'])) {
     header("Location: ../login.php");
     exit();
@@ -75,13 +76,29 @@ try {
         
         .amount-text { font-weight: bold; color: #27ae60; }
         .action-btn { border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .sidebar-logo {
+            width: 150px; 
+            height: 150px;
+            object-fit: contain;
+            border-radius: 50%;
+            transition: all 0.3s ease; 
+            align-items: center;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            padding: 50px; 
+            gap: 15px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <i class="fa-solid fa-boxes-stacked"></i> <span>Sales</span>
+                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+                
             </div>
         
                 <nav style="flex-grow: 1;">
@@ -91,12 +108,10 @@ try {
                     <a href="dispatchers.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Dispatchers</span></a>
                     <a href="audit_trail.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Audit Trail</span></a>
                     <a href="retailer.php" class="nav-item "><i class="fa-solid fa-shop"></i> <span>Retailer</span></a>
-                <a href="sales.php" class="nav-item active"><i class="fa-solid fa-coins"></i> <span>Financial Report</span></a>
-                    <a href="settings.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
+                    <a href="sales.php" class="nav-item active"><i class="fa-solid fa-coins"></i> <span>Financial Report</span></a>
+                    <a href="setting.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
                 </nav>
-            <div class="sidebar-footer">
-                <a href="../auth/logout.php" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span></a>
-            </div>
+            
         </aside>
 
         <main class="main-content">

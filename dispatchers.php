@@ -1,7 +1,12 @@
 <?php
+session_start();
 require_once "auth/conn.php";
 require_once "function/dispatchControler.php";
-session_start();
+
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: auth/login.php");
+    exit();
+}
 
 $dispatchManager = new DispatchController($pdo);
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -31,13 +36,32 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price FROM produ
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/disptcher.css">
+    <style>
+        .sidebar-logo {
+            width: 150px; 
+            height: 150px; 
+            object-fit: contain;
+            border-radius: 50%;
+            transition: all 0.3s ease; 
+            align-items: center;
+        }
 
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            padding: 50px; 
+            gap: 15px;  
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
     <aside class="sidebar">
-        <div class="sidebar-header"><i class="fa-solid fa-boxes-stacked"></i> <span>Dispatchers</span></div>
+        <div class="sidebar-header">
+                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+                
+            </div>
         
             <nav style="flex-grow: 1;">
                 <a href="index.php" class="nav-item"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
@@ -47,7 +71,7 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price FROM produ
                 <a href="audit_trail.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Audit Trail</span></a>
                 <a href="retailer.php" class="nav-item "><i class="fa-solid fa-shop"></i> <span>Retailer</span></a>
                <a href="sales.php" class="nav-item "><i class="fa-solid fa-coins"></i> <span>Sales History</span></a>
-                <a href="settings.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
+                <a href="setting.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
             </nav>
     </aside>
 

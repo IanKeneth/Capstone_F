@@ -2,6 +2,11 @@
 session_start();
 require_once 'auth/conn.php';
 
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: auth/login.php");
+    exit();
+}
+
 /** @param mixed $value */
 function e($value): string { 
     return htmlspecialchars((string)($value ?? ''), ENT_QUOTES, 'UTF-8'); 
@@ -14,13 +19,16 @@ function e($value): string {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/inventory_admin.css">
+    <link rel="stylesheet" href="assets/css/inventor_admin.css">
 </head>
 <body>
 
     <div class="container">
         <aside class="sidebar">
-            <div class="sidebar-header"><i class="fa-solid fa-boxes-stacked"></i> <span>Inventory</span></div>
+           <div class="sidebar-header">
+                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+                
+            </div>
           
             <nav style="flex-grow: 1;">
                 <a href="index.php" class="nav-item"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
@@ -30,11 +38,9 @@ function e($value): string {
                 <a href="audit_trail.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Audit Trail</span></a>
                 <a href="retailer.php" class="nav-item "><i class="fa-solid fa-shop"></i> <span>Retailer</span></a>
                <a href="sales.php" class="nav-item "><i class="fa-solid fa-coins"></i> <span>Sales History</span></a>
-                <a href="settings.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
+                <a href="setting.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
             </nav>
-            <div class="sidebar-footer">
-                <a href="auth/logout.php" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span></a>
-            </div>
+           
         </aside>
 
         <main class="main-content">

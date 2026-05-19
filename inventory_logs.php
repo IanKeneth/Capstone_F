@@ -56,32 +56,15 @@ function e(mixed $value): string {
     <meta charset="UTF-8">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <style>
-        :root { --primary: #f28c28; --success: #27ae60; --danger: #e53e3e; --retail: #7b1fa2; --wholesale: #1976d2; }
-        .report-container { padding: 30px; background: #f8fafc; min-height: 100vh; }
-        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .s-card { background: white; padding: 20px; border-radius: 16px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .controls-row { display: flex; justify-content: space-between; margin-bottom: 25px; gap: 15px; flex-wrap: wrap; }
-        
-        .filter-btn { padding: 10px 15px; border-radius: 8px; background: white; color: #64748b; text-decoration: none; border: 1px solid #e2e8f0; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
-        .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        
-        .badge { padding: 5px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; }
-        .badge-retail { background: #f3e5f5; color: var(--danger); }
-        .badge-wholesale { background: #e3f2fd; color: var(--wholesale); }
-        .badge-in { background: #dcfce7; color: var(--success); }
-        .badge-out { background: #fee2e2; color: var(--danger); }
-        
-        .log-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .log-table th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 0.75rem; color: #475569; }
-        .log-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
-    </style>
+    <link rel="stylesheet" href="assets/css/logs.css">
 </head>
 <body>
     <div class="container">
         <aside class="sidebar">
-            <div class="sidebar-header"><i class="fa-solid fa-boxes-stacked"></i> <span>Inventory Log</span></div>
+           <div class="sidebar-header">
+                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+                
+            </div>
             <nav style="flex-grow: 1;">
                 <a href="index.php" class="nav-item"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
                 <a href="inventory.php" class="nav-item "><i class="fa-solid fa-boxes-packing"></i> <span>Inventory</span></a>
@@ -90,7 +73,7 @@ function e(mixed $value): string {
                 <a href="audit_trail.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Audit Trail</span></a>
                 <a href="retailer.php" class="nav-item "><i class="fa-solid fa-shop"></i> <span>Retailer</span></a>
                 <a href="sales.php" class="nav-item "><i class="fa-solid fa-coins"></i> <span>Sales History</span></a>
-                <a href="settings.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
+                <a href="setting.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
             </nav>
         </aside>
 

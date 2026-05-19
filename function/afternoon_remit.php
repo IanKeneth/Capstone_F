@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_settlement'])) {
             }
             if ($qty_sold > 0) {
                 $pdo->prepare("INSERT INTO inventory_logs (product_id, quantity_change, action, notes, admin_name) VALUES (?, ?, 'Removed', ?, 'System')")
-                    ->execute([$pid, $qty_sold, "Wholesale Dispatch - Session #$sid"]);
+                    ->execute([$pid, $qty_sold, "Wholesale Dispatch - Session #$sid $worker_name"]);
             }
 
             $audit = $pdo->prepare("INSERT INTO audit_trail (session_id, worker_name, product_id, product_name, qty_taken, qty_sold, qty_returned, received_amount, status) 
@@ -142,23 +142,40 @@ if ($sid > 0) {
         }
 
         .btn-submit { 
+            margin:15px;
             background: #f28c28; 
             color: white; 
             border: none; 
-            padding: 16px 40px; 
+            padding: 10px 30px; 
             border-radius: 10px; 
             cursor: pointer; 
             font-size: 16px; 
-            font-weight: 700; 
-            width: 100%; 
+            font-weight: 500; 
+            width: 200px; 
             transition: 0.2s; 
         }
 
         .btn-submit:hover { 
             background: #ea580c; 
         }
+        .cancel {
+            background-color: #f28c28;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            width: 100px;
+            text-align: center;
+            display: inline-block;
+            transition: 0.2s;
+            margin-left: 20px;
+            margin: 0;
+            text-decoration: none;
+        }
 
-        /* Ensure labels inside row look good */
         .return-label {
             font-size: 10px; 
             font-weight: 700; 
@@ -202,6 +219,7 @@ if ($sid > 0) {
             <div><strong>Balance:</strong> <span id="balance_display">0.00</span></div>
         </div>
         <button type="submit" name="save_settlement" class="btn-submit">Complete Remittance</button>
+        <a href="javascript:history.back()" class="cancel">Cancel</a>
     </form>
 </div>
 

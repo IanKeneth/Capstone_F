@@ -1,6 +1,11 @@
 <?php
 session_start();
-require_once "auth/conn.php"; 
+require_once "auth/conn.php";
+
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: auth/login.php");
+    exit();
+}
 
 $today = date('Y-m-d');
 
@@ -27,16 +32,79 @@ $dailySales = $pdo->query("SELECT SUM(rev) FROM (SELECT total_collected as rev F
 $activeProductCount = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
 $lowStockCount = $pdo->query("SELECT COUNT(*) FROM products WHERE quantity <= 5")->fetchColumn();
 
-function getForecast(array $data): float {
-    $n = count($data);
-    if ($n < 2) return $n === 1 ? (float) end($data) : 0.0;
-    $x = range(1, $n); $y = array_values($data);
-    $m = ($n * array_sum(array_map(fn($a, $b) => $a * $b, $x, $y)) - array_sum($x) * array_sum($y)) / ($n * array_sum(array_map(fn($a) => $a*$a, $x)) - pow(array_sum($x), 2));
-    $b = (array_sum($y) - $m * array_sum($x)) / $n;
+$topCombinedQuery = "SELECT p.product_name, SUM(all_sales.total_qty) as total_sold
+                    FROM (
+                        -- Get Retail Sales
+                        SELECT product_id, SUM(qty) as total_qty 
+                        FROM retail_orders 
+                        GROUP BY product_id            
+                        UNION ALL
+                        SELECT product_id, SUM(qty_sold) as total_qty 
+                        FROM dispatch_items 
+                        GROUP BY product_id
+                    ) as all_sales
+                    JOIN products p ON all_sales.product_id = p.id
+                    GROUP BY p.id, p.product_name
+                    ORDER BY total_sold DESC
+                    LIMIT 5";
 
-    return round($m * ($n + 1) + $b, 2);
+$topProductsRes = $pdo->query($topCombinedQuery)->fetchAll();
+
+$topProductLabels = [];
+$topProductValues = [];
+
+foreach ($topProductsRes as $prod) {
+    $topProductLabels[] = $prod['product_name'];
+    $topProductValues[] = (int)$prod['total_sold'];
 }
-$nextMonthForecast = getForecast($monthlyValues);
+
+$combinedTopQuery = "SELECT product_name, SUM(retail_qty) as r_qty, SUM(wholesale_qty) as w_qty
+                    FROM (
+                    SELECT product_id, qty as retail_qty, 0 as wholesale_qty FROM retail_orders
+                    UNION ALL
+                    SELECT product_id, 0 as retail_qty, qty_sold as wholesale_qty FROM dispatch_items
+                    ) as combined
+                    JOIN products p ON combined.product_id = p.id
+                    GROUP BY p.id, product_name
+                    ORDER BY (SUM(retail_qty) + SUM(wholesale_qty)) DESC
+                    LIMIT 5";
+$combinedRes = $pdo->query($combinedTopQuery)->fetchAll();
+
+$compLabels = [];
+$compRetailValues = [];
+$compWholesaleValues = [];
+foreach($combinedRes as $row) {
+    $compLabels[] = $row['product_name'];
+    $compRetailValues[] = (int)$row['r_qty'];
+    $compWholesaleValues[] = (int)$row['w_qty'];
+}
+
+$logisticsQuery = "SELECT ds.worker_name, SUM(di.qty_taken) as taken, SUM(di.qty_sold) as sold, SUM(di.qty_returned) as returned
+                FROM dispatch_items di
+                JOIN dispatch_sessions ds ON di.session_id = ds.id
+                WHERE ds.status = 'Completed'
+                GROUP BY ds.worker_name
+                ORDER BY sold DESC LIMIT 5";
+$logisticsRes = $pdo->query($logisticsQuery)->fetchAll();
+
+$workerLabels = [];
+$workerSoldValues = [];
+$workerReturnValues = [];
+foreach($logisticsRes as $row) {
+    $workerLabels[] = $row['worker_name'];
+    $workerSoldValues[] = (int)$row['sold'];
+    $workerReturnValues[] = (int)$row['returned'];
+}
+
+$nextMonthStr = date('Y-m', strtotime("+1 month"));
+$mlPredictionQuery = "SELECT predicted_revenue FROM ml_predictions WHERE target_period = :next_month LIMIT 1";
+$stmt = $pdo->prepare($mlPredictionQuery);
+$stmt->execute(['next_month' => $nextMonthStr]);
+$forecast = $stmt->fetchColumn();
+
+if ($forecast === false) {
+    $forecast = count($monthlyValues) > 0 ? array_sum($monthlyValues) / count($monthlyValues) : 0;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,13 +118,40 @@ $nextMonthForecast = getForecast($monthlyValues);
         .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; padding: 20px; }
         .stat-card { padding: 20px; background: white; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .value { font-size: 1.5rem; font-weight: bold; }
+        
+        .charts-container { display: grid; grid-template-columns: 3fr 2fr; gap: 20px; padding: 20px; padding-bottom: 0px; }
+        .analysis-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; }
+        .content-box { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        
+        @media (max-width: 1024px) {
+            .charts-container, .analysis-container { grid-template-columns: 1fr; }
+        }
+        .sidebar-logo {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            align-items: center;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            padding: 50px; 
+            gap: 15px;   
+        }
+
+
     </style>
 </head>
 <body>
     <div class="container">
          <aside class="sidebar">
-            <div class="sidebar-header"><i class="fa-solid fa-boxes-stacked"></i> <span>WMS Admin</span></div>
-             
+            <div class="sidebar-header">
+                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+                
+            </div>
             <nav style="flex-grow: 1;">
                 <a href="index.php" class="nav-item active"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
                 <a href="inventory.php" class="nav-item "><i class="fa-solid fa-boxes-packing"></i> <span>Inventory</span></a>
@@ -65,7 +160,7 @@ $nextMonthForecast = getForecast($monthlyValues);
                 <a href="audit_trail.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Audit Trail</span></a>
                 <a href="retailer.php" class="nav-item "><i class="fa-solid fa-shop"></i> <span>Retailer</span></a>
                 <a href="sales.php" class="nav-item "><i class="fa-solid fa-coins"></i> <span>Sales History</span></a>
-                <a href="settings.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
+                <a href="setting.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
             </nav>
         </aside>
         <main class="main-content">
@@ -89,7 +184,7 @@ $nextMonthForecast = getForecast($monthlyValues);
                     <h3 style="color:#4e73df; font-size: 0.8rem;">YEARLY REVENUE</h3>
                     <div class="value">₱<?= number_format(array_sum($monthlyValues), 2) ?></div>
                 </div>
-                <div class="stat-card" style="border-left: 5px solid #e74a3b;">
+                <div class="stat-card" style="border-left: 5px solid #3be752;">
                     <h3 style="color:#e74a3b; font-size: 0.8rem;">STOCK ALERTS</h3>
                     <div class="value"><?= $lowStockCount ?></div>
                 </div>
@@ -100,16 +195,39 @@ $nextMonthForecast = getForecast($monthlyValues);
                 </div>
             </div>
 
-            <div style="padding: 20px;">
-                <div class="content-box" style="background: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <div class="charts-container">
+                <div class="content-box">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
                         <h2>5-Month Revenue Trajectory</h2>
-                        <div style="background:#e8f5e9; padding:10px; border-radius:8px;">
-                            <small>Predicted Next Month:</small>
-                            <strong style="color:#1cc88a;">₱<?= number_format($nextMonthForecast, 2) ?></strong>
+                        <div style="background:#e8f5e9; padding:10px; border-radius:8px; border: 1px solid #1cc88a;">
+                            <small style="color:#1cc88a; font-weight:bold;"><i class="fa-solid fa-brain"></i>  Forecast:</small><br/>
+                            <strong style="color:#1cc88a;">₱<?= number_format($forecast, 2) ?></strong>
                         </div>
                     </div>
                     <div style="height: 300px;"><canvas id="liveTrendChart"></canvas></div>
+                </div>
+
+                <div class="content-box">
+                    <div style="margin-bottom: 15px;">
+                        <h2>Top Demand Products</h2>
+                    </div>
+                    <div style="height: 300px;"><canvas id="topProductsChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="analysis-container">
+                <div class="content-box">
+                    <div style="margin-bottom: 15px;">
+                        <h2>Retail vs Wholesale</h2>
+                    </div>
+                    <div style="height: 300px;"><canvas id="channelCompChart"></canvas></div>
+                </div>
+
+                <div class="content-box">
+                    <div style="margin-bottom: 15px;">
+                        <h2>Dispatcher Performance & Return Logistics</h2>
+                    </div>
+                    <div style="height: 300px;"><canvas id="dispatcherLogisticsChart"></canvas></div>
                 </div>
             </div>
         </main>
@@ -121,24 +239,58 @@ $nextMonthForecast = getForecast($monthlyValues);
             data: {
                 labels: <?= json_encode($monthlyLabels) ?>,
                 datasets: [{ type: 'bar', label: 'Revenue', data: <?= json_encode($monthlyValues) ?>, backgroundColor: 'rgba(78, 115, 223, 0.2)', borderColor: '#4e73df', borderWidth: 1 },
-                           { type: 'line', label: 'Trend', data: <?= json_encode($monthlyValues) ?>, borderColor: '#f28c28', borderWidth: 3, tension: 0.4 }]
+                    { type: 'line', label: 'Trend', data: <?= json_encode($monthlyValues) ?>, borderColor: '#f28c28', borderWidth: 3, tension: 0.4 }]
             },
             options: { responsive: true, maintainAspectRatio: false }
         });
-           document.getElementById('sidebarToggle').addEventListener('click', () => {
+
+        const ctxProd = document.getElementById('topProductsChart').getContext('2d');
+        new Chart(ctxProd, {
+            type: 'bar',
+            data: {
+                labels: <?= json_encode($topProductLabels) ?>,
+            datasets: [{
+                label: 'Total Units Sold (Retail + Wholesale)', // Updated label
+                data: <?= json_encode($topProductValues) ?>,
+                backgroundColor: 'rgba(28, 200, 138, 0.2)',
+                borderColor: '#1cc88a',
+                borderWidth: 1
+            }]
+            },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        const ctxChannel = document.getElementById('channelCompChart').getContext('2d');
+        new Chart(ctxChannel, {
+            type: 'bar',
+            data: {
+                labels: <?= json_encode($compLabels) ?>,
+                datasets: [
+                    { label: 'Retail Sales', data: <?= json_encode($compRetailValues) ?>, backgroundColor: '#4e73df' },
+                    { label: 'Wholesale Sales', data: <?= json_encode($compWholesaleValues) ?>, backgroundColor: '#f6c23e' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
+        });
+
+        const ctxLogistics = document.getElementById('dispatcherLogisticsChart').getContext('2d');
+        new Chart(ctxLogistics, {
+            type: 'bar',
+            data: {
+                labels: <?= json_encode($workerLabels) ?>,
+                datasets: [
+                    { label: 'Qty Sold', data: <?= json_encode($workerSoldValues) ?>, backgroundColor: '#1cc88a' },
+                    { label: 'Qty Returned', data: <?= json_encode($workerReturnValues) ?>, backgroundColor: '#e74a3b' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        });
+
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
             document.querySelector('.sidebar').classList.toggle('active');
         });
-         document.getElementById('sidebarToggle').addEventListener('click', () => {
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
             document.querySelector('.sidebar').classList.toggle('collapsed');
-        });
-
-        exportBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            exportMenu.style.display = exportMenu.style.display === 'block' ? 'none' : 'block';
-        });
-
-        document.addEventListener('click', () => {
-            exportMenu.style.display = 'none';
         });
     </script>
 </body>

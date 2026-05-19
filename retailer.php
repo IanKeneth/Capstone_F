@@ -1,6 +1,11 @@
 <?php
 require_once "auth/conn.php";
 session_start();
+
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: auth/login.php");
+    exit();
+}
 try {
 
     $stmt_p = $pdo->query("SELECT id, product_name, retail_price FROM products ORDER BY product_name ASC");
@@ -24,101 +29,16 @@ try {
     <meta charset="UTF-8">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <style>
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 2000; }
-        
-        .retail-card { background: white; margin: 20px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #eee; }
-        .retail-header { background: #f28c28; color: white; padding: 15px 25px; display: flex; align-items: center; gap: 15px; }
-        .retail-header h2 { margin: 0; font-size: 1.3rem; font-weight: 500; flex-grow: 1; }
-        
-        .table-container { padding: 25px; background: #fffdf9; }
-        .main-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid #f0f0f0; }
-        .main-table th { background: white; color: #888; font-size: 11px; padding: 12px; border-bottom: 2px solid #f5f5f5; text-align: center; letter-spacing: 0.5px; }
-        .main-table td { padding: 15px; border-bottom: 1px solid #f9f9f9; text-align: center; color: #444; font-size: 14px; }
-        
-        .btn-add-order { background: #f28c28; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; float: right; margin: 20px; box-shadow: 0 4px 6px rgba(242, 140, 40, 0.2); }
-
-        .order-modal { 
-            background: #ffffff; 
-            width: 360px; 
-            border-radius: 20px; 
-            overflow: hidden; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        .order-modal-header { 
-            background: #fffdf9; 
-            padding: 20px; 
-            border-bottom: 1px solid #f1f5f9;
-            color: #1e293b; 
-            font-weight: 700; 
-            font-size: 1.1rem; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-        }
-
-        .order-form { padding: 25px; }
-
-        .order-form label { 
-            font-size: 0.8rem; 
-            text-transform: uppercase; 
-            letter-spacing: 0.05em; 
-            color: #64748b; 
-            margin-bottom: 8px; 
-        }
-
-        .order-form input, .order-form select { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1.5px solid #e2e8f0; 
-            border-radius: 10px; 
-            margin-bottom: 20px; 
-            font-size: 14px; 
-            transition: border-color 0.2s;
-        }
-
-        .order-form input:focus, .order-form select:focus { 
-            border-color: #f28c28; 
-            outline: none; 
-        }
-        .subtotal-container {
-            background: #fff7ed;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            margin-bottom: 20px;
-            border: 1px dashed #fdba74;
-        }
-        .subtotal-label { font-size: 0.75rem; color: #ea580c; font-weight: 600; margin-bottom: 5px; }
-        .subtotal-value { font-size: 1.5rem; color: #f28c28; font-weight: 800; }
-
-        .btn-submit-order { 
-            width: 100%; 
-            background: #f28c28; 
-            color: white; 
-            border: none; 
-            padding: 14px; 
-            border-radius: 12px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: background 0.2s;
-        }
-        .btn-submit-order:hover { background: #ea580c; }
-        .btn-add-order{margin-right: 80%;}
-        .btn-add-order:hover, .btn-submit-order:hover { background: #e67e22; }
-    </style>
+    <link rel="stylesheet" href="assets/css/retailer.css">
 </head>
 <body>
 
 <div class="container">
     <aside class="sidebar">
-        <div class="sidebar-header"><i class="fa-solid fa-boxes-stacked"></i> <span>Retailer</span></div>
+        <div class="sidebar-header">
+                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+                
+            </div>
        
             <nav style="flex-grow: 1;">
                 <a href="index.php" class="nav-item"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
@@ -128,7 +48,7 @@ try {
                 <a href="audit_trail.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Audit Trail</span></a>
                 <a href="retailer.php" class="nav-item active"><i class="fa-solid fa-shop"></i> <span>Retailer</span></a>
                 <a href="sales.php" class="nav-item "><i class="fa-solid fa-coins"></i> <span>Sales History</span></a>
-                <a href="settings.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
+                <a href="setting.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
             </nav>
     </aside>
 

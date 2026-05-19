@@ -1,5 +1,10 @@
 <?php
+session_start();
 require_once "auth/conn.php";
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: auth/login.php");
+    exit();
+}
 
 try {
     $stmt = $pdo->query("SELECT * FROM audit_trail ORDER BY created_at DESC");
@@ -52,6 +57,21 @@ try {
         }
         .text-success { color: #2e7d32; font-weight: bold; }
         .text-danger { color: #d32f2f; font-weight: bold; }
+        .sidebar-logo {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            align-items: center;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            padding: 50px; 
+            gap: 15px;
+        }
     </style>
 </head>
 <body>
@@ -59,8 +79,8 @@ try {
     <div class="container">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <i class="fa-solid fa-boxes-stacked"></i> 
-                <span>Audit Trail</span>
+                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+                
             </div>
 
             
@@ -72,15 +92,8 @@ try {
                 <a href="audit_trail.php" class="nav-item active"><i class="fa-solid fa-clipboard-list"></i> <span>Audit Trail</span></a>
                 <a href="retailer.php" class="nav-item "><i class="fa-solid fa-shop"></i> <span>Retailer</span></a>
                 <a href="sales.php" class="nav-item "><i class="fa-solid fa-coins"></i> <span>Sales History</span></a>
-                <a href="settings.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
+                <a href="setting.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
             </nav>
-
-            <div class="sidebar-footer">
-                <a href="login.html" class="nav-item">
-                    <i class="fa-solid fa-right-from-bracket icon"></i> 
-                    <span>Logout</span>
-                </a>
-            </div>
         </aside>
 
         <main class="main-content">
