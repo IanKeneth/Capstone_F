@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 15, 2026 at 12:24 PM
+-- Generation Time: May 20, 2026 at 04:20 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -30,20 +30,18 @@ SET time_zone = "+00:00";
 CREATE TABLE `admin` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
+  `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `profile_pic` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `reset_token` varchar(255) DEFAULT NULL,
-  `reset_expires` datetime DEFAULT NULL
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `admin`
 --
 
-INSERT INTO `admin` (`id`, `name`, `email`, `password`, `profile_pic`, `created_at`, `reset_token`, `reset_expires`) VALUES
-(1, 'Birondo Ian keneth', 'admin@gmail.com', '$2y$10$k.X15YJ7OwvCe5SDbt6UeOrmoZ5emji54o7vmQOASHbU1829m3Vj2', 'admin_1_1778680797.png', '2026-05-10 02:06:24', NULL, NULL);
+INSERT INTO `admin` (`id`, `name`, `username`, `password`, `profile_pic`, `created_at`) VALUES
+(1, 'Birondo Ian keneth', 'Keneth', '$2y$10$k.X15YJ7OwvCe5SDbt6UeOrmoZ5emji54o7vmQOASHbU1829m3Vj2', 'admin_1_1778680797.png', '2026-05-17 13:50:20');
 
 -- --------------------------------------------------------
 
@@ -84,7 +82,9 @@ INSERT INTO `audit_trail` (`id`, `session_id`, `worker_name`, `product_id`, `pro
 (12, 22, 'noy', 8, 'Cob Web Broom', 10, 5, 5, 375.00, 'Completed Remittance', '2026-05-14 05:48:02'),
 (13, 23, 'dodon', 8, 'Cob Web Broom', 2, 0, 2, 0.00, 'Completed Remittance', '2026-05-14 11:39:36'),
 (14, 24, 'ian', 7, 'Stick Broom', 5, 5, 0, 450.00, 'Completed Remittance', '2026-05-14 11:45:56'),
-(15, 24, 'ian', 8, 'Cob Web Broom', 4, 4, 0, 450.00, 'Completed Remittance', '2026-05-14 11:45:56');
+(15, 24, 'ian', 8, 'Cob Web Broom', 4, 4, 0, 450.00, 'Completed Remittance', '2026-05-14 11:45:56'),
+(16, 29, 'noy', 8, 'Cob Web Broom', 1, 1, 0, 75.00, 'Completed Remittance', '2026-05-18 05:33:31'),
+(17, 26, 'balmond', 8, 'Cob Web Broom', 3, 2, 1, 150.00, 'Completed Remittance', '2026-05-18 05:35:13');
 
 -- --------------------------------------------------------
 
@@ -125,12 +125,11 @@ INSERT INTO `dispatch_items` (`id`, `session_id`, `product_id`, `qty_taken`, `qt
 (28, 24, 7, 5, 5, 30.00, 0),
 (29, 25, 8, 5, 0, 75.00, 0),
 (30, 25, 7, 1, 0, 30.00, 0),
-(31, 26, 8, 3, 0, 75.00, 0),
-(32, 26, 7, 3, 0, 30.00, 0),
+(31, 26, 8, 3, 2, 75.00, 1),
 (33, 27, 8, 2, 0, 75.00, 0),
 (34, 27, 7, 2, 0, 30.00, 0),
 (35, 28, 8, 5, 0, 75.00, 0),
-(36, 29, 8, 1, 0, 75.00, 0),
+(36, 29, 8, 1, 1, 75.00, 0),
 (37, 28, 7, 2, 0, 30.00, 0);
 
 -- --------------------------------------------------------
@@ -177,10 +176,15 @@ INSERT INTO `dispatch_sessions` (`id`, `worker_name`, `product_id`, `status`, `d
 (23, 'dodon', NULL, 'Completed', '2026-05-14', '2026-05-14 11:22:03', 0.00),
 (24, 'ian', NULL, 'Completed', '2026-05-14', '2026-05-14 11:22:37', 450.00),
 (25, 'noy', NULL, 'Active', '2026-05-14', '2026-05-14 11:54:12', 0.00),
-(26, 'balmond', NULL, 'Active', '2026-05-15', '2026-05-15 07:01:27', 0.00),
+(26, 'balmond', NULL, 'Completed', '2026-05-15', '2026-05-15 07:01:27', 150.00),
 (27, 'biknoy', NULL, 'Active', '2026-05-15', '2026-05-15 09:53:10', 0.00),
 (28, 'prk', NULL, 'Active', '2026-05-15', '2026-05-15 09:53:51', 0.00),
-(29, 'noy', NULL, 'Active', '2026-05-15', '2026-05-15 09:54:11', 0.00);
+(29, 'noy', NULL, 'Completed', '2026-05-15', '2026-05-15 09:54:11', 75.00),
+(30, 'Ian', NULL, 'Completed', '2026-01-18', '2026-05-17 12:26:35', 45000.00),
+(31, 'Noy', NULL, 'Completed', '2026-02-22', '2026-05-17 12:26:35', 50000.00),
+(32, 'Ian', NULL, 'Completed', '2026-03-15', '2026-05-17 12:26:35', 38000.00),
+(33, 'Noy', NULL, 'Completed', '2026-04-12', '2026-05-17 12:26:35', 62000.00),
+(34, 'Dodong', NULL, 'Completed', '2026-05-14', '2026-05-17 12:26:35', 70000.00);
 
 -- --------------------------------------------------------
 
@@ -237,7 +241,35 @@ INSERT INTO `inventory_logs` (`id`, `product_id`, `admin_name`, `action`, `quant
 (33, 7, 'Admin', 'Removed', 2, 'Added to session #27 (biknoy)', '2026-05-15 09:53:10'),
 (34, 8, 'Admin', 'Removed', 5, 'Added to session #28 (prk)', '2026-05-15 09:53:51'),
 (35, 8, 'Admin', 'Removed', 1, 'Added to session #29 (noy)', '2026-05-15 09:54:11'),
-(36, 7, 'Birondo Ian keneth', 'Removed', 1, 'Added to session #28 (prk)', '2026-05-15 09:54:32');
+(36, 7, 'Birondo Ian keneth', 'Removed', 1, 'Added to session #28 (prk)', '2026-05-15 09:54:32'),
+(37, 8, 'System', 'Removed', 1, 'Wholesale Dispatch - Session #29', '2026-05-18 05:33:31'),
+(38, 8, 'System', 'Added', 1, 'Returned from Session #26', '2026-05-18 05:35:13'),
+(39, 8, 'System', 'Removed', 2, 'Wholesale Dispatch - Session #26 balmond', '2026-05-18 05:35:13'),
+(40, 9, 'Birondo Ian keneth', 'Added', 100, 'Initial stock entry for Uway', '2026-05-19 12:41:47'),
+(41, 10, 'Birondo Ian keneth', 'Added', 100, 'Initial stock entry for Original Baguio', '2026-05-19 12:49:19'),
+(42, 11, 'Birondo Ian keneth', 'Added', 99, 'Initial stock entry for Mop', '2026-05-19 12:52:40'),
+(43, 7, 'Birondo Ian keneth', 'Added', 61, 'Manual update from 39 to 100', '2026-05-19 13:30:56'),
+(44, 8, 'Birondo Ian keneth', 'Added', 39, 'Manual update from 61 to 100', '2026-05-19 13:31:13');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ml_predictions`
+--
+
+CREATE TABLE `ml_predictions` (
+  `id` int(11) NOT NULL,
+  `target_period` varchar(7) NOT NULL,
+  `predicted_revenue` decimal(15,2) NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `ml_predictions`
+--
+
+INSERT INTO `ml_predictions` (`id`, `target_period`, `predicted_revenue`, `updated_at`) VALUES
+(1, '2026-06', 113272.00, '2026-05-17 12:27:44');
 
 -- --------------------------------------------------------
 
@@ -264,8 +296,11 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `category`, `product_name`, `variation`, `description`, `wholesale_price`, `retail_price`, `quantity`, `max_quantity`, `image_path`, `created_at`) VALUES
-(7, 'Brooms', 'Stick Broom', 'Stick Handle', 'Shord hanlde Stick Broom', 30.00, 40.00, 36, 100, '1778387122_Stick_Broom.jpeg', '2026-05-10 03:40:13'),
-(8, 'Brooms', 'Cob Web Broom', 'Long Handle', 'A cobweb broom is a lightweight cleaning tool with a long handle and soft bristles, designed to remove dust, cobwebs, and debris from high ceilings, corners, and hard-to-reach areas without damaging surfaces.', 75.00, 100.00, 60, 100, '1778734211_Cob_Web_Broom.jpg', '2026-05-14 04:50:11');
+(7, 'Brooms', 'Plastic Broom', 'Syntetic  Bristles', 'A plastic broom is a durable, lightweight cleaning tool with synthetic bristles and a sturdy handle.', 60.00, 75.00, 100, 100, '1779197456_Plastic_Broom.png', '2026-05-10 03:40:13'),
+(8, 'Brooms', 'Cob Web Broom', 'Long Handle', 'A cobweb broom is a lightweight cleaning tool with a long handle and soft bristles, designed to remove dust, cobwebs, and debris from high ceilings, corners, and hard-to-reach areas without damaging surfaces.', 75.00, 100.00, 100, 100, '1779197081_Cob_Web_Broom.png', '2026-05-14 04:50:11'),
+(9, 'Brooms', 'Straitan', 'Strait Handle', 'Indoor sweeping to gather dust, pet hair, and fine debris.', 80.00, 82.00, 100, 100, '1779197254_Straitan.png', '2026-05-19 12:41:47'),
+(10, 'Brooms', 'Original Baguio', 'Bristle', 'Made from dried Tiger Grass (tambo) flower stalks, which are incredibly soft, flexible, and efficient at sweeping fine dust without scratching floors.', 180.00, 185.00, 100, 100, '1779194959_Original_Baguio.png', '2026-05-19 12:49:19'),
+(11, 'Mops', 'Mop', 'N/A', ' Used with water and cleaning solutions to wash and scrub hard flooring', 75.00, 100.00, 99, 100, '1779195160_Mop.png', '2026-05-19 12:52:40');
 
 -- --------------------------------------------------------
 
@@ -291,7 +326,12 @@ INSERT INTO `retail_orders` (`id`, `product_id`, `qty`, `subtotal`, `order_date`
 (2, 7, 1, 40.00, '2026-05-13', '2026-05-13 09:36:29'),
 (3, 8, 2, 200.00, '2026-05-14', '2026-05-14 11:21:37'),
 (4, 8, 2, 200.00, '2026-05-15', '2026-05-15 04:52:00'),
-(5, 7, 2, 80.00, '2026-05-15', '2026-05-15 07:07:35');
+(5, 7, 2, 80.00, '2026-05-15', '2026-05-15 07:07:35'),
+(11, 7, 30, 15000.00, '2026-01-15', '2026-05-17 12:26:35'),
+(12, 7, 45, 22000.00, '2026-02-20', '2026-05-17 12:26:35'),
+(13, 7, 35, 18000.00, '2026-03-10', '2026-05-17 12:26:35'),
+(14, 7, 50, 28000.00, '2026-04-05', '2026-05-17 12:26:35'),
+(15, 7, 65, 35000.00, '2026-05-12', '2026-05-17 12:26:35');
 
 --
 -- Indexes for dumped tables
@@ -301,8 +341,7 @@ INSERT INTO `retail_orders` (`id`, `product_id`, `qty`, `subtotal`, `order_date`
 -- Indexes for table `admin`
 --
 ALTER TABLE `admin`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `audit_trail`
@@ -331,6 +370,13 @@ ALTER TABLE `inventory_logs`
   ADD KEY `fk_product_log` (`product_id`);
 
 --
+-- Indexes for table `ml_predictions`
+--
+ALTER TABLE `ml_predictions`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `target_period` (`target_period`);
+
+--
 -- Indexes for table `products`
 --
 ALTER TABLE `products`
@@ -357,7 +403,7 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT for table `audit_trail`
 --
 ALTER TABLE `audit_trail`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `dispatch_items`
@@ -369,25 +415,31 @@ ALTER TABLE `dispatch_items`
 -- AUTO_INCREMENT for table `dispatch_sessions`
 --
 ALTER TABLE `dispatch_sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `inventory_logs`
 --
 ALTER TABLE `inventory_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+
+--
+-- AUTO_INCREMENT for table `ml_predictions`
+--
+ALTER TABLE `ml_predictions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `retail_orders`
 --
 ALTER TABLE `retail_orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Constraints for dumped tables

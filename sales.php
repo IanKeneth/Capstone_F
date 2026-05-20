@@ -76,21 +76,8 @@ try {
         
         .amount-text { font-weight: bold; color: #27ae60; }
         .action-btn { border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .sidebar-logo {
-            width: 150px; 
-            height: 150px;
-            object-fit: contain;
-            border-radius: 50%;
-            transition: all 0.3s ease; 
-            align-items: center;
-        }
-
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            padding: 50px; 
-            gap: 15px;
-        }
+        .sidebar-logo {width: 150px; height: 150px;object-fit: contain;border-radius: 50%;transition: all 0.3s ease; align-items: center;}
+        .sidebar-header {display: flex;align-items: center;padding: 50px; gap: 15px;}
     </style>
 </head>
 <body>

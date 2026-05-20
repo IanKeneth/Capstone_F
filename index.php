@@ -125,24 +125,9 @@ if ($forecast === false) {
         
         @media (max-width: 1024px) {
             .charts-container, .analysis-container { grid-template-columns: 1fr; }
-        }
-        .sidebar-logo {
-            width: 150px;
-            height: 150px;
-            object-fit: contain;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            align-items: center;
-        }
+        }.sidebar-logo { width: 150px; height: 150px;object-fit: contain;border-radius: 50%;transition: all 0.3s ease;align-items: center;}
 
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            padding: 50px; 
-            gap: 15px;   
-        }
-
-
+        .sidebar-header {display: flex;align-items: center;padding: 50px; gap: 15px;   }
     </style>
 </head>
 <body>

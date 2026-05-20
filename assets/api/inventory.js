@@ -43,7 +43,7 @@ function loadInventory() {
                             </div>
                             
                             <div class="card-image-wrapper">
-                                <img src="${imageSrc}" alt="${product.product_name}" onerror="this.src='uploads/default-product.png';">
+                                <img src="${imageSrc}" alt="${product.product_name}" onerror="this.onerror=null; this.src='assets/uploads/default-product.png';">
                             </div>
                             
                             <div class="card-info">

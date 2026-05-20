@@ -63,36 +63,11 @@ function e($value): string {
         .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.8); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
         .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #f28c28; border-radius: 50%; animation: spin 1s linear infinite; }
-        .sidebar-logo {
-            width: 150px;
-            height: 150px;
-            object-fit: contain;
-            border-radius: 50%;
-            transition: all 0.3s ease; 
-            align-items: center;
-        }
-
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            padding: 50px;
-            gap: 15px
-        }
-        .input-wrapper .toggle-password {
-            position: absolute;
-            left: 830px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #888;
-            z-index: 10;
-            transition: color 0.2s ease;
-        }
-        .input-wrapper .toggle-password:hover {
-            color: #f28c28;
-        }
-        .settings-input {
-            padding-right: 45px !important; 
+        .sidebar-logo {width: 150px;height: 150px;object-fit: contain;border-radius: 50%;transition: all 0.3s ease;align-items: center;}
+        .sidebar-header {display: flex;align-items: center;padding: 50px;gap: 15px;}
+        .input-wrapper .toggle-password {position: absolute;left: 830px;top: 50%;transform: translateY(-50%);cursor: pointer;color: #888;z-index: 10;transition: color 0.2s ease;}
+        .input-wrapper .toggle-password:hover {color: #f28c28;}
+        .settings-input {padding-right: 45px !important; 
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
