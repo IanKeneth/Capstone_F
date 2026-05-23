@@ -20,66 +20,14 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <style>
-        .audit-table-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-top: 20px;
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        th {
-            background-color: #f8f9fa;
-            color: #333;
-            text-align: left;
-            padding: 12px;
-            border-bottom: 2px solid #eee;
-        }
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            font-size: 0.9rem;
-        }
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            background: #e1f5fe;
-            color: #0288d1;
-        }
-        .text-success { color: #2e7d32; font-weight: bold; }
-        .text-danger { color: #d32f2f; font-weight: bold; }
-        .sidebar-logo {
-            width: 150px;
-            height: 150px;
-            object-fit: contain;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            align-items: center;
-        }
-
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            padding: 50px; 
-            gap: 15px;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/audit.css">
 </head>
 <body>
 
     <div class="container">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+                <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
                 
             </div>
 

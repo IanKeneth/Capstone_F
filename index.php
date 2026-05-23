@@ -112,44 +112,54 @@ if ($forecast === false) {
     <meta charset="UTF-8">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/index.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; padding: 20px; }
-        .stat-card { padding: 20px; background: white; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .value { font-size: 1.5rem; font-weight: bold; }
-        
-        .charts-container { display: grid; grid-template-columns: 3fr 2fr; gap: 20px; padding: 20px; padding-bottom: 0px; }
-        .analysis-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; }
-        .content-box { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        @media (max-width: 1024px) {
-            .charts-container, .analysis-container { grid-template-columns: 1fr; }
-        }.sidebar-logo { width: 150px; height: 150px;object-fit: contain;border-radius: 50%;transition: all 0.3s ease;align-items: center;}
 
-        .sidebar-header {display: flex;align-items: center;padding: 50px; gap: 15px;   }
-    </style>
 </head>
 <body>
     <div class="container">
          <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+                <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
                 
             </div>
             <nav style="flex-grow: 1;">
-                <a href="index.php" class="nav-item active"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
-                <a href="inventory.php" class="nav-item "><i class="fa-solid fa-boxes-packing"></i> <span>Inventory</span></a>
-                <a href="inventory_logs.php" class="nav-item "><i class="fa-solid fa-route"></i> <span>Inventory Logs</span></a>
-                <a href="dispatchers.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Dispatchers</span></a>
-                <a href="audit_trail.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Audit Trail</span></a>
-                <a href="retailer.php" class="nav-item "><i class="fa-solid fa-shop"></i> <span>Retailer</span></a>
-                <a href="sales.php" class="nav-item "><i class="fa-solid fa-coins"></i> <span>Sales History</span></a>
-                <a href="setting.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
+                <a href="index.php " class="nav-item active" data-title="Dashboard">
+                    <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <span>Dashboard</span>
+                </a>
+                <a href="inventory.php" class="nav-item" data-title="Inventory">
+                    <div class="icon"><i class="fa-solid fa-boxes-packing"></i></div>
+                    <span>Inventory</span>
+                </a>
+                <a href="inventory_logs.php" class="nav-item" data-title="Inventory Logs">
+                    <div class="icon"><i class="fa-solid fa-route"></i></div>
+                    <span>Inventory Logs</span>
+                </a>
+                <a href="dispatchers.php" class="nav-item" data-title="Dispatchers">
+                    <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                    <span>Dispatchers</span>
+                </a>
+                <a href="audit_trail.php" class="nav-item" data-title="Audit Trail">
+                    <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                    <span>Audit Trail</span>
+                </a>
+                <a href="retailer.php" class="nav-item" data-title="Retailer">
+                    <div class="icon"><i class="fa-solid fa-shop"></i></div>
+                    <span>Retailer</span>
+                </a>
+                <a href="sales.php" class="nav-item" data-title="Sales History">
+                    <div class="icon"><i class="fa-solid fa-coins"></i></div>
+                    <span>Sales History</span>
+                </a>
+                <a href="setting.php" class="nav-item " data-title="Settings">
+                    <div class="icon"><i class="fa-solid fa-gears"></i></div>
+                    <span>Settings</span>
+                </a>
             </nav>
         </aside>
         <main class="main-content">
-           <header class="header">
+            <header class="header">
                 <div class="header-left">
                     <button id="sidebarToggle" class="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
                     <h1 style="white-space: nowrap; margin-right: 20px;">Dashboard Overview</h1>
@@ -210,7 +220,7 @@ if ($forecast === false) {
 
                 <div class="content-box">
                     <div style="margin-bottom: 15px;">
-                        <h2>Dispatcher Performance & Return Logistics</h2>
+                        <h2>Dispatcher Performance & Return</h2>
                     </div>
                     <div style="height: 300px;"><canvas id="dispatcherLogisticsChart"></canvas></div>
                 </div>
@@ -234,13 +244,13 @@ if ($forecast === false) {
             type: 'bar',
             data: {
                 labels: <?= json_encode($topProductLabels) ?>,
-            datasets: [{
-                label: 'Total Units Sold (Retail + Wholesale)', // Updated label
-                data: <?= json_encode($topProductValues) ?>,
-                backgroundColor: 'rgba(28, 200, 138, 0.2)',
-                borderColor: '#1cc88a',
-                borderWidth: 1
-            }]
+                datasets: [{
+                    label: 'Total Units Sold (Retail + Wholesale)',
+                    data: <?= json_encode($topProductValues) ?>,
+                    backgroundColor: 'rgba(28, 200, 138, 0.2)',
+                    borderColor: '#1cc88a',
+                    borderWidth: 1
+                }]
             },
             options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });

@@ -1,3 +1,6 @@
+/* ==========================================================================
+    CORE GLOBALS & UTILITIES
+   ========================================================================== */
 body {
     margin: 0;
     padding: 0;
@@ -12,6 +15,9 @@ body {
     min-height: 100vh;
 }
 
+/* ==========================================================================
+    SIDEBAR NAVIGATION & RESPONSIVE LOGO FRAMEWORK
+   ========================================================================== */
 .sidebar {
     width: 240px;
     background-color: #ffffff;
@@ -29,16 +35,50 @@ body {
 }
 
 .sidebar-header {
-    height: 70px;
-    padding: 0 25px;
+    height: auto;
+    min-height: 90px;
+    padding: 15px 25px;
     font-size: 1.2rem;
     font-weight: bold;
     color: #f28c28;
     display: flex;
     align-items: center;
+    justify-content: center;
     position: relative; 
+    box-sizing: border-box;
 }
 
+.sidebar-logo{
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+
+.sidebar.collapsed .sidebar-logo {
+    width: 45px;
+    height: 45px;
+}
+
+.sidebar span {
+    position: absolute;
+    left: 65px; 
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(0);
+}
+
+.sidebar.collapsed span {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px); 
+    pointer-events: none;
+}
 nav {
     flex: 1;
 }
@@ -72,22 +112,6 @@ nav {
     border-right: 4px solid #f28c28; 
 }
 
-.sidebar span {
-    position: absolute;
-    left: 65px; 
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: translateX(0);
-}
-
-.sidebar.collapsed span {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateX(-10px); 
-    pointer-events: none;
-}
-
 .icon {
     min-width: 25px;
     font-size: 1.1rem;
@@ -104,6 +128,9 @@ nav {
     border-top: 1px solid #f0f0f0;
 }
 
+/* ==========================================================================
+    MAIN HEADER BAR CONTROLS
+   ========================================================================== */
 .main-content {
     flex: 1;
     padding: 0;
@@ -148,13 +175,15 @@ nav {
     transform: scale(1.1);
 }
 
-
 .user-profile {
     color: white;
     font-size: 1.5rem;
     cursor: pointer;
 }
 
+/* ==========================================================================
+   DATA CARDS & ANALYTICS LAYOUTS
+   ========================================================================== */
 .card {
     background: white;
     border: 1px solid #e0e0e0;
@@ -195,7 +224,6 @@ nav {
 .stat-change i { margin-right: 5px; }
 
 ul { list-style: none; padding: 0; }
-
 ul li {
     display: flex;
     justify-content: space-between;
@@ -203,21 +231,39 @@ ul li {
     border-bottom: 1px solid #eee;
 }
 
+/* ==========================================================================
+    AUDIT TRAIL RESPONSIVE DATA TABLES
+   ========================================================================== */
+.audit-table-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-top: 20px;
+    overflow-x: auto; 
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 15px;
 }
 
 th {
+    background-color: #f8f9fa;
+    color: #333;
     text-align: left;
-    color: #888;
+    padding: 12px;
+    border-bottom: 2px solid #eee;
     font-size: 0.8rem;
-    padding-bottom: 10px;
+    white-space: nowrap; 
 }
 
 td {
-    padding: 12px 0;
+    padding: 12px;
     border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+    white-space: nowrap; 
 }
 
 .status-shipped { color: #27ae60; }
@@ -228,11 +274,42 @@ td {
     margin-right: 5px;
 }
 
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    background: #e1f5fe;
+    color: #0288d1;
+    display: inline-block;
+}
+
+.text-success { color: #2e7d32; font-weight: bold; }
+.text-danger { color: #d32f2f; font-weight: bold; }
+
+/* ==========================================================================
+    RESPONSIVE BREAKPOINTS (SMARTPHONES <768px)
+   ========================================================================== */
 @media (max-width: 768px) {
     .analytics-row, .data-row {
         flex-direction: column;
         padding: 10px;
     }
-    .sidebar { width: 75px; }
-    .sidebar span { display: none; }
+    .sidebar { 
+        width: 75px; 
+    }
+    
+    .sidebar span { 
+        display: none; 
+    }
+
+    .sidebar-header {
+        padding: 10px 5px;
+        min-height: 75px;
+    }
+    
+    .sidebar-logo {
+        width: 50px !important;
+        height: 50px !important;
+    }
 }

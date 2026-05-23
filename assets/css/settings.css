@@ -1,0 +1,413 @@
+/* ==========================================================================
+   CORE GLOBALS & UTILITIES
+   ========================================================================== */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f7;
+    color: #333;
+    overflow-x: hidden;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ==========================================================================
+    SIDEBAR NAVIGATION, RESPONSIVE LOGO & HOVER TOOLTIPS
+   ========================================================================== */
+.sidebar {
+    width: 240px;
+    background-color: #ffffff;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: visible; /* Changed from hidden to allow hover tooltips to show outside the edge */
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.sidebar.collapsed {
+    width: 75px;
+}
+
+/* Fixed container wrapper for the logo */
+.sidebar-header {
+    height: auto;
+    min-height: 90px;
+    padding: 15px 25px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #f28c28;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; 
+    box-sizing: border-box;
+    gap: 15px;
+}
+
+/* RESPONSIVE LOGO FIX: Perfectly circular, centered, and scales flawlessly */
+.sidebar-logo {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+
+/* Shrinks the emblem smoothly when the sidebar collapses */
+.sidebar.collapsed .sidebar-logo {
+    width: 45px;
+    height: 45px;
+}
+
+/* Standard inline menu label configuration */
+.sidebar span {
+    position: absolute;
+    left: 65px; 
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(0);
+}
+
+/* Hides standard sidebar strings when collapsed */
+.sidebar.collapsed span {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px); 
+    pointer-events: none;
+}
+
+/* --- Menu Nav Items & Hover Tooltip Engine --- */
+nav {
+    flex: 1;
+}
+
+.nav-item {
+    padding: 15px 25px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid #f9f9f9;
+    font-weight: 500;
+    color: #555;
+    transition: background 0.3s ease, color 0.3s ease;
+    position: relative; 
+    text-decoration: none;
+    color: inherit;
+}
+
+.nav-item:visited {
+    color: inherit;
+}
+
+.nav-item:hover {
+    background-color: #fffaf5;
+    color: #f28c28;
+}
+
+.nav-item.active {
+    background-color: #fff5eb;
+    color: #f28c28;
+    border-right: 4px solid #f28c28; 
+}
+
+.icon {
+    min-width: 25px;
+    font-size: 1.1rem;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    flex-shrink: 0;
+    transition: transform 0.4s ease; 
+}
+
+/* HOVER TOOLTIP EFFECT: Generates the page title dynamically upon mouse-over when collapsed */
+.sidebar.collapsed .nav-item::after {
+    content: attr(data-title); /* Uses an HTML5 data-title attribute to pull page name */
+    position: absolute;
+    left: 85px;
+    background: #333333;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Tooltip Little Triangle Pointer arrow */
+.sidebar.collapsed .nav-item::before {
+    content: "";
+    position: absolute;
+    left: 77px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent #333333 transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Reveal tooltip when micro-panels are hovered */
+.sidebar.collapsed .nav-item:hover::after,
+.sidebar.collapsed .nav-item:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+.sidebar-footer {
+    border-top: 1px solid #f0f0f0;
+}
+
+/* ==========================================================================
+   TOP BAR NAVIGATION HEADER
+   ========================================================================== */
+.main-content {
+    flex: 1;
+    padding: 0;
+    min-width: 0;
+    background-color: #fdfbf4; 
+    height: 100vh; 
+    overflow-y: auto; 
+    display: flex; 
+    flex-direction: column; 
+    width: 100%;
+}
+
+.header { 
+    position: sticky; 
+    top: 0; 
+    z-index: 1000; 
+    background: #f28c28; 
+    padding: 10px 20px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    color: white; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    height: 70px;
+    box-sizing: border-box;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header h1 {
+    color: white;
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.hamburger-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.hamburger-btn:hover {
+    transform: scale(1.1);
+}
+
+.user-profile {
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   DATA CARDS & GENERAL DASHBOARD ELEMENTS
+   ========================================================================== */
+.card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.analytics-row, .data-row {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.sales-analytics { flex: 2; }
+.sales-stat { flex: 1; }
+.stock-levels { flex: 1; }
+.recent-orders { flex: 2; }
+
+.chart-placeholder {
+    height: 150px;
+    background: #fafafa;
+    border-bottom: 2px solid #f28c28;
+    position: relative;
+    margin-top: 10px;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.stat-change {
+    color: #27ae60;
+    font-size: 0.9rem;
+}
+
+.stat-change i { margin-right: 5px; }
+
+ul { list-style: none; padding: 0; }
+ul li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    color: #888;
+    font-size: 0.8rem;
+    padding-bottom: 10px;
+}
+
+td {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.status-shipped { color: #27ae60; }
+.status-pending { color: #f28c28; }
+
+.status-shipped i, .status-pending i {
+    font-size: 0.8rem;
+    margin-right: 5px;
+}
+
+/* ==========================================================================
+   SYSTEM SETTINGS CARD LAYOUT VIEWS
+   ========================================================================== */
+.settings-container { max-width: 900px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 15px; padding: 20px; }
+.settings-card { background: white; border: 1px solid #e8e4d8; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03); }
+.profile-header { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; }
+.profile-pic-container { display: flex; flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0; }
+.profile-box { width: 110px; height: 110px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #eee; border: 2px solid #f28c28; }
+.profile-box img { width: 100%; height: 100%; object-fit: cover; }
+.profile-box i { font-size: 80px; color: #7ba6c9; }
+.change-photo-btn { background: #f28c28; color: white; border: none; padding: 6px 14px; border-radius: 15px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
+
+.input-group { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 15px; }
+.input-wrapper { position: relative; width: 100%; }
+.input-wrapper i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888; z-index: 5; }
+.settings-input { width: 100%; padding: 12px 40px; border: 1px solid #e0ddd0; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; padding-right: 45px !important; }
+
+.input-wrapper .toggle-password { position: absolute; right: 15px; left: auto; top: 50%; transform: translateY(-50%); cursor: pointer; color: #888; z-index: 10; transition: color 0.2s ease; }
+.input-wrapper .toggle-password:hover { color: #f28c28; }
+
+.btn-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+.apply-btn { background: #f28c28; color: white; border: none; padding: 10px 35px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+.alert { padding: 12px; border-radius: 8px; margin-bottom: 15px; width: 100%; box-sizing: border-box; }
+.alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+#loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.8); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
+.spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #f28c28; border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* ==========================================================================
+    RESPONSIVE BREAKPOINTS (SMARTPHONES VIEWPORTS <768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .analytics-row, .data-row {
+        flex-direction: column;
+        padding: 10px;
+    }
+    .sidebar { 
+        width: 75px; 
+    }
+    
+    .sidebar span { 
+        display: none; 
+    }
+    .sidebar .nav-item::after {
+        content: attr(data-title);
+        position: absolute;
+        left: 85px;
+        background: #333333;
+        color: #ffffff;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-10px);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        pointer-events: none;
+        z-index: 9999;
+    }
+    
+    .sidebar .nav-item::before {
+        content: "";
+        position: absolute;
+        left: 77px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent #333333 transparent transparent;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-10px);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        pointer-events: none;
+        z-index: 9999;
+    }
+    
+    .sidebar .nav-item:hover::after,
+    .sidebar .nav-item:hover::before {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+    }
+    .sidebar-header {
+        padding: 10px 5px;
+        min-height: 75px;
+    }
+    
+    .sidebar-logo {
+        width: 50px !important;
+        height: 50px !important;
+    }
+}

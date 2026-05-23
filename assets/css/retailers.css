@@ -1,3 +1,6 @@
+/* ==========================================================================
+    
+   ========================================================================== */
 body {
     margin: 0;
     padding: 0;
@@ -12,6 +15,9 @@ body {
     min-height: 100vh;
 }
 
+/* ==========================================================================
+   SIDEBAR NAVIGATION & RESPONSIVE LOGO FRAMEWORK
+   ========================================================================== */
 .sidebar {
     width: 240px;
     background-color: #ffffff;
@@ -29,16 +35,54 @@ body {
 }
 
 .sidebar-header {
-    height: 70px;
-    padding: 0 25px;
+    height: auto;
+    min-height: 90px;
+    padding: 15px 25px;
     font-size: 1.2rem;
     font-weight: bold;
     color: #f28c28;
     display: flex;
     align-items: center;
+    justify-content: center;
     position: relative; 
+    box-sizing: border-box;
+    gap: 15px;
 }
 
+.sidebar-logo {
+    
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+
+.sidebar.collapsed .sidebar-logo {
+    width: 45px;
+    height: 45px;
+}
+
+.sidebar span {
+    position: absolute;
+    left: 65px; 
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(0);
+}
+
+.sidebar.collapsed span {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px); 
+    pointer-events: none;
+}
+
+/* --- Menu Nav Items --- */
 nav {
     flex: 1;
 }
@@ -72,22 +116,6 @@ nav {
     border-right: 4px solid #f28c28; 
 }
 
-.sidebar span {
-    position: absolute;
-    left: 65px; 
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: translateX(0);
-}
-
-.sidebar.collapsed span {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateX(-10px); 
-    pointer-events: none;
-}
-
 .icon {
     min-width: 25px;
     font-size: 1.1rem;
@@ -104,6 +132,9 @@ nav {
     border-top: 1px solid #f0f0f0;
 }
 
+/* ==========================================================================
+   TOP BAR HEADER MODULE
+   ========================================================================== */
 .main-content {
     flex: 1;
     padding: 0;
@@ -148,13 +179,15 @@ nav {
     transform: scale(1.1);
 }
 
-
 .user-profile {
     color: white;
     font-size: 1.5rem;
     cursor: pointer;
 }
 
+/* ==========================================================================
+ CARDS & GENERAL CONTENT CONTAINERS
+   ========================================================================== */
 .card {
     background: white;
     border: 1px solid #e0e0e0;
@@ -195,7 +228,6 @@ nav {
 .stat-change i { margin-right: 5px; }
 
 ul { list-style: none; padding: 0; }
-
 ul li {
     display: flex;
     justify-content: space-between;
@@ -203,40 +235,9 @@ ul li {
     border-bottom: 1px solid #eee;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th {
-    text-align: left;
-    color: #888;
-    font-size: 0.8rem;
-    padding-bottom: 10px;
-}
-
-td {
-    padding: 12px 0;
-    border-bottom: 1px solid #eee;
-}
-
-.status-shipped { color: #27ae60; }
-.status-pending { color: #f28c28; }
-
-.status-shipped i, .status-pending i {
-    font-size: 0.8rem;
-    margin-right: 5px;
-}
-   .modal-overlay { 
-    position: fixed; 
-    inset: 0; 
-    background: rgba(0,0,0,0.4); 
-    display: none; 
-    justify-content: center; 
-    align-items: center; 
-    z-index: 2000; 
-}
-        
+/* ==========================================================================
+   RETAIL ORDER MANAGEMENT CARD & TABLES
+   ========================================================================== */
 .retail-card { 
     background: white; 
     margin: 20px; 
@@ -262,19 +263,24 @@ td {
     flex-grow: 1; 
 }
         
-.table-container { 
-    padding: 25px; 
-    background: #fffdf9; 
+.table-container{
+    width: 100%;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    padding: 20px;
 }
 
-.main-table { 
+table, .main-table { 
     width: 100%; 
     border-collapse: collapse; 
     background: white; 
     border: 1px solid #f0f0f0; 
 }
 
-.main-table th { 
+th, .main-table th { 
     background: white; 
     color: #888; 
     font-size: 11px; 
@@ -284,14 +290,23 @@ td {
     letter-spacing: 0.5px; 
 }
 
-.main-table td { 
+td, .main-table td { 
     padding: 15px; 
     border-bottom: 1px solid #f9f9f9; 
     text-align: center; 
     color: #444; 
     font-size: 14px; 
 }
-        
+
+.status-shipped { color: #27ae60; }
+.status-pending { color: #f28c28; }
+
+.status-shipped i, .status-pending i {
+    font-size: 0.8rem;
+    margin-right: 5px;
+}
+
+/* --- Control Buttons --- */
 .btn-add-order { 
     background: #f28c28; 
     color: white; 
@@ -309,6 +324,19 @@ td {
 .btn-add-order:hover, 
 .btn-submit-order:hover { 
     background: #e67e22; 
+}
+
+/* ==========================================================================
+    RETAIL SYSTEM ENTRY MODAL DIALOGS
+   ========================================================================== */
+.modal-overlay { 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0,0,0,0.4); 
+    display: none; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 2000; 
 }
 
 .order-modal { 
@@ -343,6 +371,7 @@ td {
 }
 
 .order-form label { 
+    display: block;
     font-size: 0.8rem; 
     text-transform: uppercase; 
     letter-spacing: 0.05em; 
@@ -359,6 +388,7 @@ td {
     margin-bottom: 20px; 
     font-size: 14px; 
     transition: border-color 0.2s;
+    box-sizing: border-box;
 }
 
 .order-form input:focus, 
@@ -367,6 +397,7 @@ td {
     outline: none; 
 }
 
+/* --- Fee & Price Summaries --- */
 .subtotal-container {
     background: #fff7ed;
     border-radius: 12px;
@@ -401,31 +432,30 @@ td {
     transition: background 0.2s;
 }
 
-.btn-submit-order:hover { 
-    background: #ea580c; 
-}
-
-.sidebar-logo {
-    width: 150px; 
-    height: 150px; 
-    object-fit: contain;
-    border-radius: 50%;
-    transition: all 0.3s ease; 
-    align-items: center;
-}
-
-.sidebar-header {
-    display: flex;
-    align-items: center;
-    padding: 50px;
-    gap: 15px;    
-}
-
+/* ==========================================================================
+    RESPONSIVE BREAKPOINTS (SMARTPHONES VIEWPORTS <768px)
+   ========================================================================== */
 @media (max-width: 768px) {
     .analytics-row, .data-row {
         flex-direction: column;
         padding: 10px;
     }
-    .sidebar { width: 75px; }
-    .sidebar span { display: none; }
+
+    .sidebar { 
+        width: 75px; 
+    }
+    
+    .sidebar span { 
+        display: none; 
+    }
+
+    .sidebar-header {
+        padding: 10px 5px;
+        min-height: 75px;
+    }
+    
+    .sidebar-logo {
+        width: 50px !important;
+        height: 50px !important;
+    }
 }

@@ -19,14 +19,14 @@ function e($value): string {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/inventor_admin.css">
+    <link rel="stylesheet" href="assets/css/inventor_admins.css">
 </head>
 <body>
 
     <div class="container">
         <aside class="sidebar">
            <div class="sidebar-header">
-                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+                <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
                 
             </div>
           
@@ -48,18 +48,28 @@ function e($value): string {
                 <div class="header-left">
                     <button id="sidebarToggle" class="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
                     <h1 style="white-space: nowrap; margin-right: 20px;">Inventory Overview</h1>
-                    <div class="search-container">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="inventorySearch" placeholder="Search product...">
-                    </div>
+                    
                 </div>
             </header>
 
             <section class="inventory-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="color: #2c3e50;"><i class="fa-solid fa-layer-group"></i> Current Catalog</h2>
-                    <button class="refresh-btn" onclick="openForm()"><i class="fa-solid fa-plus"></i> Add New Product</button>
+            <div class="catalog-control-row">
+                
+                <div class="catalog-left-group">
+                    <h2 style="color: #2c3e50; margin: 0; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-layer-group"></i> Current Catalog
+                    </h2>
+                    <button class="refresh-btn" onclick="openForm()">
+                        <i class="fa-solid fa-plus"></i> Add New Product
+                    </button>
                 </div>
+
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="inventorySearch" placeholder="Search product...">
+                </div>
+
+            </div>
 
                 <div id="inventory-grid" class="inventory-grid">
                     <p style="grid-column: 1/-1; text-align: center; padding: 50px; color: #7f8c8d;">Loading catalog...</p>

@@ -22,12 +22,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $update_pass->execute([$hashed_password, $admin_id]);
                 } else {
                     $_SESSION['error'] = "New passwords do not match.";
-                    header("Location: ../settings.php");
+                    header("Location: ../setting.php");
                     exit();
                 }
             } else {
                 $_SESSION['error'] = "Current password is incorrect.";
-                header("Location: ../settings.php");
+                header("Location: ../setting.php");
                 exit();
             }
         }
@@ -38,12 +38,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         $_SESSION['success'] = "Profile updated successfully!";
-        header("Location: ../settings.php");
+        header("Location: ../setting.php");
         exit();
 
     } catch (PDOException $e) {
         $_SESSION['error'] = "Database error: " . $e->getMessage();
-        header("Location: ../settings.php");
+        header("Location: ../setting.php");
         exit();
     }
 }

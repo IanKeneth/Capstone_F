@@ -1,0 +1,520 @@
+/* ==========================================================================
+   1. CORE & LAYOUT VARIABLES
+   ========================================================================== */
+:root { 
+    --primary: #f28c28; 
+    --primary-hover: #e07b1a; 
+    --text: #334155; 
+    --bg-gray: #f8fafc; 
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f7;
+    color: #333;
+    overflow-x: hidden;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ==========================================================================
+   2. SIDEBAR COMPONENTS and logo
+   ========================================================================== */
+.sidebar {
+    width: 240px;
+    background-color: #ffffff;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.sidebar.collapsed {
+    width: 75px;
+}
+
+/* Base flex container wrapper for the Salescore logo */
+.sidebar-header {
+    height: auto;
+    min-height: 90px;
+    padding: 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #f28c28;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; 
+    box-sizing: border-box;
+}
+
+.sidebar-logo {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+
+.sidebar.collapsed .sidebar-logo {
+    width: 45px;
+    height: 45px;
+}
+
+.sidebar span {
+    position: absolute;
+    left: 65px; 
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(0);
+}
+
+.sidebar.collapsed span {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px); 
+    pointer-events: none;
+}
+
+/* --- Navigation Links --- */
+nav {
+    flex: 1;
+}
+
+.nav-item {
+    padding: 15px 25px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid #f9f9f9;
+    font-weight: 500;
+    color: #555;
+    transition: background 0.3s ease, color 0.3s ease;
+    position: relative; 
+    text-decoration: none;
+    color: inherit;
+}
+
+.nav-item:visited {
+    color: inherit;
+}
+
+.nav-item:hover {
+    background-color: #fffaf5;
+    color: #f28c28;
+}
+
+.nav-item.active {
+    background-color: #fff5eb;
+    color: #f28c28;
+    border-right: 4px solid #f28c28; 
+}
+
+.icon {
+    min-width: 25px;
+    font-size: 1.1rem;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    flex-shrink: 0;
+    transition: transform 0.4s ease; 
+}
+
+.sidebar-footer {
+    border-top: 1px solid #f0f0f0;
+}
+
+/* ==========================================================================
+   3. APP BODY HEADER COMPONENTS
+   ========================================================================== */
+.main-content {
+    flex: 1;
+    padding: 0;
+    min-width: 0;
+}
+
+.header {
+    background-color: #f28c28;
+    height: 70px;
+    padding: 0 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header h1 {
+    color: white;
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.hamburger-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.hamburger-btn:hover {
+    transform: scale(1.1);
+}
+
+.user-profile {
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   4. CARDS & WIDGET CONTAINERS
+   ========================================================================== */
+.card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.analytics-row, .data-row {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.sales-analytics { flex: 2; }
+.sales-stat { flex: 1; }
+.stock-levels { flex: 1; }
+.recent-orders { flex: 2; }
+
+.chart-placeholder {
+    height: 150px;
+    background: #fafafa;
+    border-bottom: 2px solid #f28c28;
+    position: relative;
+    margin-top: 10px;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.stat-change {
+    color: #27ae60;
+    font-size: 0.9rem;
+}
+
+.stat-change i { margin-right: 5px; }
+
+ul { list-style: none; padding: 0; }
+ul li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+/* ==========================================================================
+ DATA TABLES & THE RESPONSIVE SLIDER FRAMEWORK
+   ========================================================================== */
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    margin-bottom: 25px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    
+  
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    color: #888;
+    font-size: 0.8rem;
+    padding-bottom: 10px;
+}
+
+td {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.status-shipped { color: #27ae60; }
+.status-pending { color: #f28c28; }
+
+.status-shipped i, .status-pending i {
+    font-size: 0.8rem;
+    margin-right: 5px;
+}
+
+/* --- Work Logs & Production Modules --- */
+.worker-group { 
+    background: white; 
+    border: 1px solid #e2e8f0; 
+    border-radius: 12px; 
+    margin-bottom: 25px; 
+    overflow: hidden; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+}
+
+.worker-header { 
+    background: #fff7ed; 
+    padding: 16px 20px; 
+    border-bottom: 1px solid #ffe4c4; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+.status-badge { 
+    font-size: 11px; 
+    padding: 4px 8px; 
+    border-radius: 20px; 
+    background: #dcfce7; 
+    color: #166534; 
+    font-weight: 600; 
+}
+
+.main-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
+.main-table th { 
+    background: #fdfdfd; 
+    color: #64748b; 
+    font-size: 11px; 
+    padding: 14px 20px; 
+    border-bottom: 1px solid #f1f5f9; 
+    text-transform: uppercase; 
+    white-space: nowrap; /* Prevents title breaking headers into multiple text lines */
+}
+
+.main-table td { 
+    padding: 14px 20px; 
+    border-bottom: 1px solid #f8fafc; 
+    color: #334155; 
+    font-size: 14px; 
+    white-space: nowrap; /* Forces columns to slide off-screen cleanly without text crunching */
+}
+
+.total-row td { 
+    font-weight: 800; 
+    color: var(--primary) !important; 
+    background: #fffcf8; 
+    border-top: 2px solid #fee2e2; 
+}
+
+.action-pill { 
+    padding: 6px 14px; 
+    border-radius: 20px; 
+    font-size: 11px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    text-decoration: none; 
+    transition: 0.2s;
+    display: inline-block;
+}
+
+.action-pill:hover { opacity: 0.9; }
+.remove-icon { color: #f87171; cursor: pointer; padding: 5px; }
+
+/* ==========================================================================
+   6. CONTROL CONTAINER INPUTS (SEARCH INPUT FIX)
+   ========================================================================== */
+.search-container {
+    position: relative;
+    max-width: 300px;
+    width: 100%; 
+    padding: 5px; 
+    box-sizing: border-box;
+}
+
+/* Placed on the right-hand inner wall to avoid blocking text string writing */
+.search-container i {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%); 
+    color: #7f8c8d;
+    pointer-events: none;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 10px 40px 10px 20px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    outline: none;
+    transition: 0.3s;
+    box-sizing: border-box;
+}
+
+.search-container input:focus {
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+/* ==========================================================================
+   7. POP-UP DIALOG MODALS
+   ========================================================================== */
+.modal-overlay { 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0,0,0,0.4); 
+    display: none; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 2000; 
+}
+
+.modal-content { 
+    background: white; 
+    width: 95%; 
+    max-width: 500px; 
+    border-radius: 16px; 
+    overflow: hidden; 
+}
+
+.card-header { 
+    background: #f97316; 
+    color: white; 
+    padding: 20px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+.btn-submit { 
+    width: 100%; 
+    background: var(--primary); 
+    color: white; 
+    border: none; 
+    padding: 14px; 
+    border-radius: 8px; 
+    font-weight: 600; 
+    cursor: pointer; 
+    margin-top: 10px; 
+}
+
+/* --- Inventory Add Frame Area overrides --- */
+#addProductModal .modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    border: none;
+}
+
+#addProductModal .card-header {
+    background: #f97316;
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#addProductModal .form-body { padding: 20px; }
+#addProductModal label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+}
+
+#addProductModal select, 
+#addProductModal input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    background: #f8fafc;
+    box-sizing: border-box;
+}
+
+#addProductModal .btn-submit {
+    width: 100%;
+    background: #f97316;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 5px;
+}
+
+#addProductModal .btn-submit:hover { background: #ea580c; }
+
+/* ==========================================================================
+   8. RESPONSIVE PHONE VIEWPORTS BREAKPOINTS (<768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .analytics-row, .data-row {
+        flex-direction: column;
+        padding: 10px;
+    }
+    
+    /* Collapses sidebar width footprint on small mobile breakpoints */
+    .sidebar { 
+        width: 75px; 
+    }
+    .sidebar span { 
+        display: none; 
+    }
+    
+    /* RESPONSIVE LOGO MOBILE ASSIGNMENT BREAKPOINT */
+    .sidebar-header {
+        padding: 10px 5px;
+        min-height: 75px;
+    }
+    .sidebar-logo {
+        width: 50px !important;
+        height: 50px !important;
+    }
+
+    .worker-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}

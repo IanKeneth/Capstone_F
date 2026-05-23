@@ -56,13 +56,13 @@ function e(mixed $value): string {
     <meta charset="UTF-8">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/logs.css">
+    <link rel="stylesheet" href="assets/css/log.css">
 </head>
 <body>
     <div class="container">
         <aside class="sidebar">
            <div class="sidebar-header">
-                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+                <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
                 
             </div>
             <nav style="flex-grow: 1;">
@@ -78,37 +78,39 @@ function e(mixed $value): string {
         </aside>
 
         <main class="main-content">
-            <header class="header">
-                <div class="header-left">
-                    <button id="sidebarToggle" class="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
-                    <h1 style="white-space: nowrap; margin-right: 20px;">Inventory Logs Overview</h1>
+        <header class="header">
+            <div class="header-left">
+                <button id="sidebarToggle" class="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
+                <h1 style="white-space: nowrap; margin-right: 20px;">Inventory Logs Overview</h1>
+            </div>
+        </header>
+        
+        <section class="report-container">
+            <div class="summary-cards">
+                <div class="s-card">
+                    <i class="fa-solid fa-circle-arrow-down fa-2x" style="color:var(--success)"></i>
+                    <div><small>Total Stock In</small><h3><?= number_format($totalIn) ?></h3></div>
                 </div>
-            </header>
-            <section class="report-container">
-                <div class="summary-cards">
-                    <div class="s-card">
-                        <i class="fa-solid fa-circle-arrow-down fa-2x" style="color:var(--success)"></i>
-                        <div><small>Total Stock In</small><h3><?= number_format($totalIn) ?></h3></div>
-                    </div>
-                    <div class="s-card">
-                        <i class="fa-solid fa-circle-arrow-up fa-2x" style="color:var(--danger)"></i>
-                        <div><small>Total Stock Out</small><h3><?= number_format($totalOut) ?></h3></div>
-                    </div>
+                <div class="s-card">
+                    <i class="fa-solid fa-circle-arrow-up fa-2x" style="color:var(--danger)"></i>
+                    <div><small>Total Stock Out</small><h3><?= number_format($totalOut) ?></h3></div>
                 </div>
+        </div>
 
-                <div class="controls-row">
-                    <div class="filter-group" style="display:flex; gap:8px;">
-                        <a href="?filter=All" class="filter-btn <?= $filter === 'All' ? 'active' : '' ?>">All</a>
-                        <a href="?filter=In" class="filter-btn <?= $filter === 'In' ? 'active' : '' ?>">In </a>
-                        <a href="?filter=Out" class="filter-btn <?= $filter === 'Out' ? 'active' : '' ?>">Out </a>
-                        <a href="?filter=Retail" class="filter-btn <?= $filter === 'Retail' ? 'active' : '' ?>">Retail </a>
-                        <a href="?filter=Wholesale" class="filter-btn <?= $filter === 'Wholesale' ? 'active' : '' ?>">Wholesale</a>
-                    </div>
-                    <form method="GET">
-                        <input type="text" name="search" placeholder="Search product or note..." value="<?= e($search) ?>" style="padding:10px; border-radius:8px; border:1px solid #ddd;">
-                    </form>
-                </div>
+        <div class="controls-row">
+            <div class="filter-group" style="display:flex; gap:8px; flex-wrap: wrap;">
+                <a href="?filter=All" class="filter-btn <?= $filter === 'All' ? 'active' : '' ?>">All</a>
+                <a href="?filter=In" class="filter-btn <?= $filter === 'In' ? 'active' : '' ?>">In </a>
+                <a href="?filter=Out" class="filter-btn <?= $filter === 'Out' ? 'active' : '' ?>">Out </a>
+                <a href="?filter=Retail" class="filter-btn <?= $filter === 'Retail' ? 'active' : '' ?>">Retail </a>
+                <a href="?filter=Wholesale" class="filter-btn <?= $filter === 'Wholesale' ? 'active' : '' ?>">Wholesale</a>
+            </div>
+            <form method="GET">
+                <input type="text" name="search" placeholder="Search product or note..." value="<?= e($search) ?>" style="padding:10px; border-radius:8px; border:1px solid #ddd; width: 100%; max-width: 300px; box-sizing: border-box;">
+            </form>
+        </div>
 
+            <div class="table-responsive">
                 <table class="log-table">
                     <thead>
                         <tr>
@@ -145,18 +147,18 @@ function e(mixed $value): string {
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
-
                 </table>
-            </section>
-        </main>
-    </div>
-    <script>
-        document.getElementById('sidebarToggle').addEventListener('click', () => {
-            document.querySelector('.sidebar').classList.toggle('active');
-        });
-        document.getElementById('sidebarToggle').addEventListener('click', () => {
-            document.querySelector('.sidebar').classList.toggle('collapsed');
-        });
-        </script>
+            </div>
+    </section>
+</main>
+
+<script>
+    // Combined duplicate toggle listeners into a clean execution block
+    document.getElementById('sidebarToggle').addEventListener('click', () => {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('active');
+        sidebar.classList.toggle('collapsed');
+    });
+</script>
 </body>
 </html>

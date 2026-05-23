@@ -55,36 +55,17 @@ try {
     <title>Admin Panel</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/sales.css">
     
     <script src="https://cdn.jsdelivr.net/gh/linways/table-to-excel@v1.0.4/dist/tableToExcel.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    
-    <style>
-        .sales-card { background: white; border-radius: 12px; margin: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #eee; }
-        .sales-header { background: #fffdf9; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; }
-        .total-badge { background: #f28c28; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; }
-        
-        .sales-table { width: 100%; border-collapse: collapse; }
-        .sales-table th { background: white; color: #888; font-size: 11px; padding: 15px; border-bottom: 2px solid #f28c28; text-align: left; text-transform: uppercase; }
-        .sales-table td { padding: 15px; border-bottom: 1px solid #f9f9f9; font-size: 14px; color: #444; }
-        
-        .type-tag { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        .type-wholesale { background: #e3f2fd; color: #1976d2; }
-        .type-retail { background: #f3e5f5; color: #7b1fa2; }
-        
-        .amount-text { font-weight: bold; color: #27ae60; }
-        .action-btn { border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .sidebar-logo {width: 150px; height: 150px;object-fit: contain;border-radius: 50%;transition: all 0.3s ease; align-items: center;}
-        .sidebar-header {display: flex;align-items: center;padding: 50px; gap: 15px;}
-    </style>
 </head>
 <body>
     <div class="container">
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+           <div class="sidebar-header">
+                <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
                 
             </div>
         

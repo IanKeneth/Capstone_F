@@ -35,31 +35,15 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price FROM produ
     <meta charset="UTF-8">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/disptcher.css">
-    <style>
-        .sidebar-logo {
-            width: 150px; 
-            height: 150px; 
-            object-fit: contain;
-            border-radius: 50%;
-            transition: all 0.3s ease; 
-            align-items: center;
-        }
+    <link rel="stylesheet" href="assets/css/dispatchers.css">
 
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            padding: 50px; 
-            gap: 15px;  
-        }
-    </style>
 </head>
 <body>
 
 <div class="container">
     <aside class="sidebar">
         <div class="sidebar-header">
-                <img src="assets/img/download.jpeg" alt="Salescore Logo" class="sidebar-logo">
+                <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
                 
             </div>
         
@@ -103,8 +87,8 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price FROM produ
                         <a href="function/afternoon_remit.php?id=<?= $sid ?>" class="action-pill" style="background: var(--primary); color:white;">REMIT</a>
                     </div>
                 </div>
-                <table class="main-table">
-                    <thead>
+                <table class="table-responsive-wrapper">
+                    <thead class="main-table">
                         <tr>
                             <th>Product Name</th>
                             <th>Price</th>

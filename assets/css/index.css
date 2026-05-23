@@ -1,0 +1,438 @@
+/* ==========================================================================
+   1. GLOBAL & BASE STYLES
+   ========================================================================== */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f7;
+    color: #333;
+    overflow-x: hidden;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+/* ==========================================================================
+    SIDEBAR NAVIGATION, RESPONSIVE LOGO & HOVER TOOLTIPS
+   ========================================================================== */
+.sidebar {
+    width: 240px;
+    background-color: #ffffff;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: visible; /* Changed from hidden to allow hover tooltips to show outside the edge */
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.sidebar.collapsed {
+    width: 75px;
+}
+
+/* Fixed container wrapper for the logo */
+.sidebar-header {
+    height: auto;
+    min-height: 90px;
+    padding: 15px 25px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #f28c28;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; 
+    box-sizing: border-box;
+    gap: 15px;
+}
+
+/* RESPONSIVE LOGO FIX: Perfectly circular, centered, and scales flawlessly */
+.sidebar-logo {
+    
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+
+/* Shrinks the emblem smoothly when the sidebar collapses */
+.sidebar.collapsed .sidebar-logo {
+    width: 45px;
+    height: 45px;
+}
+
+/* Standard inline menu label configuration */
+.sidebar span {
+    position: absolute;
+    left: 65px; 
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(0);
+}
+
+/* Hides standard sidebar strings when collapsed */
+.sidebar.collapsed span {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px); 
+    pointer-events: none;
+}
+
+/* --- Menu Nav Items & Hover Tooltip Engine --- */
+nav {
+    flex: 1;
+}
+
+.nav-item {
+    padding: 15px 25px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid #f9f9f9;
+    font-weight: 500;
+    color: #555;
+    transition: background 0.3s ease, color 0.3s ease;
+    position: relative; 
+    text-decoration: none;
+    color: inherit;
+}
+
+.nav-item:visited {
+    color: inherit;
+}
+
+.nav-item:hover {
+    background-color: #fffaf5;
+    color: #f28c28;
+}
+
+.nav-item.active {
+    background-color: #fff5eb;
+    color: #f28c28;
+    border-right: 4px solid #f28c28; 
+}
+
+.icon {
+    min-width: 25px;
+    font-size: 1.1rem;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    flex-shrink: 0;
+    transition: transform 0.4s ease; 
+}
+
+/* HOVER TOOLTIP EFFECT: Generates the page title dynamically upon mouse-over when collapsed */
+.sidebar.collapsed .nav-item::after {
+    content: attr(data-title); /* Uses an HTML5 data-title attribute to pull page name */
+    position: absolute;
+    left: 85px;
+    background: #333333;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Tooltip Little Triangle Pointer arrow */
+.sidebar.collapsed .nav-item::before {
+    content: "";
+    position: absolute;
+    left: 77px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent #333333 transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Reveal tooltip when micro-panels are hovered */
+.sidebar.collapsed .nav-item:hover::after,
+.sidebar.collapsed .nav-item:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+.sidebar-footer {
+    border-top: 1px solid #f0f0f0;
+}
+
+
+/* ==========================================================================
+   MAIN CONTENT & TOP HEADER
+   ========================================================================== */
+.main-content {
+    flex: 1;
+    padding: 0;
+    min-width: 0;
+}
+
+.header {
+    background-color: #f28c28;
+    height: 70px;
+    padding: 0 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header h1 {
+    color: white;
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+/* Hamburger Menu Button */
+.hamburger-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.hamburger-btn:hover {
+    transform: scale(1.1);
+}
+
+/* User Profile */
+.user-profile {
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+
+/* ==========================================================================
+   4. DASHBOARD GRID & LAYOUT CONTAINERS (FIXED FOR RESPONSIVENESS)
+   ========================================================================== */
+.dashboard-grid { 
+    display: grid; 
+    /* Automatically figures out how many cards can fit; wraps them naturally */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+    gap: 20px; 
+    padding: 20px; 
+}
+
+.analytics-row, .data-row {
+    display: flex;
+    flex-wrap: wrap; /* Allows cards to wrap vertically on medium screens */
+    gap: 20px;
+    padding: 20px;
+}
+
+.charts-container { 
+    display: grid; 
+    grid-template-columns: 3fr 2fr; 
+    gap: 20px; 
+    padding: 20px; 
+    padding-bottom: 0px; 
+}
+
+.analysis-container { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px; 
+    padding: 20px; 
+}
+
+/* Base flex-grow instructions for large screen rows */
+.sales-analytics { flex: 2; min-width: 300px; }
+.sales-stat      { flex: 1; min-width: 200px; }
+.stock-levels    { flex: 1; min-width: 200px; }
+.recent-orders   { flex: 2; min-width: 300px; }
+
+
+/* ==========================================================================
+   5. CARDS, TABLES, & DATA WIDGETS
+   ========================================================================== */
+/* Generic Cards & Content Boxes */
+.card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.content-box { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 5px; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+}
+
+.stat-card { 
+    padding: 20px; 
+    background: white; 
+    border-radius: 5px; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+}
+
+/* Stat Values */
+.value { 
+    font-size: 1.5rem; 
+    font-weight: bold; 
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.stat-change {
+    color: #27ae60;
+    font-size: 0.9rem;
+}
+
+.stat-change i { 
+    margin-right: 5px; 
+}
+
+/* Charts Placeholder */
+.chart-placeholder {
+    height: 150px;
+    background: #fafafa;
+    border-bottom: 2px solid #f28c28;
+    position: relative;
+    margin-top: 10px;
+}
+/* Ensure the chart canvas wraps nicely and never overflows its card */
+.chart-placeholder, 
+.charts-container canvas, 
+.content-box canvas,
+.card canvas {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+    box-sizing: border-box;
+}
+
+/* Give the chart box parent breathing room and hide visual spillover */
+.content-box, .card {
+    overflow: hidden; /* Stops elements from breaking outside the borders */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Lists */
+ul { 
+    list-style: none; 
+    padding: 0; 
+}
+
+ul li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+/* Data Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    color: #888;
+    font-size: 0.8rem;
+    padding-bottom: 10px;
+}
+
+td {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+/* Status Badges */
+.status-shipped { color: #27ae60; }
+.status-pending { color: #f28c28; }
+
+.status-shipped i, 
+.status-pending i {
+    font-size: 0.8rem;
+    margin-right: 5px;
+}
+
+
+/* ==========================================================================
+   6. RESPONSIVE MEDIA QUERIES (ENHANCED FOR CONTENT WRAPPING)
+   ========================================================================== */
+
+/* Tablet & Smaller Desktops (1024px and below) */
+@media (max-width: 1024px) {
+    .charts-container, 
+    .analysis-container { 
+        grid-template-columns: 1fr; /* Drops grid sections into single stacks */
+    }
+}
+
+/* Mobile Devices / Small Tablets (768px and below) */
+@media (max-width: 768px) {
+    .analytics-row, 
+    .data-row {
+        flex-direction: column;
+        padding: 10px;
+    }
+    
+    /* Ensures items expand to full width on mobile viewports */
+    .sales-analytics, .sales-stat, .stock-levels, .recent-orders {
+        width: 100%;
+        flex: none;
+    }
+    
+    .sidebar { 
+        width: 75px; 
+    }
+    
+    .sidebar span { 
+        display: none; 
+    }
+    
+    .sidebar-header {
+        padding: 20px 15px;
+        min-height: 100px;   
+    }
+    
+    .sidebar-logo {
+        width: 80px;        
+        height: 80px;
+    }
+}
