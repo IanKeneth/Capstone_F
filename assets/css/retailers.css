@@ -15,8 +15,9 @@ body {
     min-height: 100vh;
 }
 
+
 /* ==========================================================================
-   SIDEBAR NAVIGATION & RESPONSIVE LOGO FRAMEWORK
+    SIDEBAR NAVIGATION, RESPONSIVE LOGO & HOVER TOOLTIPS
    ========================================================================== */
 .sidebar {
     width: 240px;
@@ -25,7 +26,7 @@ body {
     display: flex;
     flex-direction: column;
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
+    overflow: visible; 
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -82,7 +83,7 @@ body {
     pointer-events: none;
 }
 
-/* --- Menu Nav Items --- */
+/* --- Menu Nav Items & Hover Tooltip Engine --- */
 nav {
     flex: 1;
 }
@@ -126,6 +127,49 @@ nav {
     margin: 0;
     flex-shrink: 0;
     transition: transform 0.4s ease; 
+}
+
+/* HOVER TOOLTIP EFFECT*/
+.sidebar.collapsed .nav-item::after {
+    content: attr(data-title);
+    position: absolute;
+    left: 85px;
+    background: #333333;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Tooltip Little Triangle Pointer arrow */
+.sidebar.collapsed .nav-item::before {
+    content: "";
+    position: absolute;
+    left: 77px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent #333333 transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Reveal tooltip when micro-panels are hovered */
+.sidebar.collapsed .nav-item:hover::after,
+.sidebar.collapsed .nav-item:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
 }
 
 .sidebar-footer {
@@ -306,7 +350,6 @@ td, .main-table td {
     margin-right: 5px;
 }
 
-/* --- Control Buttons --- */
 .btn-add-order { 
     background: #f28c28; 
     color: white; 
@@ -397,7 +440,6 @@ td, .main-table td {
     outline: none; 
 }
 
-/* --- Fee & Price Summaries --- */
 .subtotal-container {
     background: #fff7ed;
     border-radius: 12px;

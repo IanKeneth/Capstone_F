@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. GLOBAL & BASE STYLES
+    GLOBAL & BASE STYLES
    ========================================================================== */
 body {
     margin: 0;
@@ -26,7 +26,7 @@ body {
     display: flex;
     flex-direction: column;
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: visible; /* Changed from hidden to allow hover tooltips to show outside the edge */
+    overflow: visible;
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -35,7 +35,6 @@ body {
     width: 75px;
 }
 
-/* Fixed container wrapper for the logo */
 .sidebar-header {
     height: auto;
     min-height: 90px;
@@ -51,7 +50,6 @@ body {
     gap: 15px;
 }
 
-/* RESPONSIVE LOGO FIX: Perfectly circular, centered, and scales flawlessly */
 .sidebar-logo {
     
     width: 110px;
@@ -64,13 +62,11 @@ body {
     flex-shrink: 0;
 }
 
-/* Shrinks the emblem smoothly when the sidebar collapses */
 .sidebar.collapsed .sidebar-logo {
     width: 45px;
     height: 45px;
 }
 
-/* Standard inline menu label configuration */
 .sidebar span {
     position: absolute;
     left: 65px; 
@@ -79,8 +75,6 @@ body {
     transition: opacity 0.3s ease, transform 0.3s ease;
     transform: translateX(0);
 }
-
-/* Hides standard sidebar strings when collapsed */
 .sidebar.collapsed span {
     opacity: 0;
     visibility: hidden;
@@ -134,9 +128,9 @@ nav {
     transition: transform 0.4s ease; 
 }
 
-/* HOVER TOOLTIP EFFECT: Generates the page title dynamically upon mouse-over when collapsed */
+/* HOVER TOOLTIP EFFECT*/
 .sidebar.collapsed .nav-item::after {
-    content: attr(data-title); /* Uses an HTML5 data-title attribute to pull page name */
+    content: attr(data-title); 
     position: absolute;
     left: 85px;
     background: #333333;
@@ -213,7 +207,6 @@ nav {
     font-size: 1.2rem;
 }
 
-/* Hamburger Menu Button */
 .hamburger-btn {
     background: none;
     border: none;
@@ -230,7 +223,6 @@ nav {
     transform: scale(1.1);
 }
 
-/* User Profile */
 .user-profile {
     color: white;
     font-size: 1.5rem;
@@ -239,11 +231,10 @@ nav {
 
 
 /* ==========================================================================
-   4. DASHBOARD GRID & LAYOUT CONTAINERS (FIXED FOR RESPONSIVENESS)
+   DASHBOARD GRID & LAYOUT CONTAINERS (FIXED FOR RESPONSIVENESS)
    ========================================================================== */
 .dashboard-grid { 
     display: grid; 
-    /* Automatically figures out how many cards can fit; wraps them naturally */
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
     gap: 20px; 
     padding: 20px; 
@@ -251,7 +242,7 @@ nav {
 
 .analytics-row, .data-row {
     display: flex;
-    flex-wrap: wrap; /* Allows cards to wrap vertically on medium screens */
+    flex-wrap: wrap;
     gap: 20px;
     padding: 20px;
 }
@@ -279,7 +270,7 @@ nav {
 
 
 /* ==========================================================================
-   5. CARDS, TABLES, & DATA WIDGETS
+   CARDS, TABLES, & DATA WIDGETS
    ========================================================================== */
 /* Generic Cards & Content Boxes */
 .card {
@@ -332,7 +323,7 @@ nav {
     position: relative;
     margin-top: 10px;
 }
-/* Ensure the chart canvas wraps nicely and never overflows its card */
+
 .chart-placeholder, 
 .charts-container canvas, 
 .content-box canvas,
@@ -343,14 +334,11 @@ nav {
     box-sizing: border-box;
 }
 
-/* Give the chart box parent breathing room and hide visual spillover */
 .content-box, .card {
-    overflow: hidden; /* Stops elements from breaking outside the borders */
+    overflow: hidden; 
     display: flex;
     flex-direction: column;
 }
-
-/* Lists */
 ul { 
     list-style: none; 
     padding: 0; 
@@ -363,7 +351,6 @@ ul li {
     border-bottom: 1px solid #eee;
 }
 
-/* Data Tables */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -381,7 +368,6 @@ td {
     border-bottom: 1px solid #eee;
 }
 
-/* Status Badges */
 .status-shipped { color: #27ae60; }
 .status-pending { color: #f28c28; }
 
@@ -393,26 +379,23 @@ td {
 
 
 /* ==========================================================================
-   6. RESPONSIVE MEDIA QUERIES (ENHANCED FOR CONTENT WRAPPING)
+   RESPONSIVE MEDIA QUERIES (ENHANCED FOR CONTENT WRAPPING)
    ========================================================================== */
 
-/* Tablet & Smaller Desktops (1024px and below) */
 @media (max-width: 1024px) {
     .charts-container, 
     .analysis-container { 
-        grid-template-columns: 1fr; /* Drops grid sections into single stacks */
+        grid-template-columns: 1fr;
     }
 }
 
-/* Mobile Devices / Small Tablets (768px and below) */
 @media (max-width: 768px) {
     .analytics-row, 
     .data-row {
         flex-direction: column;
         padding: 10px;
     }
-    
-    /* Ensures items expand to full width on mobile viewports */
+
     .sales-analytics, .sales-stat, .stock-levels, .recent-orders {
         width: 100%;
         flex: none;

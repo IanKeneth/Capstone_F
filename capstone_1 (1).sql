@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 20, 2026 at 04:20 AM
+-- Generation Time: May 24, 2026 at 02:16 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -41,7 +41,7 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`id`, `name`, `username`, `password`, `profile_pic`, `created_at`) VALUES
-(1, 'Birondo Ian keneth', 'Keneth', '$2y$10$k.X15YJ7OwvCe5SDbt6UeOrmoZ5emji54o7vmQOASHbU1829m3Vj2', 'admin_1_1778680797.png', '2026-05-17 13:50:20');
+(1, 'Birondo Ian keneth', 'Keneth', '$2y$10$HTRe/nymCzvDNu2/p.IJ8uOVwxNTvP8tWzz6Rh4/2Y.PGWxNXNSCC', 'admin_1_1779544789.png', '2026-05-17 13:50:20');
 
 -- --------------------------------------------------------
 
@@ -84,7 +84,15 @@ INSERT INTO `audit_trail` (`id`, `session_id`, `worker_name`, `product_id`, `pro
 (14, 24, 'ian', 7, 'Stick Broom', 5, 5, 0, 450.00, 'Completed Remittance', '2026-05-14 11:45:56'),
 (15, 24, 'ian', 8, 'Cob Web Broom', 4, 4, 0, 450.00, 'Completed Remittance', '2026-05-14 11:45:56'),
 (16, 29, 'noy', 8, 'Cob Web Broom', 1, 1, 0, 75.00, 'Completed Remittance', '2026-05-18 05:33:31'),
-(17, 26, 'balmond', 8, 'Cob Web Broom', 3, 2, 1, 150.00, 'Completed Remittance', '2026-05-18 05:35:13');
+(17, 26, 'balmond', 8, 'Cob Web Broom', 3, 2, 1, 150.00, 'Completed Remittance', '2026-05-18 05:35:13'),
+(18, 38, 'gjhk', 10, 'Original Baguio', 1, 1, 0, 180.00, 'Completed Remittance', '2026-05-23 12:09:04'),
+(19, 36, 'perc', 11, 'Mop', 2, 2, 0, 150.00, 'Completed Remittance', '2026-05-23 12:16:45'),
+(20, 39, 'noyxz', 7, 'Plastic Broom', 1, 1, 0, 60.00, 'Completed Remittance', '2026-05-23 12:16:56'),
+(21, 37, 'pki', 11, 'Mop', 1, 1, 0, 75.00, 'Completed Remittance', '2026-05-23 12:24:30'),
+(22, 40, 'sdgfhjjk', 10, 'Original Baguio', 1, 1, 0, 180.00, 'Completed Remittance', '2026-05-23 12:35:30'),
+(23, 27, 'biknoy', 8, 'Cob Web Broom', 2, 2, 0, 105.00, 'Completed Remittance', '2026-05-23 12:45:33'),
+(24, 27, 'biknoy', 7, 'Plastic Broom', 2, 2, 0, 105.00, 'Completed Remittance', '2026-05-23 12:45:33'),
+(25, 48, '54678', 11, 'Mop', 8, 8, 0, 375.00, 'Completed Remittance', '2026-05-23 13:04:24');
 
 -- --------------------------------------------------------
 
@@ -126,11 +134,29 @@ INSERT INTO `dispatch_items` (`id`, `session_id`, `product_id`, `qty_taken`, `qt
 (29, 25, 8, 5, 0, 75.00, 0),
 (30, 25, 7, 1, 0, 30.00, 0),
 (31, 26, 8, 3, 2, 75.00, 1),
-(33, 27, 8, 2, 0, 75.00, 0),
-(34, 27, 7, 2, 0, 30.00, 0),
+(33, 27, 8, 2, 2, 75.00, 0),
+(34, 27, 7, 2, 2, 30.00, 0),
 (35, 28, 8, 5, 0, 75.00, 0),
 (36, 29, 8, 1, 1, 75.00, 0),
-(37, 28, 7, 2, 0, 30.00, 0);
+(37, 28, 7, 2, 0, 30.00, 0),
+(38, 36, 11, 2, 2, 75.00, 0),
+(39, 37, 11, 1, 1, 75.00, 0),
+(40, 38, 10, 1, 1, 180.00, 0),
+(41, 39, 7, 1, 1, 60.00, 0),
+(42, 40, 10, 1, 1, 180.00, 0),
+(43, 41, 8, 2, 0, 75.00, 0),
+(44, 42, 11, 1, 0, 75.00, 0),
+(45, 43, 8, 1, 0, 75.00, 0),
+(46, 44, 10, 5, 0, 180.00, 0),
+(47, 45, 8, 1, 0, 75.00, 0),
+(48, 46, 8, 1, 0, 75.00, 0),
+(49, 47, 8, 1, 0, 75.00, 0),
+(50, 48, 11, 8, 8, 75.00, 0),
+(51, 49, 8, 6, 0, 75.00, 0),
+(52, 50, 8, 1, 0, 75.00, 0),
+(53, 50, 10, 1, 0, 180.00, 0),
+(54, 51, 8, 1, 0, 75.00, 0),
+(55, 52, 8, 10, 0, 75.00, 0);
 
 -- --------------------------------------------------------
 
@@ -141,7 +167,6 @@ INSERT INTO `dispatch_items` (`id`, `session_id`, `product_id`, `qty_taken`, `qt
 CREATE TABLE `dispatch_sessions` (
   `id` int(11) NOT NULL,
   `worker_name` varchar(255) NOT NULL,
-  `product_id` int(11) DEFAULT NULL,
   `status` enum('Active','Completed') DEFAULT 'Active',
   `date_today` date DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -152,39 +177,56 @@ CREATE TABLE `dispatch_sessions` (
 -- Dumping data for table `dispatch_sessions`
 --
 
-INSERT INTO `dispatch_sessions` (`id`, `worker_name`, `product_id`, `status`, `date_today`, `created_at`, `total_collected`) VALUES
-(1, 'ian', 1, 'Completed', '2026-05-10', '2026-05-10 08:19:10', 450.00),
-(2, 'noy', 7, 'Completed', '2026-05-10', '2026-05-10 09:24:49', 240.00),
-(3, 'Dodong', 7, 'Completed', '2026-05-13', '2026-05-13 05:39:45', 510.00),
-(4, 'john', 7, 'Completed', '2026-05-13', '2026-05-13 07:31:42', 240.00),
-(5, 'renz', 7, 'Completed', '2026-05-13', '2026-05-13 07:35:55', 750.00),
-(6, 'ian', 7, 'Completed', '2026-05-13', '2026-05-13 08:17:57', 120.00),
-(7, 'ian', 7, 'Completed', '2026-05-13', '2026-05-13 08:26:16', 600.00),
-(8, 'biboy', 7, 'Completed', '2026-05-13', '2026-05-13 08:54:05', 120.00),
-(9, 'panoy', 7, 'Completed', '2026-05-13', '2026-05-13 09:00:13', 60.00),
-(12, 'ian', 7, 'Active', '2026-05-13', '2026-05-13 09:51:43', 0.00),
-(13, 'huy', 7, 'Active', '2026-05-13', '2026-05-13 09:54:49', 0.00),
-(14, 'boknoy', NULL, 'Active', '2026-05-14', '2026-05-14 04:52:03', 0.00),
-(15, 'barbro', NULL, 'Active', '2026-05-14', '2026-05-14 04:55:47', 0.00),
-(16, 'ian', NULL, 'Active', '2026-05-14', '2026-05-14 05:10:55', 0.00),
-(17, 'renz', NULL, 'Active', '2026-05-14', '2026-05-14 05:13:59', 0.00),
-(18, 'renz', NULL, 'Active', '2026-05-14', '2026-05-14 05:16:36', 0.00),
-(19, 'noy', NULL, 'Completed', '2026-05-14', '2026-05-14 05:21:43', 375.00),
-(20, 'ian', NULL, 'Completed', '2026-05-14', '2026-05-14 05:29:40', 75.00),
-(21, 'noy', NULL, 'Completed', '2026-05-14', '2026-05-14 05:31:04', 375.00),
-(22, 'noy', NULL, 'Completed', '2026-05-14', '2026-05-14 05:37:36', 375.00),
-(23, 'dodon', NULL, 'Completed', '2026-05-14', '2026-05-14 11:22:03', 0.00),
-(24, 'ian', NULL, 'Completed', '2026-05-14', '2026-05-14 11:22:37', 450.00),
-(25, 'noy', NULL, 'Active', '2026-05-14', '2026-05-14 11:54:12', 0.00),
-(26, 'balmond', NULL, 'Completed', '2026-05-15', '2026-05-15 07:01:27', 150.00),
-(27, 'biknoy', NULL, 'Active', '2026-05-15', '2026-05-15 09:53:10', 0.00),
-(28, 'prk', NULL, 'Active', '2026-05-15', '2026-05-15 09:53:51', 0.00),
-(29, 'noy', NULL, 'Completed', '2026-05-15', '2026-05-15 09:54:11', 75.00),
-(30, 'Ian', NULL, 'Completed', '2026-01-18', '2026-05-17 12:26:35', 45000.00),
-(31, 'Noy', NULL, 'Completed', '2026-02-22', '2026-05-17 12:26:35', 50000.00),
-(32, 'Ian', NULL, 'Completed', '2026-03-15', '2026-05-17 12:26:35', 38000.00),
-(33, 'Noy', NULL, 'Completed', '2026-04-12', '2026-05-17 12:26:35', 62000.00),
-(34, 'Dodong', NULL, 'Completed', '2026-05-14', '2026-05-17 12:26:35', 70000.00);
+INSERT INTO `dispatch_sessions` (`id`, `worker_name`, `status`, `date_today`, `created_at`, `total_collected`) VALUES
+(1, 'ian', 'Completed', '2026-05-10', '2026-05-10 08:19:10', 450.00),
+(2, 'noy', 'Completed', '2026-05-10', '2026-05-10 09:24:49', 240.00),
+(3, 'Dodong', 'Completed', '2026-05-13', '2026-05-13 05:39:45', 510.00),
+(4, 'john', 'Completed', '2026-05-13', '2026-05-13 07:31:42', 240.00),
+(5, 'renz', 'Completed', '2026-05-13', '2026-05-13 07:35:55', 750.00),
+(6, 'ian', 'Completed', '2026-05-13', '2026-05-13 08:17:57', 120.00),
+(7, 'ian', 'Completed', '2026-05-13', '2026-05-13 08:26:16', 600.00),
+(8, 'biboy', 'Completed', '2026-05-13', '2026-05-13 08:54:05', 120.00),
+(9, 'panoy', 'Completed', '2026-05-13', '2026-05-13 09:00:13', 60.00),
+(12, 'ian', 'Active', '2026-05-13', '2026-05-13 09:51:43', 0.00),
+(13, 'huy', 'Active', '2026-05-13', '2026-05-13 09:54:49', 0.00),
+(14, 'boknoy', 'Active', '2026-05-14', '2026-05-14 04:52:03', 0.00),
+(15, 'barbro', 'Active', '2026-05-14', '2026-05-14 04:55:47', 0.00),
+(16, 'ian', 'Active', '2026-05-14', '2026-05-14 05:10:55', 0.00),
+(17, 'renz', 'Active', '2026-05-14', '2026-05-14 05:13:59', 0.00),
+(18, 'renz', 'Active', '2026-05-14', '2026-05-14 05:16:36', 0.00),
+(19, 'noy', 'Completed', '2026-05-14', '2026-05-14 05:21:43', 375.00),
+(20, 'ian', 'Completed', '2026-05-14', '2026-05-14 05:29:40', 75.00),
+(21, 'noy', 'Completed', '2026-05-14', '2026-05-14 05:31:04', 375.00),
+(22, 'noy', 'Completed', '2026-05-14', '2026-05-14 05:37:36', 375.00),
+(23, 'dodon', 'Completed', '2026-05-14', '2026-05-14 11:22:03', 0.00),
+(24, 'ian', 'Completed', '2026-05-14', '2026-05-14 11:22:37', 450.00),
+(25, 'noy', 'Active', '2026-05-14', '2026-05-14 11:54:12', 0.00),
+(26, 'balmond', 'Completed', '2026-05-15', '2026-05-15 07:01:27', 150.00),
+(27, 'biknoy', 'Completed', '2026-05-15', '2026-05-15 09:53:10', 105.00),
+(28, 'prk', 'Active', '2026-05-15', '2026-05-15 09:53:51', 0.00),
+(29, 'noy', 'Completed', '2026-05-15', '2026-05-15 09:54:11', 75.00),
+(30, 'Ian', 'Completed', '2026-01-18', '2026-05-17 12:26:35', 45000.00),
+(31, 'Noy', 'Completed', '2026-02-22', '2026-05-17 12:26:35', 50000.00),
+(32, 'Ian', 'Completed', '2026-03-15', '2026-05-17 12:26:35', 38000.00),
+(33, 'Noy', 'Completed', '2026-04-12', '2026-05-17 12:26:35', 62000.00),
+(34, 'Dodong', 'Completed', '2026-05-14', '2026-05-17 12:26:35', 70000.00),
+(36, 'perc', 'Completed', '2026-05-23', '2026-05-23 12:05:08', 150.00),
+(37, 'pki', 'Completed', '2026-05-23', '2026-05-23 12:06:21', 75.00),
+(38, 'gjhk', 'Completed', '2026-05-23', '2026-05-23 12:08:23', 180.00),
+(39, 'noyxz', 'Completed', '2026-05-23', '2026-05-23 12:15:58', 60.00),
+(40, 'sdgfhjjk', 'Completed', '2026-05-23', '2026-05-23 12:25:14', 180.00),
+(41, 'fghjj', 'Active', '2026-05-23', '2026-05-23 12:29:34', 0.00),
+(42, '454677', 'Active', '2026-05-23', '2026-05-23 12:37:53', 0.00),
+(43, 'gfghjjk', 'Active', '2026-05-23', '2026-05-23 12:43:02', 0.00),
+(44, 'huhu', 'Active', '2026-05-23', '2026-05-23 12:50:10', 0.00),
+(45, 'balabala', 'Active', '2026-05-23', '2026-05-23 12:52:30', 0.00),
+(46, 'dghhj', 'Active', '2026-05-23', '2026-05-23 12:54:15', 0.00),
+(47, 'fgfhghjkjk', 'Active', '2026-05-23', '2026-05-23 12:55:32', 0.00),
+(48, '54678', 'Completed', '2026-05-23', '2026-05-23 13:03:24', 375.00),
+(49, 'hhhh', 'Active', '2026-05-23', '2026-05-23 13:24:13', 0.00),
+(50, 'buby', 'Active', '2026-05-23', '2026-05-23 13:36:47', 0.00),
+(51, 'papapa', 'Active', '2026-05-23', '2026-05-23 13:43:36', 0.00),
+(52, 'bebe', 'Active', '2026-05-23', '2026-05-23 13:53:17', 0.00);
 
 -- --------------------------------------------------------
 
@@ -249,7 +291,28 @@ INSERT INTO `inventory_logs` (`id`, `product_id`, `admin_name`, `action`, `quant
 (41, 10, 'Birondo Ian keneth', 'Added', 100, 'Initial stock entry for Original Baguio', '2026-05-19 12:49:19'),
 (42, 11, 'Birondo Ian keneth', 'Added', 99, 'Initial stock entry for Mop', '2026-05-19 12:52:40'),
 (43, 7, 'Birondo Ian keneth', 'Added', 61, 'Manual update from 39 to 100', '2026-05-19 13:30:56'),
-(44, 8, 'Birondo Ian keneth', 'Added', 39, 'Manual update from 61 to 100', '2026-05-19 13:31:13');
+(44, 8, 'Birondo Ian keneth', 'Added', 39, 'Manual update from 61 to 100', '2026-05-19 13:31:13'),
+(47, 11, 'Admin', 'Removed', 2, 'Added to session #36 (perc)', '2026-05-23 12:05:08'),
+(48, 11, 'Admin', 'Removed', 1, 'Added to session #37 (pki)', '2026-05-23 12:06:21'),
+(49, 10, 'Admin', 'Removed', 1, 'Added to session #38 (gjhk)', '2026-05-23 12:08:23'),
+(50, 10, 'System', 'Removed', 1, 'Wholesale Dispatch - Session #38 gjhk', '2026-05-23 12:09:04'),
+(51, 7, 'Admin', 'Removed', 1, 'Added to session #39 (Worker: noyxz)', '2026-05-23 12:15:58'),
+(52, 11, 'System', 'Removed', 2, 'Wholesale Dispatch - Session #36 perc', '2026-05-23 12:16:45'),
+(53, 7, 'System', 'Removed', 1, 'Wholesale Dispatch - Session #39 noyxz', '2026-05-23 12:16:56'),
+(54, 10, 'Admin', 'Removed', 1, 'Added to session #40 (Worker: sdgfhjjk)', '2026-05-23 12:25:14'),
+(55, 8, 'Admin', 'Removed', 2, 'Added to session #41 (Worker: fghjj)', '2026-05-23 12:29:34'),
+(56, 11, 'Admin', 'Removed', 1, 'Added to session #42 (Worker: 454677)', '2026-05-23 12:37:53'),
+(57, 8, 'Admin', 'Removed', 1, 'Added to session #43 (Worker: gfghjjk)', '2026-05-23 12:43:02'),
+(58, 10, 'Birondo Ian keneth', 'Removed', 2, 'Retail Sale - Date: 2026-05-23', '2026-05-23 12:48:52'),
+(59, 10, 'Admin', 'Removed', 5, 'Added to session #44 (Worker: huhu)', '2026-05-23 12:50:10'),
+(60, 8, 'Admin', 'Removed', 1, 'Added to session #45 (Worker: balabala)', '2026-05-23 12:52:30'),
+(61, 8, 'Admin', 'Removed', 1, 'Added to session #46 (Worker: dghhj)', '2026-05-23 12:54:15'),
+(62, 8, 'Admin', 'Removed', 1, 'Added to session #47 (Worker: fgfhghjkjk)', '2026-05-23 12:55:32'),
+(63, 11, 'Admin', 'Removed', 8, 'Session #48 (Worker: 54678)', '2026-05-23 13:03:24'),
+(64, 8, 'Admin', 'Removed', 6, 'Session #49 (Worker: hhhh)', '2026-05-23 13:24:13'),
+(65, 8, 'Admin', 'Removed', 10, 'Added to session #52 (bebe)', '2026-05-23 13:53:17'),
+(66, 8, 'Birondo Ian keneth', 'Removed', 4, 'Retail Sale - Date: 2026-05-24', '2026-05-24 11:38:22'),
+(67, 10, 'Birondo Ian keneth', 'Removed', 1, 'Retail Sale - Date: 2026-05-24', '2026-05-24 11:42:04');
 
 -- --------------------------------------------------------
 
@@ -296,11 +359,11 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `category`, `product_name`, `variation`, `description`, `wholesale_price`, `retail_price`, `quantity`, `max_quantity`, `image_path`, `created_at`) VALUES
-(7, 'Brooms', 'Plastic Broom', 'Syntetic  Bristles', 'A plastic broom is a durable, lightweight cleaning tool with synthetic bristles and a sturdy handle.', 60.00, 75.00, 100, 100, '1779197456_Plastic_Broom.png', '2026-05-10 03:40:13'),
-(8, 'Brooms', 'Cob Web Broom', 'Long Handle', 'A cobweb broom is a lightweight cleaning tool with a long handle and soft bristles, designed to remove dust, cobwebs, and debris from high ceilings, corners, and hard-to-reach areas without damaging surfaces.', 75.00, 100.00, 100, 100, '1779197081_Cob_Web_Broom.png', '2026-05-14 04:50:11'),
-(9, 'Brooms', 'Straitan', 'Strait Handle', 'Indoor sweeping to gather dust, pet hair, and fine debris.', 80.00, 82.00, 100, 100, '1779197254_Straitan.png', '2026-05-19 12:41:47'),
-(10, 'Brooms', 'Original Baguio', 'Bristle', 'Made from dried Tiger Grass (tambo) flower stalks, which are incredibly soft, flexible, and efficient at sweeping fine dust without scratching floors.', 180.00, 185.00, 100, 100, '1779194959_Original_Baguio.png', '2026-05-19 12:49:19'),
-(11, 'Mops', 'Mop', 'N/A', ' Used with water and cleaning solutions to wash and scrub hard flooring', 75.00, 100.00, 99, 100, '1779195160_Mop.png', '2026-05-19 12:52:40');
+(7, 'Brooms', 'Plastic Broom', 'Syntetic  Bristles', 'A plastic broom is a durable, lightweight cleaning tool with synthetic bristles and a sturdy handle.', 60.00, 75.00, 99, 100, '1779518320_Plastic_Broom.png', '2026-05-10 03:40:13'),
+(8, 'Brooms', 'Cob Web Broom', 'Long Handle', 'A cobweb broom is a lightweight cleaning tool with a long handle and soft bristles, designed to remove dust, cobwebs, and debris from high ceilings, corners, and hard-to-reach areas without damaging surfaces.', 75.00, 100.00, 74, 100, '1779518299_Cob_Web_Broom.png', '2026-05-14 04:50:11'),
+(9, 'Brooms', 'Straitan', 'Strait Handle', 'Indoor sweeping to gather dust, pet hair, and fine debris.', 80.00, 82.00, 100, 100, '1779518278_Straitan.png', '2026-05-19 12:41:47'),
+(10, 'Brooms', 'Original Baguio', 'Bristle', 'Made from dried Tiger Grass (tambo) flower stalks, which are incredibly soft, flexible, and efficient at sweeping fine dust without scratching floors.', 180.00, 185.00, 90, 100, '1779517349_Original_Baguio.png', '2026-05-19 12:49:19'),
+(11, 'Mops', 'Mop', 'N/A', 'Used with water and cleaning solutions to wash and scrub hard flooring', 75.00, 100.00, 87, 100, '1779517256_Mop.png', '2026-05-19 12:52:40');
 
 -- --------------------------------------------------------
 
@@ -331,7 +394,10 @@ INSERT INTO `retail_orders` (`id`, `product_id`, `qty`, `subtotal`, `order_date`
 (12, 7, 45, 22000.00, '2026-02-20', '2026-05-17 12:26:35'),
 (13, 7, 35, 18000.00, '2026-03-10', '2026-05-17 12:26:35'),
 (14, 7, 50, 28000.00, '2026-04-05', '2026-05-17 12:26:35'),
-(15, 7, 65, 35000.00, '2026-05-12', '2026-05-17 12:26:35');
+(15, 7, 65, 35000.00, '2026-05-12', '2026-05-17 12:26:35'),
+(16, 10, 5, 925.00, '2026-05-23', '2026-05-23 12:48:52'),
+(17, 8, 4, 400.00, '2026-05-24', '2026-05-24 11:38:22'),
+(18, 10, 1, 185.00, '2026-05-24', '2026-05-24 11:42:04');
 
 --
 -- Indexes for dumped tables
@@ -403,25 +469,25 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT for table `audit_trail`
 --
 ALTER TABLE `audit_trail`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `dispatch_items`
 --
 ALTER TABLE `dispatch_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT for table `dispatch_sessions`
 --
 ALTER TABLE `dispatch_sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT for table `inventory_logs`
 --
 ALTER TABLE `inventory_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT for table `ml_predictions`
@@ -439,7 +505,7 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT for table `retail_orders`
 --
 ALTER TABLE `retail_orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- Constraints for dumped tables

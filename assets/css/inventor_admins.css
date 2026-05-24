@@ -15,8 +15,9 @@ body {
     min-height: 100vh;
 }
 
+
 /* ==========================================================================
-   LAYOUT: SIDEBAR COMPONENTS
+    SIDEBAR NAVIGATION, RESPONSIVE LOGO & HOVER TOOLTIPS
    ========================================================================== */
 .sidebar {
     width: 240px;
@@ -25,7 +26,7 @@ body {
     display: flex;
     flex-direction: column;
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
+    overflow: visible;
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -35,25 +36,35 @@ body {
 }
 
 .sidebar-header {
+    height: auto;
+    min-height: 90px;
+    padding: 15px 25px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #f28c28;
     display: flex;
     align-items: center;
-    justify-content: center; /* Centers the logo in the wrapper area */
-    padding: 30px 20px; 
-    width: 100%;
-    min-height: 140px;
+    justify-content: center;
+    position: relative; 
     box-sizing: border-box;
-    overflow: visible; 
+    gap: 15px;
 }
 
 .sidebar-logo {
-    width: 120px;  
-    height: 120px; 
+    
+    width: 110px;
+    height: 110px;
     object-fit: contain;
     border-radius: 50%;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: block;
     margin: 0 auto;
     flex-shrink: 0;
+}
+
+.sidebar.collapsed .sidebar-logo {
+    width: 45px;
+    height: 45px;
 }
 
 .sidebar span {
@@ -72,11 +83,7 @@ body {
     pointer-events: none;
 }
 
-.sidebar-footer {
-    border-top: 1px solid #f0f0f0;
-}
-
-/* --- Navigation Items --- */
+/* --- Menu Nav Items & Hover Tooltip Engine --- */
 nav {
     flex: 1;
 }
@@ -88,6 +95,7 @@ nav {
     cursor: pointer;
     border-bottom: 1px solid #f9f9f9;
     font-weight: 500;
+    color: #555;
     transition: background 0.3s ease, color 0.3s ease;
     position: relative; 
     text-decoration: none;
@@ -119,6 +127,52 @@ nav {
     margin: 0;
     flex-shrink: 0;
     transition: transform 0.4s ease; 
+}
+
+.sidebar.collapsed .nav-item::after {
+    content: attr(data-title); 
+    position: absolute;
+    left: 85px;
+    background: #333333;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Tooltip Little Triangle Pointer arrow */
+.sidebar.collapsed .nav-item::before {
+    content: "";
+    position: absolute;
+    left: 77px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent #333333 transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Reveal tooltip when micro-panels are hovered */
+.sidebar.collapsed .nav-item:hover::after,
+.sidebar.collapsed .nav-item:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+.sidebar-footer {
+    border-top: 1px solid #f0f0f0;
 }
 
 /* ==========================================================================
@@ -226,7 +280,7 @@ CATALOG HEADER CONTROLS
 }
 
 /* ==========================================================================
-   DASHBOARD CONTENT & CARDS
+   Inventory CARDS
    ========================================================================== */
 .card {
     background: white;
@@ -247,7 +301,6 @@ CATALOG HEADER CONTROLS
 .stock-levels { flex: 1; }
 .recent-orders { flex: 2; }
 
-/* --- Data Visualizations --- */
 .chart-placeholder {
     height: 150px;
     background: #fafafa;
@@ -311,7 +364,7 @@ td {
 }
 
 /* ==========================================================================
-   INVENTORY INTERFACE COMPONENTS
+INVENTORY INTERFACE COMPONENTS
    ========================================================================== */
 .inventory-container { 
     padding: 25px; 
@@ -326,7 +379,6 @@ td {
     margin-top: 20px;
 }
 
-/* --- Product Profile Display Card --- */
 .product-card {
     background: #fff;
     border-radius: 12px;
@@ -368,7 +420,6 @@ td {
     color: white; 
 }
 
-/* --- Card Image Container --- */
 .card-image-wrapper {
     width: 100%;
     height: 220px; 
@@ -386,7 +437,6 @@ td {
     object-fit: contain;
 }
 
-/* --- Card Content Metric Sections --- */
 .card-info {
     padding: 15px;
     padding-top: 0; 
@@ -434,7 +484,6 @@ td {
     padding-top: 6px;
 }
 
-/* --- Progress Metrics --- */
 .progress-container {
     margin-top: 10px;
 }
@@ -534,7 +583,6 @@ td {
     cursor: pointer; 
 }
 
-/* --- Media Upload Elements --- */
 .file-input-wrapper { 
     border: 2px dashed #f28c28; 
     padding: 15px; 
@@ -554,7 +602,6 @@ td {
     border: 2px solid #f28c28; 
 }
 
-/* --- Control Buttons --- */
 .btn-submit { 
     width: 100%; 
     padding: 12px; 
@@ -594,7 +641,7 @@ td {
     }
 
     .refresh-btn {
-        width: 100%; /* Spans button cleanly across screens on mobile */
+        width: 100%; 
         justify-content: center;
         display: flex;
         align-items: center;
@@ -614,8 +661,7 @@ td {
         flex-direction: column;
         padding: 10px;
     }
-    
-    /* Responsive structural values for sidebar layout properties */
+
     .sidebar { 
         width: 75px; 
     }
@@ -623,8 +669,7 @@ td {
     .sidebar span { 
         display: none; 
     }
-    
-    /* FIXED RESPONSTRUCTIVE LOGO BREAKPOINTS - MATCHES DASHBOARD SPECIFICATIONS */
+ 
     .sidebar-header {
         padding: 20px 15px;
         min-height: 100px;   

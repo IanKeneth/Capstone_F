@@ -38,20 +38,18 @@ function e($value): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel </title>
+    <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/settings.css">
-
 </head>
 <body>
     <div class="container">
         <aside class="sidebar">
             <div class="sidebar-header">
                 <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
-                
             </div>
             <nav style="flex-grow: 1;">
-                <a href="index.php" class="nav-item" data-title="Dashboard">
+                <a href="index.php " class="nav-item " data-title="Dashboard">
                     <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
                     <span>Dashboard</span>
                 </a>
@@ -67,25 +65,28 @@ function e($value): string {
                     <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
                     <span>Dispatchers</span>
                 </a>
-                <a href="audit_trail.php" class="nav-item" data-title="Audit Trail">
-                    <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
-                    <span>Audit Trail</span>
-                </a>
                 <a href="retailer.php" class="nav-item" data-title="Retailer">
                     <div class="icon"><i class="fa-solid fa-shop"></i></div>
                     <span>Retailer</span>
+                </a>
+                <a href="audit_trail.php" class="nav-item " data-title="Audit Trail">
+                    <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                    <span>Audit Trail</span>
                 </a>
                 <a href="sales.php" class="nav-item" data-title="Sales History">
                     <div class="icon"><i class="fa-solid fa-coins"></i></div>
                     <span>Sales History</span>
                 </a>
-                <a href="settings.php" class="nav-item active" data-title="Settings">
+                <a href="setting.php" class="nav-item active" data-title="Settings">
                     <div class="icon"><i class="fa-solid fa-gears"></i></div>
                     <span>Settings</span>
                 </a>
             </nav>
             <div class="sidebar-footer">
-                <a href="auth/logout.php" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span></a>
+                <a href="auth/logout.php" class="nav-item" data-title="Logout">
+                    <div class="icon"><i class="fa-solid fa-right-from-bracket"></i> </div>
+                    <span>Logout</span>
+                </a>
             </div>
         </aside>
 
@@ -181,52 +182,57 @@ function e($value): string {
     </div>
 
     <script>
-document.querySelectorAll('.toggle-password').forEach(eyeIcon => {
-    eyeIcon.addEventListener('click', function () {
-        const passwordInput = this.parentElement.querySelector('.settings-input');
-        
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            this.classList.remove('fa-eye');
-            this.classList.add('fa-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            this.classList.remove('fa-eye-slash');
-            this.classList.add('fa-eye');
-        }
-    });
-});
-    window.addEventListener('DOMContentLoaded', () => {
-
-        setTimeout(() => {
-            document.querySelector('input[name="current_password"]').value = '';
-        }, 50);
-    });
-        document.getElementById('profileForm').addEventListener('submit', function() {
-            document.getElementById('loadingOverlay').style.display = 'flex';
-        });
-
-        document.getElementById('profile_upload').addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('picBox').innerHTML = `<img src="${e.target.result}" id="profilePreview">`;
-                }
-                reader.readAsDataURL(file);
+    document.querySelectorAll('.toggle-password').forEach(eyeIcon => {
+        eyeIcon.addEventListener('click', function () {
+            const passwordInput = this.parentElement.querySelector('.settings-input');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                this.classList.remove('fa-eye');
+                this.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                this.classList.remove('fa-eye-slash');
+                this.classList.add('fa-eye');
             }
         });
-        
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
-            const msg = document.getElementById('successMsg');
-            if(msg) msg.style.display = 'none';
-        }, 4000);
-        document.getElementById('sidebarToggle').addEventListener('click', () => {
-            document.querySelector('.sidebar').classList.toggle('active');
-        });
-        document.getElementById('sidebarToggle').addEventListener('click', () => {
-            document.querySelector('.sidebar').classList.toggle('collapsed');
-        });
+            const currentPassField = document.querySelector('input[name="current_password"]');
+            if(currentPassField) currentPassField.value = '';
+        }, 50);
+    });
+    document.getElementById('profileForm').addEventListener('submit', function() {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'flex';
+        }
+    });
+
+    document.getElementById('profile_upload').addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('picBox').innerHTML = `<img src="${e.target.result}" id="profilePreview">`;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+    setTimeout(() => {
+        const msg = document.getElementById('successMsg');
+        if(msg) msg.style.display = 'none';
+    }, 4000);
+
+    document.getElementById('sidebarToggle').addEventListener('click', () => {
+        const sidebar = document.querySelector('.sidebar');
+        if(sidebar) {
+            sidebar.classList.toggle('active');
+            sidebar.classList.toggle('collapsed');
+        }
+    });
     </script>
 </body>
 </html>

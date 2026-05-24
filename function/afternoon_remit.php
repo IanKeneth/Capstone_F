@@ -1,6 +1,8 @@
 <?php
+session_start();
 require_once "../auth/conn.php";
 
+$admin_name = $_SESSION['admin_name'] ?? 'System';
 $sid = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $items = [];
 
@@ -8,53 +10,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_settlement'])) {
     try {
         $pdo->beginTransaction();    
         $received_amount = (float)$_POST['received_amount'];
+        
         $stmtW = $pdo->prepare("SELECT worker_name FROM dispatch_sessions WHERE id = ?");
         $stmtW->execute([$sid]);
         $worker_name = $stmtW->fetchColumn();
 
-        foreach ($_POST['returns'] as $r_item_id => $return_qty) {
-            $return_qty = (int)$return_qty;
-            $qty_taken = (int)$_POST['qtys_taken'][$r_item_id];
-            $pid = (int)$_POST['product_ids'][$r_item_id];
-            $p_name = $_POST['product_names'][$r_item_id];
-            $qty_sold = $qty_taken - $return_qty;
-            $stmtUpd = $pdo->prepare("UPDATE dispatch_items SET qty_returned = ?, qty_sold = ? WHERE id = ?");
-            $stmtUpd->execute([$return_qty, $qty_sold, $r_item_id]);
+        if (isset($_POST['returns'])) {
+            foreach ($_POST['returns'] as $r_item_id => $return_qty) {
+                $return_qty = (int)$return_qty;
+                $qty_taken  = (int)$_POST['qtys_taken'][$r_item_id];
+                $pid        = (int)$_POST['product_ids'][$r_item_id];
+                $p_name     = $_POST['product_names'][$r_item_id];
+                $qty_sold   = $qty_taken - $return_qty;
 
-            if ($return_qty > 0) {
-                $pdo->prepare("UPDATE products SET quantity = quantity + ? WHERE id = ?")
-                    ->execute([$return_qty, $pid]);
+                $stmtUpd = $pdo->prepare("UPDATE dispatch_items SET qty_returned = ?, qty_sold = ? WHERE id = ?");
+                $stmtUpd->execute([$return_qty, $qty_sold, $r_item_id]);
 
-            $sql = "INSERT INTO inventory_logs (product_id, quantity_change, action, notes, admin_name) 
-                    VALUES (?, ?, ?, ?, ?)";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                $pid, 
-                $return_qty, 
-                'Added',
-                "Returned from Session #$sid",
-                'System'
-            ]);
+                if ($return_qty > 0) {
+                    $pdo->prepare("UPDATE products SET quantity = quantity + ? WHERE id = ?")
+                        ->execute([$return_qty, $pid]);
+
+                    $pdo->prepare("INSERT INTO inventory_logs (product_id, quantity_change, action, notes, admin_name) VALUES (?, ?, 'Added', ?, ?)")
+                        ->execute([$pid, $return_qty, "Returned from Session #$sid", $admin_name]);
+                }
+
+                $audit = $pdo->prepare("INSERT INTO audit_trail (session_id, worker_name, product_id, product_name, qty_taken, qty_sold, qty_returned, received_amount, status) 
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $audit->execute([$sid, $worker_name, $pid, $p_name, $qty_taken, $qty_sold, $return_qty, $received_amount, 'Completed Remittance']);
             }
-            if ($qty_sold > 0) {
-                $pdo->prepare("INSERT INTO inventory_logs (product_id, quantity_change, action, notes, admin_name) VALUES (?, ?, 'Removed', ?, 'System')")
-                    ->execute([$pid, $qty_sold, "Wholesale Dispatch - Session #$sid $worker_name"]);
-            }
-
-            $audit = $pdo->prepare("INSERT INTO audit_trail (session_id, worker_name, product_id, product_name, qty_taken, qty_sold, qty_returned, received_amount, status) 
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $audit->execute([
-                $sid, 
-                $worker_name, 
-                $pid, 
-                $p_name, 
-                $qty_taken, 
-                $qty_sold, 
-                $return_qty, 
-                $received_amount, 
-                'Completed Remittance'
-            ]);
         }
+
         $closeSession = $pdo->prepare("UPDATE dispatch_sessions SET status = 'Completed', total_collected = ? WHERE id = ?");
         $closeSession->execute([$received_amount, $sid]);
 
@@ -204,8 +189,9 @@ if ($sid > 0) {
                 <div style="margin-left: auto; font-weight: bold;">Settlement: ₱<span class="row-settlement"><?= number_format($subtotal, 2) ?></span></div>
                 
                 <input type="hidden" name="product_ids[<?= $item['item_id'] ?>]" value="<?= $item['p_id'] ?>">
-                <input type="hidden" name="product_names[<?= $item['item_id'] ?>]" value="<?= htmlspecialchars($item['product_name']) ?>">
+                <input type="hidden" name="product_names[<?= $item['item_id'] ?>]" value="<?= $item['product_name'] ?>">
                 <input type="hidden" name="qtys_taken[<?= $item['item_id'] ?>]" value="<?= $item['qty_taken'] ?>">
+
             </div>
         <?php endforeach; ?>
 
@@ -224,41 +210,41 @@ if ($sid > 0) {
 </div>
 
 <script>
-const rows = document.querySelectorAll('.product-row');
-const receivedInput = document.getElementById('received_amt');
-const grandTotalDisplay = document.getElementById('grand_total');
-const balanceDisplay = document.getElementById('balance_display');
+    const rows = document.querySelectorAll('.product-row');
+    const receivedInput = document.getElementById('received_amt');
+    const grandTotalDisplay = document.getElementById('grand_total');
+    const balanceDisplay = document.getElementById('balance_display');
 
-function runCalculations() {
-    let totalSettlement = 0;
-    rows.forEach(row => {
-        const price = parseFloat(row.dataset.price) || 0;
-        const taken = parseInt(row.dataset.taken) || 0;
-        const returns = parseInt(row.querySelector('.return-qty').value) || 0;
-        const settlement = price * (taken - returns);
-        row.querySelector('.row-settlement').innerText = settlement.toLocaleString(undefined, {minimumFractionDigits: 2});
-        totalSettlement += settlement;
-    });
-    grandTotalDisplay.innerText = totalSettlement.toLocaleString(undefined, {minimumFractionDigits: 2});
-    
-    if (!receivedInput.dataset.manual) { 
-        receivedInput.value = totalSettlement.toFixed(2); 
+    function runCalculations() {
+        let totalSettlement = 0;
+        rows.forEach(row => {
+            const price = parseFloat(row.dataset.price) || 0;
+            const taken = parseInt(row.dataset.taken) || 0;
+            const returns = parseInt(row.querySelector('.return-qty').value) || 0;
+            const settlement = price * (taken - returns);
+            row.querySelector('.row-settlement').innerText = settlement.toLocaleString(undefined, {minimumFractionDigits: 2});
+            totalSettlement += settlement;
+        });
+        grandTotalDisplay.innerText = totalSettlement.toLocaleString(undefined, {minimumFractionDigits: 2});
+        
+        if (!receivedInput.dataset.manual) { 
+            receivedInput.value = totalSettlement.toFixed(2); 
+        }
+        
+        let balance = parseFloat(receivedInput.value) - totalSettlement;
+        balanceDisplay.innerText = balance.toFixed(2);
     }
-    
-    let balance = parseFloat(receivedInput.value) - totalSettlement;
-    balanceDisplay.innerText = balance.toFixed(2);
-}
 
-document.addEventListener('input', (e) => {
-    if (e.target.classList.contains('return-qty')) runCalculations();
-});
+    document.addEventListener('input', (e) => {
+        if (e.target.classList.contains('return-qty')) runCalculations();
+    });
 
-receivedInput.addEventListener('input', () => { 
-    receivedInput.dataset.manual = "true"; 
-    runCalculations(); 
-});
+    receivedInput.addEventListener('input', () => { 
+        receivedInput.dataset.manual = "true"; 
+        runCalculations(); 
+    });
 
-runCalculations();
+    runCalculations();
 </script>
 </body>
 </html>

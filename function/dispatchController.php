@@ -33,20 +33,25 @@ class DispatchController {
         return $grouped;
     }
 
-    public function createBulkDispatch(array $data): bool {
+    public function createBulkDispatch(array $data, string $admin): bool {
         try {
             $this->pdo->beginTransaction();
             $stmt = $this->pdo->prepare("INSERT INTO dispatch_sessions (worker_name, date_today, status) VALUES (?, ?, 'Active')");
             $stmt->execute([$data['worker_name'], $data['date_today']]);
             $sid = (int)$this->pdo->lastInsertId();
 
+            $worker = $data['worker_name'];
+
             foreach ($data['product_ids'] as $idx => $pid) {
                 $qty = (int)$data['qtys'][$idx];
                 $pid = (int)$pid;
-                if ($qty > 0) $this->processItem($sid, $pid, $qty, $data['worker_name']);
+                if ($qty > 0) $this->processItem($sid, $pid, $qty, $worker, $admin);
             }
             return $this->pdo->commit();
-        } catch (Exception $e) { $this->pdo->rollBack(); throw $e; }
+        } catch (Exception $e) { 
+            $this->pdo->rollBack(); 
+            throw $e; 
+        }
     }
 
     public function addSingleItem(array $data, string $admin): bool {
@@ -60,18 +65,22 @@ class DispatchController {
             $newPid = (int)$data['new_product_id'];
             $this->processItem($sessionId, $newPid, (int)$data['new_qty'], $worker, $admin);
             return $this->pdo->commit();
-        } catch (Exception $e) { $this->pdo->rollBack(); throw $e; }
+        } catch (Exception $e) { 
+            $this->pdo->rollBack(); 
+            throw $e; 
+        }
     }
 
-    private function processItem(int $sid, int $pid, int $qty, string $worker, string $admin = "Admin"): void {
+    private function processItem(int $sid, int $pid, int $qty, string $worker, string $admin): void {
         $p = $this->pdo->prepare("SELECT product_name, quantity, wholesale_price FROM products WHERE id = ?");
         $p->execute([$pid]);
-        $prod = $p->fetch();
+        $prod = $p->fetch(PDO::FETCH_ASSOC);
 
+        if (!$prod) throw new Exception("Product ID {$pid} not found.");
         if ($qty > $prod['quantity']) throw new Exception("Insufficient Stock for {$prod['product_name']}");
 
         $this->pdo->prepare("INSERT INTO dispatch_items (session_id, product_id, qty_taken, price_at_time) VALUES (?,?,?,?)")
-                ->execute([$sid, $pid, $qty, $prod['wholesale_price']]);
+                 ->execute([$sid, $pid, $qty, $prod['wholesale_price']]);
         
         $this->pdo->prepare("UPDATE products SET quantity = quantity - ? WHERE id = ?")->execute([$qty, $pid]);
 

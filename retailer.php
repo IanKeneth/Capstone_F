@@ -39,16 +39,39 @@ try {
                 <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
                 
             </div>
-       
             <nav style="flex-grow: 1;">
-                <a href="index.php" class="nav-item"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
-                <a href="inventory.php" class="nav-item "><i class="fa-solid fa-boxes-packing"></i> <span>Inventory</span></a>
-                <a href="inventory_logs.php" class="nav-item "><i class="fa-solid fa-route"></i> <span>Inventory Logs</span></a>
-                <a href="dispatchers.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Dispatchers</span></a>
-                <a href="audit_trail.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Audit Trail</span></a>
-                <a href="retailer.php" class="nav-item active"><i class="fa-solid fa-shop"></i> <span>Retailer</span></a>
-                <a href="sales.php" class="nav-item "><i class="fa-solid fa-coins"></i> <span>Sales History</span></a>
-                <a href="setting.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
+                <a href="index.php " class="nav-item " data-title="Dashboard">
+                    <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <span>Dashboard</span>
+                </a>
+                <a href="inventory.php" class="nav-item" data-title="Inventory">
+                    <div class="icon"><i class="fa-solid fa-boxes-packing"></i></div>
+                    <span>Inventory</span>
+                </a>
+                <a href="inventory_logs.php" class="nav-item" data-title="Inventory Logs">
+                    <div class="icon"><i class="fa-solid fa-route"></i></div>
+                    <span>Inventory Logs</span>
+                </a>
+                <a href="dispatchers.php" class="nav-item" data-title="Dispatchers">
+                    <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                    <span>Dispatchers</span>
+                </a>
+                <a href="retailer.php" class="nav-item active" data-title="Retailer">
+                    <div class="icon"><i class="fa-solid fa-shop"></i></div>
+                    <span>Retailer</span>
+                </a>
+                <a href="audit_trail.php" class="nav-item " data-title="Audit Trail">
+                    <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                    <span>Audit Trail</span>
+                </a>
+                <a href="sales.php" class="nav-item" data-title="Sales History">
+                    <div class="icon"><i class="fa-solid fa-coins"></i></div>
+                    <span>Sales History</span>
+                </a>
+                <a href="setting.php" class="nav-item " data-title="Settings">
+                    <div class="icon"><i class="fa-solid fa-gears"></i></div>
+                    <span>Settings</span>
+                </a>
             </nav>
     </aside>
 
@@ -62,11 +85,11 @@ try {
         <section class="content-area">
         <?php if (isset($_GET['status'])): ?>
             <?php if ($_GET['status'] === 'success'): ?>
-                <div style="background: #dcfce7; color: #15803d; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
-                    Order saved and stock updated successfully!
+                <div class="out" style="background: #dcfce7; color: #15803d; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                    Order saved  successfully!
                 </div>
             <?php elseif ($_GET['status'] === 'error'): ?>
-                <div style="background: #fee2e2; color: #b91c1c; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                <div class="out" style="background: #fee2e2; color: #b91c1c; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
                     Error: <?= htmlspecialchars($_GET['msg']) ?>
                 </div>
             <?php endif; ?>
@@ -179,6 +202,18 @@ try {
         document.getElementById('viewSub').innerText = "₱ " + total.toLocaleString(undefined, {minimumFractionDigits: 2});
         document.getElementById('hiddenSub').value = total.toFixed(2);
     }
+    document.addEventListener("DOMContentLoaded", function() {
+    const alerts = document.querySelectorAll('.out');
+        
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500); 
+            }, 4000);
+        });
+    });
     document.getElementById('sidebarToggle').addEventListener('click', () => {
         document.querySelector('.sidebar').classList.toggle('active');
     });

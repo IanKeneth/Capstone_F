@@ -1,6 +1,9 @@
 <?php
+// Ensure session starts safely
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once "../auth/conn.php"; 
-session_start();
 
 class RetailController {
     private PDO $pdo;
@@ -10,67 +13,66 @@ class RetailController {
     }
 
     /**
-     * 
+     * Handles the complete process of a retail transaction
      * @param array $data The $_POST data.
      * @param string $adminName The name of the session user.
      * @throws Exception
      */
-  public function handleSale(array $data, string $adminName) {
-    try {
-        $this->pdo->beginTransaction();
+    public function handleSale(array $data, string $adminName): bool {
+        try {
+            $this->pdo->beginTransaction();
 
-        $productId = $data['product_id'];
-        $qty       = intval($data['qty']);
-        $orderDate = $data['order_date'];
-        if ($qty <= 0) {
-            throw new Exception("Invalid quantity. Please enter a number greater than 0.");
+            // Sanitize variables cleanly
+            $productId = isset($data['product_id']) ? (int)$data['product_id'] : 0;
+            $qty       = isset($data['qty']) ? (int)$data['qty'] : 0;
+            $orderDate = $data['order_date'] ?? date('Y-m-d H:i:s');
+
+            if ($qty <= 0) {
+                throw new Exception("Invalid quantity. Please enter a number greater than 0.");
+            }
+
+            // Cleanly validate stock and extract properties
+            $product = $this->validateStock($productId, $qty);
+
+            // Calculate business data safely using float metrics
+            $subtotal = (float)$product['retail_price'] * $qty;
+
+            // Execute isolated private tasks
+            $this->recordOrder($productId, $qty, $subtotal, $orderDate);
+            $this->deductInventory($productId, $qty);
+            $this->logTransaction($productId, $qty, $orderDate, $adminName);
+
+            $this->pdo->commit();
+            return true;
+
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e; 
         }
-
-        $stmt = $this->pdo->prepare("SELECT product_name, quantity, retail_price FROM products WHERE id = :id");
-        $stmt->execute([':id' => $productId]);
-        $product = $stmt->fetch();
-
-        if (!$product) throw new Exception("Product not found.");
-        if ($product['quantity'] < $qty) {
-            throw new Exception("Insufficient stock for " . $product['product_name']);
-        }
-
-        $subtotal = $product['retail_price'] * $qty;
-
-        $this->recordOrder($productId, $qty, $subtotal, $orderDate);
-
-        $this->deductInventory($productId, $qty);
-
-        $this->logTransaction($productId, $qty, $orderDate, $adminName);
-
-        $this->pdo->commit();
-        return true;
-
-    } catch (Exception $e) {
-        $this->pdo->rollBack();
-        throw $e; 
     }
-}
 
-    private function validateStock(int $id, int $qty) {
-        $stmt = $this->pdo->prepare("SELECT product_name, quantity FROM products WHERE id = :id");
+    private function validateStock(int $id, int $qty): array {
+        $stmt = $this->pdo->prepare("SELECT product_name, quantity, retail_price FROM products WHERE id = :id");
         $stmt->execute([':id' => $id]);
-        $product = $stmt->fetch();
+        
+        // Enforce FETCH_ASSOC explicitly to eliminate runtime environment variances
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$product) {
             throw new Exception("Product not found.");
         }
 
-        if ($product['quantity'] < $qty) {
+        if ((int)$product['quantity'] < $qty) {
             throw new Exception("Insufficient stock for " . $product['product_name']);
         }
+
+        return $product;
     }
 
-    private function recordOrder(int $pid, int $qty, float $total, string $date) {
+    private function recordOrder(int $pid, int $qty, float $total, string $date): void {
         $sql = "INSERT INTO retail_orders (product_id, qty, subtotal, order_date) 
                 VALUES (:pid, :qty, :total, :date)";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
+        $this->pdo->prepare($sql)->execute([
             ':pid'   => $pid,
             ':qty'   => $qty,
             ':total' => $total,
@@ -78,17 +80,15 @@ class RetailController {
         ]);
     }
 
-    private function deductInventory(int $pid, int $qty) {
+    private function deductInventory(int $pid, int $qty): void {
         $sql = "UPDATE products SET quantity = quantity - :qty WHERE id = :pid";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':qty' => $qty, ':pid' => $pid]);
+        $this->pdo->prepare($sql)->execute([':qty' => $qty, ':pid' => $pid]);
     }
 
-    private function logTransaction(int $pid, int $qty, string $date, string $admin) {
+    private function logTransaction(int $pid, int $qty, string $date, string $admin): void {
         $sql = "INSERT INTO inventory_logs (product_id, quantity_change, action, notes, admin_name) 
                 VALUES (:pid, :qty, 'Removed', :notes, :admin)";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
+        $this->pdo->prepare($sql)->execute([
             ':pid'   => $pid,
             ':qty'   => $qty,
             ':notes' => "Retail Sale - Date: $date", 
@@ -97,21 +97,17 @@ class RetailController {
     }
 }
 
-if (isset($_POST['submit_retail'])) {
+// ROUTING LAYER: Safe handling block triggered only upon exact valid execution
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_retail'])) {
     $retailManager = new RetailController($pdo);
-
     $admin = $_SESSION['admin_name'] ?? 'System';
 
     try {
         $retailManager->handleSale($_POST, $admin);
         header("Location: ../retailer.php?status=success");
         exit();
-
     } catch (Exception $e) {
         header("Location: ../retailer.php?status=error&msg=" . urlencode($e->getMessage()));
         exit();
     }
-} else {
-    header("Location: ../retailer.php");
-    exit();
 }

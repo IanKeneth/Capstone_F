@@ -78,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_order'])) {
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
                                 <input type="number" step="0.01" id="subtotal" name="subtotal" 
-                                       class="form-control" value="<?= $order['subtotal'] ?>" readonly>
+                                    class="form-control" value="<?= $order['subtotal'] ?>" readonly>
                             </div 
                         </div>
 
@@ -87,7 +87,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_order'])) {
                             <input type="date" name="order_date" class="form-control" value="<?= $order['order_date'] ?>" required>
                         </div>
 
-                        <button type="submit" name="update_order" class="btn btn-primary w-100">Save Changes</button>
+                        <button type="submit" name="update_order" style="background-color: orange; border:none;" class="btn btn-primary w-100">Save Changes</button>
+                        <a href="javascript:history.back()" class="cancel" style="border-radius: 10px; background-color:orange; color:white; text-decoration:none; width:100%; padding:6px; display:inline-block; text-align:center; margin-top:10px;">
+                            Cancel</a>
                     </form>
                 </div>
             </div>

@@ -30,14 +30,13 @@ foreach ($months as $m) {
 
 $dailySales = $pdo->query("SELECT SUM(rev) FROM (SELECT total_collected as rev FROM dispatch_sessions WHERE status='Completed' AND date_today='$today' UNION ALL SELECT subtotal FROM retail_orders WHERE order_date='$today') as t")->fetchColumn() ?: 0;
 $activeProductCount = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
-$lowStockCount = $pdo->query("SELECT COUNT(*) FROM products WHERE quantity <= 5")->fetchColumn();
+$lowStockCount = $pdo->query("SELECT COUNT(*) FROM products WHERE quantity <= 30")->fetchColumn();
 
 $topCombinedQuery = "SELECT p.product_name, SUM(all_sales.total_qty) as total_sold
                     FROM (
-                        -- Get Retail Sales
                         SELECT product_id, SUM(qty) as total_qty 
                         FROM retail_orders 
-                        GROUP BY product_id            
+                        GROUP BY product_id
                         UNION ALL
                         SELECT product_id, SUM(qty_sold) as total_qty 
                         FROM dispatch_items 
@@ -124,7 +123,7 @@ if ($forecast === false) {
                 
             </div>
             <nav style="flex-grow: 1;">
-                <a href="index.php " class="nav-item active" data-title="Dashboard">
+                <a href="index.php " class="nav-item  active" data-title="Dashboard">
                     <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
                     <span>Dashboard</span>
                 </a>
@@ -140,13 +139,13 @@ if ($forecast === false) {
                     <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
                     <span>Dispatchers</span>
                 </a>
-                <a href="audit_trail.php" class="nav-item" data-title="Audit Trail">
-                    <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
-                    <span>Audit Trail</span>
-                </a>
                 <a href="retailer.php" class="nav-item" data-title="Retailer">
                     <div class="icon"><i class="fa-solid fa-shop"></i></div>
                     <span>Retailer</span>
+                </a>
+                <a href="audit_trail.php" class="nav-item " data-title="Audit Trail">
+                    <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                    <span>Audit Trail</span>
                 </a>
                 <a href="sales.php" class="nav-item" data-title="Sales History">
                     <div class="icon"><i class="fa-solid fa-coins"></i></div>

@@ -23,8 +23,9 @@ body {
 }
 
 
+
 /* ==========================================================================
-    SIDEBAR NAVIGATION
+    SIDEBAR NAVIGATION, RESPONSIVE LOGO & HOVER TOOLTIPS
    ========================================================================== */
 .sidebar {
     width: 240px;
@@ -33,7 +34,7 @@ body {
     display: flex;
     flex-direction: column;
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
+    overflow: visible; 
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -43,28 +44,54 @@ body {
 }
 
 .sidebar-header {
+    height: auto;
+    min-height: 90px;
+    padding: 15px 25px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #f28c28;
     display: flex;
     align-items: center;
-    justify-content: center; 
-    padding: 20px 0;        
-    width: 100%;            
-    height: 140px;          
+    justify-content: center;
+    position: relative; 
     box-sizing: border-box;
-    overflow: hidden;      
+    gap: 15px;
 }
 
-.sidebar-logo { 
-    width: 110px;          
-    height: 110px;          
-    object-fit: contain;   
+.sidebar-logo {
+    
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
     border-radius: 50%;
-    transition: all 0.3s ease;
-    display: block;         
-    margin: 0 auto;         
-    flex-shrink: 0;         
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+    margin: 0 auto;
+    flex-shrink: 0;
 }
 
-/* Navigation Menu Links */
+.sidebar.collapsed .sidebar-logo {
+    width: 45px;
+    height: 45px;
+}
+
+.sidebar span {
+    position: absolute;
+    left: 65px; 
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(0);
+}
+
+.sidebar.collapsed span {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px); 
+    pointer-events: none;
+}
+
+/* --- Menu Nav Items & Hover Tooltip Engine --- */
 nav {
     flex: 1;
 }
@@ -89,29 +116,13 @@ nav {
 
 .nav-item:hover {
     background-color: #fffaf5;
-    color: var(--primary);
+    color: #f28c28;
 }
 
 .nav-item.active {
     background-color: #fff5eb;
-    color: var(--primary);
-    border-right: 4px solid var(--primary); 
-}
-
-.sidebar span {
-    position: absolute;
-    left: 65px; 
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: translateX(0);
-}
-
-.sidebar.collapsed span {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateX(-10px); 
-    pointer-events: none;
+    color: #f28c28;
+    border-right: 4px solid #f28c28; 
 }
 
 .icon {
@@ -126,9 +137,53 @@ nav {
     transition: transform 0.4s ease; 
 }
 
+/* HOVER TOOLTIP EFFECT*/
+.sidebar.collapsed .nav-item::after {
+    content: attr(data-title);
+    position: absolute;
+    left: 85px;
+    background: #333333;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Tooltip Little Triangle Pointer arrow */
+.sidebar.collapsed .nav-item::before {
+    content: "";
+    position: absolute;
+    left: 77px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent #333333 transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Reveal tooltip when micro-panels are hovered */
+.sidebar.collapsed .nav-item:hover::after,
+.sidebar.collapsed .nav-item:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
 .sidebar-footer {
     border-top: 1px solid #f0f0f0;
 }
+
 
 
 /* ==========================================================================
@@ -295,7 +350,6 @@ nav {
     font-size: 0.9rem; 
 }
 
-/* Base Analytics/Dashboard Tables Styling */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -323,10 +377,9 @@ td {
 
 
 /* ==========================================================================
-   6. RESPONSIVE MEDIA QUERIES (CLEANED & COMBINED)
+   RESPONSIVE MEDIA QUERIES (CLEANED & COMBINED)
    ========================================================================== */
 
-/* Tablet Viewports (1024px and below) */
 @media (max-width: 1024px) {
     .charts-container, 
     .analysis-container { 
@@ -334,7 +387,6 @@ td {
     }
 }
 
-/* Mobile Layouts (768px and below) */
 @media (max-width: 768px) {
     .analytics-row, .data-row {
         flex-direction: column;
@@ -345,8 +397,7 @@ td {
         width: 100%;
         flex: none;
     }
-    
-    /* Structural adjustments for small sidebar settings */
+
     .sidebar { 
         width: 75px; 
     }

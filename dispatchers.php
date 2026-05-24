@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once "auth/conn.php";
-require_once "function/dispatchControler.php";
+require_once "function/dispatchController.php";
 
 if (!isset($_SESSION['admin_id'])) {
     header("Location: auth/login.php");
@@ -12,15 +12,19 @@ $dispatchManager = new DispatchController($pdo);
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         if (isset($_POST['submit_dispatch'])) {
-            $dispatchManager->createBulkDispatch($_POST);
-            header("Location: dispatchers.php?success=1"); exit();
+            // FIX: Added the second argument here
+            $dispatchManager->createBulkDispatch($_POST, $_SESSION['admin_name'] ?? 'Admin');
+            header("Location: dispatchers.php?success=1"); 
+            exit();
         }
         if (isset($_POST['add_single_item'])) {
             $dispatchManager->addSingleItem($_POST, $_SESSION['admin_name'] ?? 'Admin');
-            header("Location: dispatchers.php?success=added"); exit();
+            header("Location: dispatchers.php?success=added"); 
+            exit();
         }
     } catch (Exception $e) {
-        header("Location: dispatchers.php?error=" . urlencode($e->getMessage())); exit();
+        header("Location: dispatchers.php?error=" . urlencode($e->getMessage())); 
+        exit();
     }
 }
 
@@ -46,16 +50,40 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price FROM produ
                 <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
                 
             </div>
-        
             <nav style="flex-grow: 1;">
-                <a href="index.php" class="nav-item"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
-                <a href="inventory.php" class="nav-item "><i class="fa-solid fa-boxes-packing"></i> <span>Inventory</span></a>
-                <a href="inventory_logs.php" class="nav-item "><i class="fa-solid fa-route"></i> <span>Inventory Logs</span></a>
-                <a href="dispatchers.php" class="nav-item active"><i class="fa-solid fa-clipboard-list"></i> <span>Dispatchers</span></a>
-                <a href="audit_trail.php" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> <span>Audit Trail</span></a>
-                <a href="retailer.php" class="nav-item "><i class="fa-solid fa-shop"></i> <span>Retailer</span></a>
-               <a href="sales.php" class="nav-item "><i class="fa-solid fa-coins"></i> <span>Sales History</span></a>
-                <a href="setting.php" class="nav-item"><i class="fa-solid fa-gears"></i> <span>Settings</span></a>
+                <a href="index.php " class="nav-item " data-title="Dashboard">
+                    <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <span>Dashboard</span>
+                </a>
+                <a href="inventory.php" class="nav-item" data-title="Inventory">
+                    <div class="icon"><i class="fa-solid fa-boxes-packing"></i></div>
+                    <span>Inventory</span>
+                </a>
+                <a href="inventory_logs.php" class="nav-item" data-title="Inventory Logs">
+                    <div class="icon"><i class="fa-solid fa-route"></i></div>
+                    <span>Inventory Logs</span>
+                </a>
+                <a href="dispatchers.php" class="nav-item active" data-title="Dispatchers">
+                    <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                    <span>Dispatchers</span>
+                </a>
+                <a href="retailer.php" class="nav-item" data-title="Retailer">
+                    <div class="icon"><i class="fa-solid fa-shop"></i></div>
+                    <span>Retailer</span>
+                </a>
+                <a href="audit_trail.php" class="nav-item" data-title="Audit Trail">
+                    <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                    <span>Audit Trail</span>
+                </a>
+                <a href="sales.php" class="nav-item" data-title="Sales History">
+                    <div class="icon"><i class="fa-solid fa-coins"></i></div>
+                    <span>Sales History</span>
+                </a>
+                <a href="setting.php" class="nav-item " data-title="Settings">
+                    <div class="icon"><i class="fa-solid fa-gears"></i></div>
+                    <span>Settings</span>
+                </a>
+            </nav>
             </nav>
     </aside>
 
