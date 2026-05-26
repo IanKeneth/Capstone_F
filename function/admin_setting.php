@@ -2,6 +2,11 @@
 session_start();
 require_once "../auth/conn.php";
 
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: ../login.php");
+    exit();
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $admin_id = $_SESSION['admin_id'];
     $full_name = trim($_POST['full_name']);
@@ -9,7 +14,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
+    if (empty($full_name)) {
+        $_SESSION['error'] = "Full name cannot be empty.";
+        header("Location: ../setting.php");
+        exit();
+    }
+
     try {
+        $pdo->beginTransaction();
 
         $stmt = $pdo->prepare("SELECT password, profile_pic FROM admin WHERE id = ?");
         $stmt->execute([$admin_id]);
@@ -17,19 +29,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (!empty($current_password)) {
             if (password_verify($current_password, $user['password'])) {
-                if (!empty($new_password) && $new_password === $confirm_password) {
-                    $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-                    $update_pass = $pdo->prepare("UPDATE admin SET password = ? WHERE id = ?");
-                    $update_pass->execute([$hashed_password, $admin_id]);
+                if (!empty($new_password)) {
+                    if ($new_password === $confirm_password) {
+                        $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+                        $update_pass = $pdo->prepare("UPDATE admin SET password = ? WHERE id = ?");
+                        $update_pass->execute([$hashed_password, $admin_id]);
+                    } else {
+                        throw new Exception("New passwords do not match.");
+                    }
                 } else {
-                    $_SESSION['error'] = "New passwords do not match.";
-                    header("Location: ../setting.php");
-                    exit();
+                    throw new Exception("New password cannot be empty if current password is provided.");
                 }
             } else {
-                $_SESSION['error'] = "Current password is incorrect.";
-                header("Location: ../setting.php");
-                exit();
+                throw new Exception("Current password is incorrect.");
             }
         }
 
@@ -39,14 +51,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (!empty($_FILES['profile_pic']['name']) && $_FILES['profile_pic']['error'] === UPLOAD_ERR_OK) {
             
             $file_tmp_path = $_FILES['profile_pic']['tmp_name'];
-            $file_name = $_FILES['profile_pic']['name'];
-            $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+            $file_info = getimagesize($file_tmp_path);
             
+            if ($file_info === false) {
+                throw new Exception("Uploaded file is not a valid image.");
+            }
 
+            $file_ext = strtolower(pathinfo($_FILES['profile_pic']['name'], PATHINFO_EXTENSION));
             $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
             if (in_array($file_ext, $allowed_extensions)) {
-
                 $new_file_name = "admin_" . $admin_id . "_" . time() . "." . $file_ext;
                 $upload_dir = "../assets/uploads/profiles/";
                 
@@ -67,23 +81,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $update_pic = $pdo->prepare("UPDATE admin SET profile_pic = ? WHERE id = ?");
                     $update_pic->execute([$new_file_name, $admin_id]);
                 } else {
-                    $_SESSION['error'] = "Failed to save the uploaded image safely.";
-                    header("Location: ../setting.php");
-                    exit();
+                    throw new Exception("Failed to save the image to the server.");
                 }
             } else {
-                $_SESSION['error'] = "Invalid format extension. Use JPG, PNG, GIF, or WEBP.";
-                header("Location: ../setting.php");
-                exit();
+                throw new Exception("Invalid format. Use JPG, PNG, GIF, or WEBP.");
             }
         }
 
+        $pdo->commit();
         $_SESSION['success'] = "Profile updated successfully!";
+        $_SESSION['admin_name'] = $full_name; 
         header("Location: ../setting.php");
         exit();
 
-    } catch (PDOException $e) {
-        $_SESSION['error'] = "Database error: " . $e->getMessage();
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        $_SESSION['error'] = $e->getMessage();
         header("Location: ../setting.php");
         exit();
     }

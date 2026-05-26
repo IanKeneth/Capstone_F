@@ -2,20 +2,20 @@
 session_start();
 require_once "auth/conn.php";
 
-
 if (!isset($_SESSION['admin_id'])) {
     header("Location: ../login.php");
     exit();
 }
 
 try {
+
     $query = "
         (SELECT 
             at.id AS sale_id, 
             at.product_name, 
             at.worker_name AS customer_name, 
             at.qty_sold AS qty, 
-            (at.received_amount / at.qty_sold) AS unit_price, 
+            (at.received_amount / NULLIF(at.qty_sold, 0)) AS unit_price, 
             at.received_amount AS total, 
             at.created_at AS sale_date,
             'Wholesale' AS sale_type
@@ -29,7 +29,7 @@ try {
             p.product_name, 
             'Walk-in Retail' AS customer_name, 
             ro.qty AS qty, 
-            (ro.subtotal / ro.qty) AS unit_price, 
+            (ro.subtotal / NULLIF(ro.qty, 0)) AS unit_price, 
             ro.subtotal AS total, 
             ro.order_date AS sale_date,
             'Retail' AS sale_type
@@ -40,10 +40,17 @@ try {
         
     $stmt = $pdo->query($query);
     $sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $grand_total = array_sum(array_column($sales, 'total'));
+
+    if ($sales) {
+        $grand_total = array_sum(array_column($sales, 'total'));
+    } else {
+        $grand_total = 0;
+        $sales = []; 
+    }
 
 } catch (PDOException $e) {
-    die("Database Error: " . $e->getMessage());
+    error_log("Database Error: " . $e->getMessage());
+    die("A system error occurred. Please try again later.");
 }
 ?>
 
@@ -90,11 +97,11 @@ try {
                     <div class="icon"><i class="fa-solid fa-shop"></i></div>
                     <span>Retailer</span>
                 </a>
-                <a href="audit_trail.php" class="nav-item active" data-title="Audit Trail">
+                <a href="audit_trail.php" class="nav-item " data-title="Audit Trail">
                     <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
                     <span>Audit Trail</span>
                 </a>
-                <a href="sales.php" class="nav-item" data-title="Sales History">
+                <a href="sales.php" class="nav-item active" data-title="Sales History">
                     <div class="icon"><i class="fa-solid fa-coins"></i></div>
                     <span>Sales History</span>
                 </a>
@@ -169,7 +176,7 @@ try {
 <script>
     document.getElementById('exportBtn').addEventListener('click', function() {
         TableToExcel.convert(document.getElementById("salesTable"), {
-            name: "Master_Sales_<?= date('Y-m-d') ?>.xlsx",
+            name: "Sales_Report_<?= date('Y-m-d') ?>.xlsx",
             sheet: { name: "Revenue" }
         });
     });

@@ -1,5 +1,4 @@
 <?php
-// Ensure session starts safely
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -22,7 +21,6 @@ class RetailController {
         try {
             $this->pdo->beginTransaction();
 
-            // Sanitize variables cleanly
             $productId = isset($data['product_id']) ? (int)$data['product_id'] : 0;
             $qty       = isset($data['qty']) ? (int)$data['qty'] : 0;
             $orderDate = $data['order_date'] ?? date('Y-m-d H:i:s');
@@ -31,13 +29,9 @@ class RetailController {
                 throw new Exception("Invalid quantity. Please enter a number greater than 0.");
             }
 
-            // Cleanly validate stock and extract properties
             $product = $this->validateStock($productId, $qty);
-
-            // Calculate business data safely using float metrics
             $subtotal = (float)$product['retail_price'] * $qty;
 
-            // Execute isolated private tasks
             $this->recordOrder($productId, $qty, $subtotal, $orderDate);
             $this->deductInventory($productId, $qty);
             $this->logTransaction($productId, $qty, $orderDate, $adminName);
@@ -54,8 +48,6 @@ class RetailController {
     private function validateStock(int $id, int $qty): array {
         $stmt = $this->pdo->prepare("SELECT product_name, quantity, retail_price FROM products WHERE id = :id");
         $stmt->execute([':id' => $id]);
-        
-        // Enforce FETCH_ASSOC explicitly to eliminate runtime environment variances
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$product) {
@@ -97,7 +89,6 @@ class RetailController {
     }
 }
 
-// ROUTING LAYER: Safe handling block triggered only upon exact valid execution
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_retail'])) {
     $retailManager = new RetailController($pdo);
     $admin = $_SESSION['admin_name'] ?? 'System';

@@ -1,14 +1,18 @@
 <?php 
 session_start();
 require_once "../auth/conn.php"; 
-/** @var PDO $pdo */ 
+
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: ../login.php");
+    exit;
+}
 
 function e(?string $value): string { 
     return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8'); 
 } 
 
 $id = $_GET['id'] ?? null; 
-if (!$id) { header("Location: ../admin/inventory.php"); exit; } 
+if (!$id) { header("Location: ../inventory.php"); exit; } 
 
 $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
 $stmt->execute([$id]);
@@ -21,27 +25,37 @@ if (isset($_POST['update_product'])) {
     $category = trim($_POST['category']); 
     $description = trim($_POST['description']);
     $variation = trim($_POST['variation']); 
-    $wholesale = $_POST['wholesale_price']; 
-    $retail = $_POST['retail_price']; 
+
+    $wholesale = preg_replace('/[^0-9.]/', '', $_POST['wholesale_price']); 
+    $retail = preg_replace('/[^0-9.]/', '', $_POST['retail_price']); 
+    
     $new_quantity = (int)$_POST['quantity']; 
     $max_quantity = (int)$_POST['max_quantity']; 
     $old_quantity = (int)$product['quantity'];
     $admin_name = $_SESSION['admin_name'] ?? 'Admin'; 
 
     $image_name = $product['image_path']; 
+
     if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === 0) {
         $target_dir = "../uploads/";
-        $file_ext = pathinfo($_FILES["product_image"]["name"], PATHINFO_EXTENSION);
-        $image_name = time() . "_" . preg_replace("/[^a-zA-Z0-9]/", "_", $name) . "." . $file_ext;
-        if (move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_dir . $image_name)) {
-            if ($product['image_path'] && $product['image_path'] != 'default-product.png' && file_exists($target_dir . $product['image_path'])) {
-                unlink($target_dir . $product['image_path']);
+        $file_tmp = $_FILES["product_image"]["tmp_name"];
+        $check = getimagesize($file_tmp);
+        if ($check !== false) {
+            $file_ext = strtolower(pathinfo($_FILES["product_image"]["name"], PATHINFO_EXTENSION));
+            $image_name = time() . "_" . bin2hex(random_bytes(4)) . "_" . preg_replace("/[^a-zA-Z0-9]/", "_", $name) . "." . $file_ext;
+            
+            if (move_uploaded_file($file_tmp, $target_dir . $image_name)) {
+                if ($product['image_path'] && $product['image_path'] != 'default-product.png') {
+                    $old_path = $target_dir . $product['image_path'];
+                    if (file_exists($old_path)) { unlink($old_path); }
+                }
             }
         }
     }
 
     try {
         $pdo->beginTransaction();
+        
         $sql = "UPDATE products SET product_name = :name, category = :cat, description = :desc, 
                 variation = :var, wholesale_price = :wh, retail_price = :ret, 
                 quantity = :qty, max_quantity = :max, image_path = :img WHERE id = :id";
@@ -54,21 +68,25 @@ if (isset($_POST['update_product'])) {
 
         if ($new_quantity !== $old_quantity) {
             $diff = $new_quantity - $old_quantity;
-            $action = ($diff > 0) ? 'Added' : 'Updated';
+            $action = ($diff > 0) ? 'Added' : 'Removed';
             
             $log_sql = "INSERT INTO inventory_logs (product_id, admin_name, action, quantity_change, notes) 
                         VALUES (:pid, :admin, :act, :qty, :notes)";
             $pdo->prepare($log_sql)->execute([
-                ':pid' => $id, ':admin' => $admin_name, ':act' => $action, 
-                ':qty' => $diff, ':notes' => "Manual update from $old_quantity to $new_quantity"
+                ':pid' => $id, 
+                ':admin' => $admin_name, 
+                ':act' => $action, 
+                ':qty' => abs($diff),
+                ':notes' => "Manual update from $old_quantity to $new_quantity"
             ]);
         }
 
         $pdo->commit();
         echo "<script>alert('Updated successfully!'); window.location.href='../inventory.php';</script>";
         exit;
+        
     } catch (Exception $e) {
-        $pdo->rollBack();
+        if ($pdo->inTransaction()) $pdo->rollBack();
         echo "<script>alert('Error: " . addslashes($e->getMessage()) . "'); window.history.back();</script>";
     }
 } 

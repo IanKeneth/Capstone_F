@@ -12,7 +12,7 @@ $dispatchManager = new DispatchController($pdo);
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         if (isset($_POST['submit_dispatch'])) {
-            // FIX: Added the second argument here
+
             $dispatchManager->createBulkDispatch($_POST, $_SESSION['admin_name'] ?? 'Admin');
             header("Location: dispatchers.php?success=1"); 
             exit();

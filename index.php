@@ -9,15 +9,26 @@ if (!isset($_SESSION['admin_id'])) {
 
 $today = date('Y-m-d');
 
-$query = "SELECT DATE_FORMAT(date, '%Y-%m') as m, SUM(revenue) as total_rev
-        FROM (SELECT date_today as date, total_collected as revenue FROM dispatch_sessions WHERE status = 'Completed'
-            UNION ALL
-            SELECT order_date as date, subtotal as revenue FROM retail_orders) as combined_sales
-        GROUP BY m ORDER BY m ASC LIMIT 5";
+$fiveMonthsAgo = date('Y-m-01', strtotime("-4 month"));
 
-$res = $pdo->query($query);
+$query = "SELECT m, SUM(revenue) as total_rev
+        FROM (
+            SELECT DATE_FORMAT(date_today, '%Y-%m') as m, total_collected as revenue 
+            FROM dispatch_sessions 
+            WHERE status = 'Completed' AND date_today >= :start_date1
+            UNION ALL
+            SELECT DATE_FORMAT(order_date, '%Y-%m') as m, subtotal as revenue 
+            FROM retail_orders
+            WHERE order_date >= :start_date2
+        ) as combined_sales
+        GROUP BY m ORDER BY m ASC";
+
+$stmt = $pdo->prepare($query);
+$stmt->execute(['start_date1' => $fiveMonthsAgo, 'start_date2' => $fiveMonthsAgo]);
 $dataMap = [];
-while ($row = $res->fetch()) { $dataMap[$row['m']] = (float)$row['total_rev']; }
+while ($row = $stmt->fetch()) { 
+    $dataMap[$row['m']] = (float)$row['total_rev']; 
+}
 
 $months = [];
 for ($i = 4; $i >= 0; $i--) { $months[] = date('Y-m', strtotime("-$i month")); }
@@ -28,7 +39,15 @@ foreach ($months as $m) {
     $monthlyValues[] = $dataMap[$m] ?? 0;
 }
 
-$dailySales = $pdo->query("SELECT SUM(rev) FROM (SELECT total_collected as rev FROM dispatch_sessions WHERE status='Completed' AND date_today='$today' UNION ALL SELECT subtotal FROM retail_orders WHERE order_date='$today') as t")->fetchColumn() ?: 0;
+$dailySalesQuery = "SELECT SUM(rev) FROM (
+                        SELECT total_collected as rev FROM dispatch_sessions WHERE status='Completed' AND date_today = :today1 
+                        UNION ALL 
+                        SELECT subtotal FROM retail_orders WHERE order_date = :today2
+                    ) as t";
+$stmtDaily = $pdo->prepare($dailySalesQuery);
+$stmtDaily->execute(['today1' => $today, 'today2' => $today]);
+$dailySales = $stmtDaily->fetchColumn() ?: 0;
+
 $activeProductCount = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
 $lowStockCount = $pdo->query("SELECT COUNT(*) FROM products WHERE quantity <= 30")->fetchColumn();
 
@@ -48,24 +67,22 @@ $topCombinedQuery = "SELECT p.product_name, SUM(all_sales.total_qty) as total_so
                     LIMIT 5";
 
 $topProductsRes = $pdo->query($topCombinedQuery)->fetchAll();
-
 $topProductLabels = [];
 $topProductValues = [];
-
 foreach ($topProductsRes as $prod) {
     $topProductLabels[] = $prod['product_name'];
     $topProductValues[] = (int)$prod['total_sold'];
 }
 
-$combinedTopQuery = "SELECT product_name, SUM(retail_qty) as r_qty, SUM(wholesale_qty) as w_qty
+$combinedTopQuery = "SELECT p.product_name, SUM(combined.retail_qty) as r_qty, SUM(combined.wholesale_qty) as w_qty
                     FROM (
-                    SELECT product_id, qty as retail_qty, 0 as wholesale_qty FROM retail_orders
-                    UNION ALL
-                    SELECT product_id, 0 as retail_qty, qty_sold as wholesale_qty FROM dispatch_items
+                        SELECT product_id, qty as retail_qty, 0 as wholesale_qty FROM retail_orders
+                        UNION ALL
+                        SELECT product_id, 0 as retail_qty, qty_sold as wholesale_qty FROM dispatch_items
                     ) as combined
                     JOIN products p ON combined.product_id = p.id
-                    GROUP BY p.id, product_name
-                    ORDER BY (SUM(retail_qty) + SUM(wholesale_qty)) DESC
+                    GROUP BY p.id, p.product_name
+                    ORDER BY (SUM(combined.retail_qty) + SUM(combined.wholesale_qty)) DESC
                     LIMIT 5";
 $combinedRes = $pdo->query($combinedTopQuery)->fetchAll();
 

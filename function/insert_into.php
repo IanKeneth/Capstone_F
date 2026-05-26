@@ -2,6 +2,11 @@
 session_start();
 require_once '../auth/conn.php';
 
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: ../login.php");
+    exit();
+}
+
 $target_dir = "../uploads/";
 $image_name = "default-product.png";
 
@@ -10,23 +15,42 @@ if (!file_exists($target_dir)) {
 }
 
 if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] == 0) {
-    $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    $file_type = $_FILES['product_image']['type'];
+    $file_tmp = $_FILES['product_image']['tmp_name'];
+    $check = getimagesize($file_tmp); 
+    
+    if ($check !== false) {
+        $allowed_mimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $mime_type = $check['mime'];
 
-    if (in_array($file_type, $allowed_types)) {
-        $file_ext = pathinfo($_FILES['product_image']['name'], PATHINFO_EXTENSION);
-        $p_name = $_POST['product_name'] ?? 'product';
-        $clean_name = preg_replace("/[^a-zA-Z0-9]/", "_", $p_name);
-        $image_name = time() . "_" . $clean_name . "." . $file_ext;
+        if (in_array($mime_type, $allowed_mimes)) {
 
-        if (!move_uploaded_file($_FILES['product_image']['tmp_name'], $target_dir . $image_name)) {
-            $image_name = "default-product.png";
+            $extensions = [
+                'image/jpeg' => 'jpg',
+                'image/png'  => 'png',
+                'image/gif'  => 'gif',
+                'image/webp' => 'webp'
+            ];
+            $file_ext = $extensions[$mime_type];
+            
+            $p_name = $_POST['product_name'] ?? 'product';
+            $clean_name = preg_replace("/[^a-zA-Z0-9]/", "_", $p_name);
+
+            $image_name = time() . "_" . bin2hex(random_bytes(4)) . "_" . $clean_name . "." . $file_ext;
+
+            if (!move_uploaded_file($file_tmp, $target_dir . $image_name)) {
+                $image_name = "default-product.png";
+            }
         }
     }
 }
 
 try {
     $pdo->beginTransaction();
+
+    $qty = max(0, (int)($_POST['quantity'] ?? 0));
+    $wholesale = max(0, (float)($_POST['wholesale_price'] ?? 0));
+    $retail = max(0, (float)($_POST['retail_price'] ?? 0));
+    $max_qty = max(1, (int)($_POST['max_quantity'] ?? 100));
 
     $sql = "INSERT INTO products 
             (category, product_name, variation, description, wholesale_price, retail_price, quantity, max_quantity, image_path) 
@@ -38,10 +62,10 @@ try {
         $_POST['product_name'] ?? 'Unnamed',
         $_POST['variation'] ?? 'Standard',
         $_POST['description'] ?? '',
-        $_POST['wholesale_price'] ?? 0,
-        $_POST['retail_price'] ?? 0,
-        $_POST['quantity'] ?? 0,
-        $_POST['max_quantity'] ?? 100,
+        $wholesale,
+        $retail,
+        $qty,
+        $max_qty,
         $image_name 
     ]);
 
@@ -51,7 +75,6 @@ try {
                 VALUES (?, ?, 'Added', ?, ?)";
     
     $log_stmt = $pdo->prepare($log_sql);
-    $qty = $_POST['quantity'] ?? 0;
     $admin_name = $_SESSION['admin_name'] ?? 'System'; 
     $note = "Initial stock entry for " . ($_POST['product_name'] ?? 'new product');
 
@@ -62,7 +85,11 @@ try {
     exit();
 
 } catch (Exception $e) {
-    if ($pdo->inTransaction()) { $pdo->rollBack(); }
-    die("Error: " . $e->getMessage());
+    if ($pdo->inTransaction()) { 
+        $pdo->rollBack(); 
+    }
+
+    error_log("Upload Error: " . $e->getMessage());
+    die("Error: Could not save product. Please check your data.");
 }
 ?>

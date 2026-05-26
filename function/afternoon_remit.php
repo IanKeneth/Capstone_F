@@ -2,6 +2,12 @@
 session_start();
 require_once "../auth/conn.php";
 
+// Standard security check
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: ../login.php");
+    exit();
+}
+
 $admin_name = $_SESSION['admin_name'] ?? 'System';
 $sid = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $items = [];
@@ -9,6 +15,7 @@ $items = [];
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_settlement'])) {
     try {
         $pdo->beginTransaction();    
+        $sid = (int)$_POST['session_id'];
         $received_amount = (float)$_POST['received_amount'];
         
         $stmtW = $pdo->prepare("SELECT worker_name FROM dispatch_sessions WHERE id = ?");
@@ -17,11 +24,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_settlement'])) {
 
         if (isset($_POST['returns'])) {
             foreach ($_POST['returns'] as $r_item_id => $return_qty) {
-                $return_qty = (int)$return_qty;
+                $return_qty = max(0, (int)$return_qty);
                 $qty_taken  = (int)$_POST['qtys_taken'][$r_item_id];
                 $pid        = (int)$_POST['product_ids'][$r_item_id];
                 $p_name     = $_POST['product_names'][$r_item_id];
-                $qty_sold   = $qty_taken - $return_qty;
+
+                if ($return_qty > $qty_taken) {
+                    throw new Exception("Return qty for $p_name cannot exceed quantity taken.");
+                }
+
+                $qty_sold = $qty_taken - $return_qty;
+
+                $price_at_time = (float)$_POST['unit_prices'][$r_item_id]; 
+                $item_total_sale = $qty_sold * $price_at_time;
 
                 $stmtUpd = $pdo->prepare("UPDATE dispatch_items SET qty_returned = ?, qty_sold = ? WHERE id = ?");
                 $stmtUpd->execute([$return_qty, $qty_sold, $r_item_id]);
@@ -36,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_settlement'])) {
 
                 $audit = $pdo->prepare("INSERT INTO audit_trail (session_id, worker_name, product_id, product_name, qty_taken, qty_sold, qty_returned, received_amount, status) 
                                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $audit->execute([$sid, $worker_name, $pid, $p_name, $qty_taken, $qty_sold, $return_qty, $received_amount, 'Completed Remittance']);
+                $audit->execute([$sid, $worker_name, $pid, $p_name, $qty_taken, $qty_sold, $return_qty, $item_total_sale, 'Completed Remittance']);
             }
         }
 
@@ -47,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_settlement'])) {
         header("Location: ../dispatchers.php?remitted=1"); 
         exit();
     } catch (Exception $e) { 
-        $pdo->rollBack(); 
-        die("Error: " . $e->getMessage()); 
+        if ($pdo->inTransaction()) $pdo->rollBack(); 
+        die("Remittance Error: " . $e->getMessage()); 
     }
 }
 
