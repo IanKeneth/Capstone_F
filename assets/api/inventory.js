@@ -16,9 +16,22 @@ function loadInventory() {
                     const current = parseInt(product.quantity) || 0;
                     const percent = Math.min((current / max) * 100, 100);
                     const healthColor = percent <= 15 ? '#e74c3c' : '#2ecc71';
+
                     const wholesale = parseFloat(product.wholesale_price || 0);
                     const retail = parseFloat(product.retail_price || 0);
-                    const margin = (retail - wholesale).toFixed(2);
+                    const marginVal = retail - wholesale;
+                    const margin = marginVal.toFixed(2);
+
+                    const isLoss = marginVal < 0;
+                    const profitColor = isLoss ? '#e74c3c' : '#3498db';
+                    const profitLabel = isLoss ? 'LOSS/Unit:' : 'Profit/Unit:';
+
+                    const alertBadge = isLoss 
+                        ? `<div style="background: #fff5f5; color: #e74c3c; border: 1px solid #feb2b2; padding: 4px; border-radius: 4px; font-size: 0.7rem; margin-bottom: 10px; text-align: center; font-weight: bold;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> PRICING ERROR
+                           </div>` 
+                        : '';
+                    
                     const fileName = (product.image_path && product.image_path !== 'default-product.png') 
                         ? product.image_path 
                         : 'default-product.png';
@@ -44,11 +57,13 @@ function loadInventory() {
                                 <div class="card-title">${product.product_name}</div>
                                 <div class="card-variation">${product.variation || 'Standard'}</div>
                                 
+                                ${alertBadge}
+
                                 <div class="card-description" style="font-size: 0.8rem; color: #5f6769; line-height: 1.4; margin-bottom: 15px;">
                                     ${product.description || 'No description available.'}
                                 </div>
 
-                                <div class="price-details-box">
+                                <div class="price-details-box" style="${isLoss ? 'border-color: #e74c3c; background: #fffcfc;' : ''}">
                                     <div class="price-line">
                                         <span>Wholesale:</span>
                                         <span style="font-weight: 500;">₱${wholesale.toFixed(2)}</span>
@@ -58,8 +73,8 @@ function loadInventory() {
                                         <span style="font-weight: 600; color: #2ecc71;">₱${retail.toFixed(2)}</span>
                                     </div>
                                     <div class="price-line profit-border">
-                                        <span style="color: #7f8c8d;">Profit/Unit:</span>
-                                        <span style="font-weight: bold; color: #3498db;">₱${margin}</span>
+                                        <span style="color: #7f8c8d;">${profitLabel}</span>
+                                        <span style="font-weight: bold; color: ${profitColor};">₱${margin}</span>
                                     </div>
                                 </div>
                                 

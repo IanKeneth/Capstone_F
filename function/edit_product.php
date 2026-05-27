@@ -157,7 +157,22 @@ if (isset($_POST['update_product'])) {
 
         <div class="form-group">
             <label>Retail Price (₱)</label>
-            <input type="number" step="0.01" name="retail_price" class="form-control" value="<?php echo e($product['retail_price']); ?>" required>
+            <input 
+                type="number" 
+                id="retail_price"
+                name="retail_price" 
+                class="form-control" 
+                step="0.10" 
+                min="0.01"
+                value="<?php echo e($product['retail_price']); ?>" 
+                oninput="validateProfit()"
+                required
+            >
+            <input type="hidden" id="wholesale_price" value="<?php echo e($product['wholesale_price']); ?>">
+            
+            <small id="profit-warning" style="display:none; color: #e74c3c; margin-top: 5px; font-weight: bold;">
+                <i class="fa-solid fa-circle-exclamation"></i> Warning: Selling below wholesale price!
+            </small>
         </div>
 
         <div class="row">
@@ -190,6 +205,26 @@ if (isset($_POST['update_product'])) {
             reader.readAsDataURL(input.files[0]);
         }
     }
+
+    function validateProfit() {
+        const retailInput = document.getElementById('retail_price');
+        const wholesalePrice = parseFloat(document.getElementById('wholesale_price').value) || 0;
+        const currentRetail = parseFloat(retailInput.value) || 0;
+        const warning = document.getElementById('profit-warning');
+        const saveBtn = document.querySelector('button[type="submit"]'); 
+
+        if (currentRetail < wholesalePrice) {
+            warning.style.display = 'block';
+            retailInput.style.borderColor = '#e74c3c';
+            retailInput.style.backgroundColor = '#fff5f5';
+
+        } else {
+            warning.style.display = 'none';
+            retailInput.style.borderColor = '#ced4da';
+            retailInput.style.backgroundColor = '#fff';
+        }
+    }
+    document.addEventListener('DOMContentLoaded', validateProfit);
 </script>
 
 </body>
