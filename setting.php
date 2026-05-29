@@ -10,7 +10,7 @@ if (!isset($_SESSION['admin_id'])) {
 $admin_id = $_SESSION['admin_id'];
 
 try {
-    $stmt = $pdo->prepare("SELECT name, username, profile_pic FROM admin WHERE id = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT name, username, email, profile_pic FROM admin WHERE id = ? LIMIT 1");
     $stmt->execute([$admin_id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -22,6 +22,7 @@ try {
 
     $admin_name = $user['name'];
     $admin_username = $user['username'];
+    $admin_email = $user['email']; 
     $admin_pic = $user['profile_pic'];
 
 } catch (PDOException $e) {
@@ -141,11 +142,15 @@ function e($value): string {
                             <div class="input-group">
                                 <div class="input-wrapper">
                                     <i class="fa-solid fa-user"></i>
-                                    <input type="text" name="full_name" class="settings-input" value="<?= e($admin_name) ?>" required>
+                                    <input type="text" name="full_name" class="settings-input" value="<?= e($admin_name) ?>" required placeholder="Full Name">
                                 </div>
                                 <div class="input-wrapper">
-                                    <i class="fa-solid fa-user"></i>
-                                    <input type="text" name="username" class="settings-input" value="<?= e($admin_username) ?>" readonly>
+                                    <i class="fa-solid fa-user-tag"></i>
+                                    <input type="text" name="username" class="settings-input" value="<?= e($admin_username) ?>" readonly placeholder="Username">
+                                </div>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-envelope"></i>
+                                    <input type="email" name="email" class="settings-input" value="<?= e($admin_email) ?>" required placeholder="Recovery Email Address">
                                 </div>
                             </div>
                         </div>

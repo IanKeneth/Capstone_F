@@ -10,18 +10,32 @@ if (!isset($_SESSION['admin_id'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $admin_id = $_SESSION['admin_id'];
     $full_name = trim($_POST['full_name']);
+    $email = trim($_POST['email'] ?? ''); 
     $current_password = $_POST['current_password'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
-    if (empty($full_name)) {
-        $_SESSION['error'] = "Full name cannot be empty.";
+    if (empty($full_name) || empty($email)) {
+        $_SESSION['error'] = "Full name and Recovery Email cannot be empty.";
+        header("Location: ../setting.php");
+        exit();
+    }
+
+    // UPDATED: Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['error'] = "Please provide a valid email address.";
         header("Location: ../setting.php");
         exit();
     }
 
     try {
         $pdo->beginTransaction();
+
+        $check_email = $pdo->prepare("SELECT id FROM admin WHERE email = ? AND id != ? LIMIT 1");
+        $check_email->execute([$email, $admin_id]);
+        if ($check_email->fetch()) {
+            throw new Exception("This recovery email is already in use by another account.");
+        }
 
         $stmt = $pdo->prepare("SELECT password, profile_pic FROM admin WHERE id = ?");
         $stmt->execute([$admin_id]);
@@ -45,8 +59,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        $update_name = $pdo->prepare("UPDATE admin SET name = ? WHERE id = ?");
-        $update_name->execute([$full_name, $admin_id]);
+        $update_info = $pdo->prepare("UPDATE admin SET name = ?, email = ? WHERE id = ?");
+        $update_info->execute([$full_name, $email, $admin_id]);
 
         if (!empty($_FILES['profile_pic']['name']) && $_FILES['profile_pic']['error'] === UPLOAD_ERR_OK) {
             

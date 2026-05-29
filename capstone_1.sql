@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 26, 2026 at 11:32 AM
+-- Generation Time: May 29, 2026 at 02:18 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,17 +31,20 @@ CREATE TABLE `admin` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `username` varchar(255) NOT NULL,
+  `email` varchar(255) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
   `profile_pic` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `reset_token` varchar(64) DEFAULT NULL,
+  `reset_expires_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `admin`
 --
 
-INSERT INTO `admin` (`id`, `name`, `username`, `password`, `profile_pic`, `created_at`) VALUES
-(1, 'Birondo Ian keneth', 'Keneth', '$2y$10$HTRe/nymCzvDNu2/p.IJ8uOVwxNTvP8tWzz6Rh4/2Y.PGWxNXNSCC', 'admin_1_1779544789.png', '2026-05-17 13:50:20');
+INSERT INTO `admin` (`id`, `name`, `username`, `email`, `password`, `profile_pic`, `created_at`, `reset_token`, `reset_expires_at`) VALUES
+(1, 'Birondo Ian keneth', 'Keneth', 'kashizudoto2123@gmail.com', '$2y$10$HTRe/nymCzvDNu2/p.IJ8uOVwxNTvP8tWzz6Rh4/2Y.PGWxNXNSCC', 'admin_1_1779544789.png', '2026-05-17 13:50:20', '1edeb0434920be42e67d12344aed10d35f973fded910774422bf3c27ad436a3a', '2026-05-29 14:41:41');
 
 -- --------------------------------------------------------
 
