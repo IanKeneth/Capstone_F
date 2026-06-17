@@ -1,5 +1,5 @@
 <?php
-// 1. Force PHP to use your exact local timezone
+//Force PHP to use your exact local timezone
 date_default_timezone_set('Asia/Manila');
 
 $host = "localhost";

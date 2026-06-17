@@ -242,7 +242,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['action'])) {
     }
 
     .forgot-password-link {
-        color: var(--dark-orange);
+        color: var( --text-dark);
         font-size: 14px;
         font-weight: 600;
         text-decoration: none;
@@ -250,7 +250,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['action'])) {
     }
 
     .forgot-password-link:hover {
-        color: var(--primary-orange);
+        color: var(--text-muted);
         text-decoration: underline;
     }
 
