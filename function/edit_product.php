@@ -125,7 +125,7 @@ if (isset($_POST['update_product'])) {
         <div style="text-align: center;">
             <img src="../uploads/<?php echo $product['image_path'] ?: 'default-product.png'; ?>" class="image-preview" id="preview">
             <div class="form-group">
-                <label>Change Product Image</label>
+                <label>Product Image</label>
                 <input type="file" name="product_image" class="form-control" accept="image/*" onchange="previewImage(this)">
             </div>
         </div>

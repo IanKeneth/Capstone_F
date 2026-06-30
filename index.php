@@ -14,7 +14,7 @@ $fiveMonthsAgo = date('Y-m-01', strtotime("-4 month"));
 $query = "SELECT m, SUM(revenue) as total_rev
         FROM (
             SELECT DATE_FORMAT(date_today, '%Y-%m') as m, total_collected as revenue 
-            FROM dispatch_sessions 
+            FROM dispatch_sessions
             WHERE status = 'Completed' AND date_today >= :start_date1
             UNION ALL
             SELECT DATE_FORMAT(order_date, '%Y-%m') as m, subtotal as revenue 
@@ -26,7 +26,7 @@ $query = "SELECT m, SUM(revenue) as total_rev
 $stmt = $pdo->prepare($query);
 $stmt->execute(['start_date1' => $fiveMonthsAgo, 'start_date2' => $fiveMonthsAgo]);
 $dataMap = [];
-while ($row = $stmt->fetch()) { 
+while ($row = $stmt->fetch()) {
     $dataMap[$row['m']] = (float)$row['total_rev']; 
 }
 

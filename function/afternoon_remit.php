@@ -2,7 +2,6 @@
 session_start();
 require_once "../auth/conn.php";
 
-// Standard security check
 if (!isset($_SESSION['admin_id'])) {
     header("Location: ../login.php");
     exit();
