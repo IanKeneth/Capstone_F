@@ -29,6 +29,14 @@ body {
     overflow: visible;
     white-space: nowrap;
     flex-shrink: 0;
+    
+    /* ADD THESE TWO LINES TO FORCE IT ABOVE THE DASHBOARD BODY */
+    position: relative;
+    z-index: 1000;
+}
+/* Keeps the container from slicing off your tooltips */
+.container {
+    overflow: visible !important;
 }
 
 .sidebar.collapsed {
@@ -344,8 +352,11 @@ td {
         flex-direction: column;
         padding: 10px;
     }
+    
     .sidebar { 
         width: 75px; 
+        position: relative;
+        z-index: 99999 !important; /* Forces sidebar on top of main content when small */
     }
     
     .sidebar span { 
@@ -361,4 +372,52 @@ td {
         width: 50px !important;
         height: 50px !important;
     }
+
+    /* --- RESPONSIVE TOOLTIP ENGINE FOR SMALL SCREENS --- */
+    /* This forces the tooltips to activate on small screens even without the .collapsed class */
+    .sidebar .nav-item::after {
+        content: attr(data-title);
+        position: absolute;
+        left: 85px;
+        background: #333333;
+        color: #ffffff;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-10px);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        pointer-events: none;
+        z-index: 99999;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Little Triangle Pointer Arrow for small screens */
+    .sidebar .nav-item::before {
+        content: "";
+        position: absolute;
+        left: 77px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent #333333 transparent transparent;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-10px);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        pointer-events: none;
+        z-index: 99999;
+    }
+
+    /* Reveal them on hover when browser window is minimized */
+    .sidebar .nav-item:hover::after,
+    .sidebar .nav-item:hover::before {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+    }
+}
+
+html, body {
+    overflow-x: auto !important; 
 }

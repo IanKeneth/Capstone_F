@@ -1,5 +1,5 @@
 /* ==========================================================================
-    GLOBAL & BASE STYLES
+    CORE GLOBALS & UTILITIES
    ========================================================================== */
 body {
     margin: 0;
@@ -26,7 +26,7 @@ body {
     display: flex;
     flex-direction: column;
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: visible;
+    overflow: visible; 
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -34,7 +34,6 @@ body {
 .sidebar.collapsed {
     width: 75px;
 }
-
 .sidebar-header {
     height: auto;
     min-height: 90px;
@@ -50,6 +49,7 @@ body {
     gap: 15px;
 }
 
+/* RESPONSIVE LOGO FIX */
 .sidebar-logo {
     
     width: 110px;
@@ -75,6 +75,7 @@ body {
     transition: opacity 0.3s ease, transform 0.3s ease;
     transform: translateX(0);
 }
+
 .sidebar.collapsed span {
     opacity: 0;
     visibility: hidden;
@@ -128,7 +129,7 @@ nav {
     transition: transform 0.4s ease; 
 }
 
-/* HOVER TOOLTIP EFFECT*/
+/* HOVER TOOLTIP EFFECT: Generates the page title dynamically upon mouse-over when collapsed */
 .sidebar.collapsed .nav-item::after {
     content: attr(data-title); 
     position: absolute;
@@ -175,9 +176,8 @@ nav {
     border-top: 1px solid #f0f0f0;
 }
 
-
 /* ==========================================================================
-   MAIN CONTENT & TOP HEADER
+    TOP BAR NAVIGATION HEADER
    ========================================================================== */
 .main-content {
     flex: 1;
@@ -229,50 +229,9 @@ nav {
     cursor: pointer;
 }
 
-
 /* ==========================================================================
-   DASHBOARD GRID & LAYOUT CONTAINERS (FIXED FOR RESPONSIVENESS)
+    DATA CARDS & GENERAL DASHBOARD ELEMENTS
    ========================================================================== */
-.dashboard-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
-    gap: 20px; 
-    padding: 20px; 
-}
-
-.analytics-row, .data-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 20px;
-}
-
-.charts-container { 
-    display: grid; 
-    grid-template-columns: 3fr 2fr; 
-    gap: 20px; 
-    padding: 20px; 
-    padding-bottom: 0px; 
-}
-
-.analysis-container { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 20px; 
-    padding: 20px; 
-}
-
-/* Base flex-grow instructions for large screen rows */
-.sales-analytics { flex: 2; min-width: 300px; }
-.sales-stat      { flex: 1; min-width: 200px; }
-.stock-levels    { flex: 1; min-width: 200px; }
-.recent-orders   { flex: 2; min-width: 300px; }
-
-
-/* ==========================================================================
-   CARDS, TABLES, & DATA WIDGETS
-   ========================================================================== */
-/* Generic Cards & Content Boxes */
 .card {
     background: white;
     border: 1px solid #e0e0e0;
@@ -280,24 +239,23 @@ nav {
     padding: 20px;
 }
 
-.content-box { 
-    background: white; 
-    padding: 20px; 
-    border-radius: 5px; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+.analytics-row, .data-row {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
 }
 
-.stat-card { 
-    padding: 20px; 
-    background: white; 
-    border-radius: 5px; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-}
+.sales-analytics { flex: 2; }
+.sales-stat { flex: 1; }
+.stock-levels { flex: 1; }
+.recent-orders { flex: 2; }
 
-/* Stat Values */
-.value { 
-    font-size: 1.5rem; 
-    font-weight: bold; 
+.chart-placeholder {
+    height: 150px;
+    background: #fafafa;
+    border-bottom: 2px solid #f28c28;
+    position: relative;
+    margin-top: 10px;
 }
 
 .stat-value {
@@ -311,39 +269,9 @@ nav {
     font-size: 0.9rem;
 }
 
-.stat-change i { 
-    margin-right: 5px; 
-}
+.stat-change i { margin-right: 5px; }
 
-/* Charts Placeholder */
-.chart-placeholder {
-    height: 150px;
-    background: #fafafa;
-    border-bottom: 2px solid #f28c28;
-    position: relative;
-    margin-top: 10px;
-}
-
-.chart-placeholder, 
-.charts-container canvas, 
-.content-box canvas,
-.card canvas {
-    max-width: 100% !important;
-    width: 100% !important;
-    height: auto !important;
-    box-sizing: border-box;
-}
-
-.content-box, .card {
-    overflow: hidden; 
-    display: flex;
-    flex-direction: column;
-}
-ul { 
-    list-style: none; 
-    padding: 0; 
-}
-
+ul { list-style: none; padding: 0; }
 ul li {
     display: flex;
     justify-content: space-between;
@@ -351,44 +279,103 @@ ul li {
     border-bottom: 1px solid #eee;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
+/* ==========================================================================
+   UNIFIED SALES TRANSACTION TABLES & CARDS
+   ========================================================================== */
+.sales-card { 
+    background: white; 
+    border-radius: 12px; 
+    margin: 20px; 
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+    overflow-x: auto; 
+    border: 1px solid #eee; 
 }
 
-th {
-    text-align: left;
-    color: #888;
-    font-size: 0.8rem;
-    padding-bottom: 10px;
+.sales-header { 
+    background: #fffdf9; 
+    padding: 20px 25px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 1px solid #f0f0f0; 
 }
 
-td {
-    padding: 12px 0;
-    border-bottom: 1px solid #eee;
+.total-badge { 
+    background: #f28c28; 
+    color: white; 
+    padding: 10px 20px; 
+    border-radius: 8px; 
+    font-weight: bold; 
+}
+.sales-table {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-top: 20px;
+    overflow-x: auto; 
+}
+
+table, .sales-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
+th, .sales-table th { 
+    background: white; 
+    color: #888; 
+    font-size: 11px; 
+    padding: 15px; 
+    border-bottom: 2px solid #f28c28; 
+    text-align: left; 
+    text-transform: uppercase; 
+    white-space: nowrap;
+}
+
+td, .sales-table td { 
+    padding: 15px; 
+    border-bottom: 1px solid #f9f9f9; 
+    font-size: 14px; 
+    color: #444; 
+    white-space: nowrap;
 }
 
 .status-shipped { color: #27ae60; }
 .status-pending { color: #f28c28; }
 
-.status-shipped i, 
-.status-pending i {
+.status-shipped i, .status-pending i {
     font-size: 0.8rem;
     margin-right: 5px;
 }
 
-
-/* ==========================================================================
-   RESPONSIVE MEDIA QUERIES (ENHANCED FOR CONTENT WRAPPING)
-   ========================================================================== */
-
-@media (max-width: 1024px) {
-    .charts-container, 
-    .analysis-container { 
-        grid-template-columns: 1fr;
-    }
+.type-tag { 
+    padding: 4px 10px; 
+    border-radius: 4px; 
+    font-size: 11px; 
+    font-weight: bold; 
+    text-transform: uppercase; 
+    display: inline-block;
 }
 
+.type-wholesale { background: #e3f2fd; color: #1976d2; }
+.type-retail { background: #f3e5f5; color: #7b1fa2; }
+
+.amount-text { font-weight: bold; color: #27ae60; }
+
+.action-btn { 
+    border: none; 
+    padding: 10px 18px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: 600; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+}
+
+/* ==========================================================================
+    RESPONSIVE BREAKPOINTS (SMARTPHONES VIEWPORTS <768px)
+   ========================================================================== */
 @media (max-width: 768px) {
     .analytics-row, 
     .data-row {
@@ -401,8 +388,11 @@ td {
         flex: none;
     }
     
+    /* Collapses sidebar width footprint on small mobile breakpoints */
     .sidebar { 
         width: 75px; 
+        position: relative;
+        z-index: 99999 !important; /* Fixes stacking layer order */
     }
     
     .sidebar span { 
@@ -418,4 +408,48 @@ td {
         width: 80px;        
         height: 80px;
     }
+
+    .sidebar .nav-item::after {
+        content: attr(data-title);
+        position: absolute;
+        left: 85px;
+        background: #333333;
+        color: #ffffff;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-10px);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        pointer-events: none;
+        z-index: 99999;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .sidebar .nav-item::before {
+        content: "";
+        position: absolute;
+        left: 77px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent #333333 transparent transparent;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-10px);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        pointer-events: none;
+        z-index: 99999;
+    }
+
+    /* Reveal them instantly on hover when window is minimized */
+    .sidebar .nav-item:hover::after,
+    .sidebar .nav-item:hover::before {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+    }
+}
+html, body {
+    overflow-x: auto !important; 
 }

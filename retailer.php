@@ -29,7 +29,7 @@ try {
     <meta charset="UTF-8">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/retailers.css">
+    <link rel="stylesheet" href="assets/css/retailer.css">
 </head>
 <body>
 

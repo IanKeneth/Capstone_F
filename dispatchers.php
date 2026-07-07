@@ -39,7 +39,7 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price FROM produ
     <meta charset="UTF-8">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/dispatchers.css">
+    <link rel="stylesheet" href="assets/css/dispatcher.css">
 
 </head>
 <body>

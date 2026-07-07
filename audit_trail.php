@@ -21,6 +21,67 @@ try {
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/audit.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .report-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .btn-report {
+            background-color: #f28c28;
+            color: white;
+            padding: 10px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s ease;
+        }
+        .btn-report:hover {
+            background-color: #d77a1e;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #ffffff;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 100;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        .show {
+            display: block;
+        }
+    </style>
 </head>
 <body>
 
@@ -75,11 +136,21 @@ try {
                     <h1>Audit Trail</h1>
                 </div>
                 
+                <div class="report-dropdown">
+                    <button onclick="toggleDropdown()" class="btn-report">
+                        <i class="fa-solid fa-file-export"></i> Generate Report <i class="fa-solid fa-caret-down"></i>
+                    </button>
+                    <div id="reportDropdown" class="dropdown-content">
+                        <a href="#" onclick="exportToExcel()"><i class="fa-solid fa-file-excel" style="color: #217346;"></i> Excel (.xlsx)</a>
+                        <a href="#" onclick="exportToCSV()"><i class="fa-solid fa-file-csv" style="color: #1d723a;"></i> CSV (.csv)</a>
+                        <a href="#" onclick="exportToPDF()"><i class="fa-solid fa-file-pdf" style="color: #d9383a;"></i> PDF (.pdf)</a>
+                    </div>
+                </div>
             </header>
 
             <div class="audit-table-card" style="margin: 20px;">
                 <h3><i class="fa-solid fa-clock-rotate-left" style="color: #f28c28; margin-right: 10px;"></i> Audit Logs</h3>
-                <table>
+                <table id="auditTable">
                     <thead>
                         <tr>
                             <th>Date & Time</th>
@@ -124,6 +195,57 @@ try {
     toggleBtn.addEventListener('click', () => {
         sidebar.classList.toggle('collapsed');
     });
+    
+    // Toggle Report dropdown visibility
+    function toggleDropdown() {
+        document.getElementById("reportDropdown").classList.toggle("show");
+    }
+
+    // Close dropdown instantly if user clicks outside of it
+    window.onclick = function(event) {
+        if (!event.target.matches('.btn-report') && !event.target.matches('.btn-report *')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+
+    // Excel Export Functionality
+    function exportToExcel() {
+        const table = document.getElementById("auditTable");
+        const workbook = XLSX.utils.table_to_book(table, { sheet: "Audit Logs" });
+        XLSX.writeFile(workbook, "Audit_Trail_Report.xlsx");
+    }
+
+    // CSV Export Functionality
+    function exportToCSV() {
+        const table = document.getElementById("auditTable");
+        const workbook = XLSX.utils.table_to_book(table);
+        XLSX.writeFile(workbook, "Audit_Trail_Report.csv", { bookType: 'csv' });
+    }
+
+    // PDF Export Functionality
+    function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'mm', 'a4'); 
+        
+        doc.text("Audit Trail Report", 14, 15);
+        doc.setFontSize(10);
+        
+        doc.autoTable({
+            html: '#auditTable',
+            startY: 22,
+            theme: 'striped',
+            headStyles: { fillColor: [242, 140, 40] }, 
+            styles: { fontSize: 9 }
+        });
+        
+        doc.save("Audit_Trail_Report.pdf");
+    }
     </script>
 </body>
 </html>
