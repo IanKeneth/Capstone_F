@@ -195,13 +195,11 @@ try {
     toggleBtn.addEventListener('click', () => {
         sidebar.classList.toggle('collapsed');
     });
-    
-    // Toggle Report dropdown visibility
+
     function toggleDropdown() {
         document.getElementById("reportDropdown").classList.toggle("show");
     }
 
-    // Close dropdown instantly if user clicks outside of it
     window.onclick = function(event) {
         if (!event.target.matches('.btn-report') && !event.target.matches('.btn-report *')) {
             var dropdowns = document.getElementsByClassName("dropdown-content");
@@ -214,21 +212,18 @@ try {
         }
     }
 
-    // Excel Export Functionality
     function exportToExcel() {
         const table = document.getElementById("auditTable");
         const workbook = XLSX.utils.table_to_book(table, { sheet: "Audit Logs" });
         XLSX.writeFile(workbook, "Audit_Trail_Report.xlsx");
     }
 
-    // CSV Export Functionality
     function exportToCSV() {
         const table = document.getElementById("auditTable");
         const workbook = XLSX.utils.table_to_book(table);
         XLSX.writeFile(workbook, "Audit_Trail_Report.csv", { bookType: 'csv' });
     }
 
-    // PDF Export Functionality
     function exportToPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('l', 'mm', 'a4'); 
