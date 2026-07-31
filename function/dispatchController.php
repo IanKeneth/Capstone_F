@@ -67,7 +67,7 @@ class DispatchController {
             return $this->pdo->commit();
         } catch (Exception $e) { 
             $this->pdo->rollBack(); 
-            throw $e; 
+            throw $e;
         }
     }
 

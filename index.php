@@ -209,7 +209,7 @@ if ($forecast === false) {
             <div class="charts-container">
                 <div class="content-box">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
-                        <h2>5-Month Revenue Trajectory</h2>
+                        <h2>5-Month Revenue </h2>
                         <div style="background:#e8f5e9; padding:10px; border-radius:8px; border: 1px solid #1cc88a;">
                             <small style="color:#1cc88a; font-weight:bold;"><i class="fa-solid fa-brain"></i>  Forecast:</small><br/>
                             <strong style="color:#1cc88a;">₱<?= number_format($forecast, 2) ?></strong>

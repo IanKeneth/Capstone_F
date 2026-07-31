@@ -1,25 +1,34 @@
-function toggleModal(id, show) { 
-    document.getElementById(id).style.display = show ? 'flex' : 'none'; 
+function toggleModal(modalId, show) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = show ? 'flex' : 'none';
+    }
 }
 
-function updateDropdowns() {
-    const tbody = document.getElementById('morningRows');
-    if (!tbody) return;
-    
-    const selects = tbody.querySelectorAll('select');
-    const selectedValues = Array.from(selects).map(s => s.value).filter(v => v !== "");
+function openAddProductModal(sessionId, existingProducts) {
+    // 1. Set the session ID in the hidden input field
+    const inputSession = document.getElementById('modal_session_id');
+    if (inputSession) {
+        inputSession.value = sessionId;
+    }
 
-    selects.forEach(s => {
-        Array.from(s.options).forEach(option => {
-            if (option.value !== "") {
-                const isSelectedElsewhere = selectedValues.includes(option.value) && option.value !== s.value;
-                option.disabled = isSelectedElsewhere;
-                option.hidden = isSelectedElsewhere;
+    // 2. Hide products that the worker already has in their active list
+    const select = document.getElementById('filteredSelect');
+    if (select) {
+        Array.from(select.options).forEach(option => {
+            const pname = option.getAttribute('data-pname');
+            if (pname && existingProducts.includes(pname)) {
+                option.style.display = 'none';
+            } else {
+                option.style.display = 'block';
             }
         });
-    });
-}
+        select.value = ''; // Reset select dropdown
+    }
 
+    // 3. Show the modal
+    toggleModal('addProductModal', true);
+}
 function addNewRow() {
     const tbody = document.getElementById('morningRows');
     const firstRow = tbody.querySelector('tr');

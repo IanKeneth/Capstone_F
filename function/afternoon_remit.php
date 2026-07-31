@@ -13,7 +13,7 @@ $items = [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_settlement'])) {
     try {
-        $pdo->beginTransaction();    
+        $pdo->beginTransaction();
         $sid = (int)$_POST['session_id'];
         $received_amount = (float)$_POST['received_amount'];
         
@@ -33,8 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_settlement'])) {
                 }
 
                 $qty_sold = $qty_taken - $return_qty;
-
-                $price_at_time = (float)$_POST['unit_prices'][$r_item_id]; 
+                // FIX: Get price from hidden input field
+                $price_at_time = (float)($_POST['unit_prices'][$r_item_id] ?? 0); 
                 $item_total_sale = $qty_sold * $price_at_time;
 
                 $stmtUpd = $pdo->prepare("UPDATE dispatch_items SET qty_returned = ?, qty_sold = ? WHERE id = ?");
@@ -54,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_settlement'])) {
             }
         }
 
+        // Close dispatch session
         $closeSession = $pdo->prepare("UPDATE dispatch_sessions SET status = 'Completed', total_collected = ? WHERE id = ?");
         $closeSession->execute([$received_amount, $sid]);
 
@@ -85,110 +86,22 @@ if ($sid > 0) {
     <title>Afternoon Remittance</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f9f9f9; padding: 20px; }
-
-        .container { 
-            background: #ffffff; 
-            padding: 30px; 
-            border-radius: 16px; 
-            max-width: 900px; 
-            margin: 20px auto; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-
-        .header { 
-            color: #f28c28; 
-            font-weight: 800; 
-            font-size: 24px; 
-            margin-bottom: 30px; 
-            padding-bottom: 15px; 
-            border-bottom: 2px solid #fff7ed; 
-        }
-
-        .product-row { 
-            display: grid; 
-            grid-template-columns: 2fr 1fr 1fr 1.5fr 1.5fr; 
-            align-items: center; 
-            gap: 15px; 
-            padding: 16px; 
-            background: #fffcf8; 
-            border-radius: 10px; 
-            border: 1px solid #ffe4c4; 
-            margin-bottom: 12px; 
-        }
-
-        .input-style { 
-            border: 1px solid #e2e8f0; 
-            padding: 10px; 
-            border-radius: 8px; 
-            width: 100%; 
-            box-sizing: border-box; 
-            text-align: center; 
-        }
-
-        .total-section { 
-            margin-top: 30px; 
-            padding: 20px; 
-            background: #f8fafc; 
-            border-radius: 12px; 
-            border: 1px solid #e2e8f0; 
-        }
-
-        .total-line { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 15px; 
-        }
-
-        .btn-submit { 
-            margin:15px;
-            background: #f28c28; 
-            color: white; 
-            border: none; 
-            padding: 10px 30px; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-size: 16px; 
-            font-weight: 500; 
-            width: 200px; 
-            transition: 0.2s; 
-        }
-
-        .btn-submit:hover { 
-            background: #ea580c; 
-        }
-        .cancel {
-            background-color: #f28c28;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 700;
-            width: 100px;
-            text-align: center;
-            display: inline-block;
-            transition: 0.2s;
-            margin-left: 20px;
-            margin: 0;
-            text-decoration: none;
-        }
-
-        .return-label {
-            font-size: 10px; 
-            font-weight: 700; 
-            color: #ea580c; 
-            text-transform: uppercase; 
-            margin-bottom: 4px; 
-            display: block;
-        }
+        .container { background: #ffffff; padding: 30px; border-radius: 16px; max-width: 900px; margin: 20px auto; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .header { color: #f28c28; font-weight: 800; font-size: 24px; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 2px solid #fff7ed; }
+        .product-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr 1.5fr; align-items: center; gap: 15px; padding: 16px; background: #fffcf8; border-radius: 10px; border: 1px solid #ffe4c4; margin-bottom: 12px; }
+        .input-style { border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; width: 100%; box-sizing: border-box; text-align: center; }
+        .total-section { margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .btn-submit { margin:15px; background: #f28c28; color: white; border: none; padding: 10px 30px; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 500; width: 200px; transition: 0.2s; }
+        .btn-submit:hover { background: #ea580c; }
+        .cancel { background-color: #f28c28; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 700; width: 100px; text-align: center; display: inline-block; transition: 0.2s; text-decoration: none; }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">TOTAL REMITTANCE SUMMARY (Session #<?= $sid ?>)</div>
     <form method="POST">
+        <input type="hidden" name="session_id" value="<?= $sid ?>">
+        
         <?php foreach ($items as $item): 
             $subtotal = $item['price_at_time'] * $item['qty_taken'];
         ?>
@@ -205,7 +118,8 @@ if ($sid > 0) {
                 <input type="hidden" name="product_ids[<?= $item['item_id'] ?>]" value="<?= $item['p_id'] ?>">
                 <input type="hidden" name="product_names[<?= $item['item_id'] ?>]" value="<?= $item['product_name'] ?>">
                 <input type="hidden" name="qtys_taken[<?= $item['item_id'] ?>]" value="<?= $item['qty_taken'] ?>">
-
+                <!-- FIX: Added missing unit price hidden field -->
+                <input type="hidden" name="unit_prices[<?= $item['item_id'] ?>]" value="<?= $item['price_at_time'] ?>">
             </div>
         <?php endforeach; ?>
 

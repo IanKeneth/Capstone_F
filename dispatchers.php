@@ -40,6 +40,29 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price FROM produ
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/dispatcher.css">
+    <style>
+        .modal-overlay {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+</style>
 
 </head>
 <body>
@@ -111,7 +134,7 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price FROM produ
                         <span class="status-badge" style="margin-left:10px;">Active</span>
                     </div>
                     <div>
-                        <button onclick='openAddProductModal(<?= $sid ?>, <?= json_encode(array_column($data['items'], "product_name")) ?>)' class="action-pill" style="background: #22c55e; color: white;">+ PRODUCT</button>
+                        <button onclick="openAddProductModal(<?= $sid ?>, <?= htmlspecialchars(json_encode(array_column($data['items'], 'product_name')), ENT_QUOTES) ?>)" class="action-pill" style="background: #22c55e; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">+ PRODUCT</button>
                         <a href="function/afternoon_remit.php?id=<?= $sid ?>" class="action-pill" style="background: var(--primary); color:white;">REMIT</a>
                     </div>
                 </div>
@@ -222,6 +245,6 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price FROM produ
         </form>
     </div>
 </div>
-<script src="assets/api/despatch.js"></script>
+<script src="assets/api/dispatch.js"></script>
 </body>
 </html>

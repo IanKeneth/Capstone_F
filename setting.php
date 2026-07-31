@@ -21,7 +21,7 @@ try {
     }
 
     $admin_name = $user['name'];
-    $admin_username = $user['username'];
+    $admin_username = $user['username']; 
     $admin_email = $user['email']; 
     $admin_pic = $user['profile_pic'];
 
@@ -50,7 +50,7 @@ function e($value): string {
                 <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
             </div>
             <nav style="flex-grow: 1;">
-                <a href="index.php " class="nav-item " data-title="Dashboard">
+                <a href="index.php" class="nav-item" data-title="Dashboard">
                     <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
                     <span>Dashboard</span>
                 </a>
@@ -70,7 +70,7 @@ function e($value): string {
                     <div class="icon"><i class="fa-solid fa-shop"></i></div>
                     <span>Retailer</span>
                 </a>
-                <a href="audit_trail.php" class="nav-item " data-title="Audit Trail">
+                <a href="audit_trail.php" class="nav-item" data-title="Audit Trail">
                     <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
                     <span>Audit Trail</span>
                 </a>
@@ -146,7 +146,7 @@ function e($value): string {
                                 </div>
                                 <div class="input-wrapper">
                                     <i class="fa-solid fa-user-tag"></i>
-                                    <input type="text" name="username" class="settings-input" value="<?= e($admin_username) ?>" readonly placeholder="Username">
+                                    <input type="text" name="username" class="settings-input" value="<?= e($admin_username) ?>" required placeholder="Username">
                                 </div>
                                 <div class="input-wrapper">
                                     <i class="fa-solid fa-envelope"></i>
@@ -209,12 +209,6 @@ function e($value): string {
             if(currentPassField) currentPassField.value = '';
         }, 50);
     });
-    document.getElementById('profileForm').addEventListener('submit', function() {
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        if (loadingOverlay) {
-            loadingOverlay.style.display = 'flex';
-        }
-    });
 
     document.getElementById('profile_upload').addEventListener('change', function() {
         const file = this.files[0];
@@ -226,6 +220,7 @@ function e($value): string {
             reader.readAsDataURL(file);
         }
     });
+
     setTimeout(() => {
         const msg = document.getElementById('successMsg');
         if(msg) msg.style.display = 'none';

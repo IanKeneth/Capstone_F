@@ -120,8 +120,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['action'])) {
     body::before {
         content: "";
         position: absolute;
-        width: 120%; 
-        height: 120%;
+        width: 100%; 
+        height: 100%;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
