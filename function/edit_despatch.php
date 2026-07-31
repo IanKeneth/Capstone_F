@@ -85,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_item'])) {
         $message = "<div class='alert alert-danger'><i class='fa-solid fa-triangle-exclamation'></i> " . htmlspecialchars($e->getMessage()) . "</div>";
     }
 
-    // Refresh item details
+
     $stmt = $pdo->prepare("SELECT di.*, p.product_name, p.wholesale_price, p.quantity as stock_on_shelf FROM dispatch_items di JOIN products p ON di.product_id = p.id WHERE di.id = ?");
     $stmt->execute([$form_id]);
     $item = $stmt->fetch();
@@ -128,23 +128,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_item'])) {
         overflow-x: hidden;
     }
 
-    /* Main Container scaled to fit inside the circular logo */
+    
     .login-container {
         position: relative;
         width: 92vw;
         max-width: 440px;
-        aspect-ratio: 1 / 1; /* Keeps the container a perfect square/circle shape */
+        aspect-ratio: 1 / 1;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        /* Padding keeps the inputs within the wide center of the circle */
         padding: 60px 35px; 
         text-align: center;
         z-index: 1; 
     }
 
-    /* Circular Background Image centered directly behind form content */
     .login-container::before {
         content: "";
         position: absolute;
@@ -163,7 +161,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_item'])) {
 
     .login-form-wrapper {
         width: 100%;
-        max-width: 320px; /* Constrains inputs to the inner ring of the circle */
+        max-width: 320px;
     }
 
     .brand-section {
@@ -259,7 +257,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_item'])) {
         box-shadow: 0 4px 10px rgba(242, 139, 48, 0.2);
     }
 
-    /* Mobile adjustments */
+
     @media (max-width: 400px) {
         .login-container {
             width: 96vw;

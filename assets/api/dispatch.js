@@ -6,13 +6,12 @@ function toggleModal(modalId, show) {
 }
 
 function openAddProductModal(sessionId, existingProducts) {
-    // 1. Set the session ID in the hidden input field
+
     const inputSession = document.getElementById('modal_session_id');
     if (inputSession) {
         inputSession.value = sessionId;
     }
 
-    // 2. Hide products that the worker already has in their active list
     const select = document.getElementById('filteredSelect');
     if (select) {
         Array.from(select.options).forEach(option => {
@@ -26,7 +25,6 @@ function openAddProductModal(sessionId, existingProducts) {
         select.value = ''; // Reset select dropdown
     }
 
-    // 3. Show the modal
     toggleModal('addProductModal', true);
 }
 function addNewRow() {
