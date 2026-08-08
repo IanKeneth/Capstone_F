@@ -1,16 +1,72 @@
 <?php
 session_start();
 require_once "auth/conn.php";
+
 if (!isset($_SESSION['admin_id'])) {
     header("Location: auth/login.php");
     exit();
 }
 
+$start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
+$end_date   = isset($_GET['end_date']) ? $_GET['end_date'] : '';
+
+$whereClauses = [];
+$params = [];
+
+if (!empty($start_date) && !empty($end_date)) {
+    $whereClauses[] = "DATE(created_at) BETWEEN :start_date AND :end_date";
+    $params[':start_date'] = $start_date;
+    $params[':end_date']   = $end_date;
+}
+
+$whereSQL = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
+
+// --- EXPORT TO CSV / EXCEL LOGIC ---
+if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+    $exportQuery = "SELECT created_at, worker_name, product_name, qty_taken, qty_sold, qty_returned, received_amount, status 
+                    FROM audit_trail $whereSQL ORDER BY created_at DESC";
+
+    $stmtExport = $pdo->prepare($exportQuery);
+    $stmtExport->execute($params);
+    $exportLogs = $stmtExport->fetchAll(PDO::FETCH_ASSOC);
+
+    $filename = "audit_trail_report_" . date('Y-m-d_H-i') . ".csv";
+
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+    $output = fopen('php://output', 'w');
+    fputs($output, "\xEF\xBB\xBF"); // UTF-8 BOM for Excel compatibility
+
+    fputcsv($output, ['Date & Time', 'Worker Name', 'Product', 'Brought (Taken)', 'Sold', 'Returned', 'Amount Collected', 'Status']);
+
+    foreach ($exportLogs as $row) {
+        fputcsv($output, [
+            date('M d, Y h:i A', strtotime($row['created_at'])),
+            $row['worker_name'],
+            $row['product_name'],
+            $row['qty_taken'],
+            $row['qty_sold'],
+            $row['qty_returned'],
+            $row['received_amount'],
+            $row['status']
+        ]);
+    }
+
+    fclose($output);
+    exit();
+}
+
 try {
-    $stmt = $pdo->query("SELECT * FROM audit_trail ORDER BY created_at DESC");
+    $stmt = $pdo->prepare("SELECT * FROM audit_trail $whereSQL ORDER BY created_at DESC");
+    $stmt->execute($params);
     $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     die("Error fetching logs: " . $e->getMessage());
+}
+
+function e(mixed $value): string {
+    return htmlspecialchars((string)($value ?? ''), ENT_QUOTES, 'UTF-8');
 }
 ?>
 <!DOCTYPE html>
@@ -22,64 +78,30 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/audit.css">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-
     <style>
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .report-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .btn-report {
-            background-color: #f28c28;
-            color: white;
-            padding: 10px 15px;
-            font-size: 14px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.3s ease;
-        }
-        .btn-report:hover {
-            background-color: #d77a1e;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: #ffffff;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 100;
-            border-radius: 4px;
-            overflow: hidden;
-            border: 1px solid #ddd;
-        }
-        .dropdown-content a {
-            color: #333;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            transition: background 0.2s;
-        }
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
-        .show {
-            display: block;
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        .report-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+        .report-modal.active { display: flex; }
+        .modal-card { background: #fff; padding: 25px; border-radius: 12px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { margin: 0; color: #1e293b; }
+        .close-btn { cursor: pointer; font-size: 18px; color: #64748b; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        .btn-gen { width: 100%; background: #f28c28; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; text-decoration: none; display: block; box-sizing: border-box; }
+        .btn-gen:hover { background: #ea580c; }
+        .btn-excel { background: #16a34a; }
+        .btn-excel:hover { background: #15803d; }
+        .btn-report-trigger { background: #1e293b; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-report-trigger:hover { background: #0f172a; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printable-report, #printable-report * { visibility: visible; }
+            #printable-report { position: absolute; left: 0; top: 0; width: 100%; }
+            .sidebar, .header, .btn-report-trigger, .report-modal { display: none !important; }
+            .print-header-info { display: block !important; margin-bottom: 20px; text-align: center; }
         }
     </style>
 </head>
@@ -89,10 +111,9 @@ try {
         <aside class="sidebar">
             <div class="sidebar-header">
                 <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
-                
             </div>
             <nav style="flex-grow: 1;">
-                <a href="index.php " class="nav-item " data-title="Dashboard">
+                <a href="index.php" class="nav-item" data-title="Dashboard">
                     <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
                     <span>Dashboard</span>
                 </a>
@@ -120,7 +141,7 @@ try {
                     <div class="icon"><i class="fa-solid fa-coins"></i></div>
                     <span>Sales History</span>
                 </a>
-                <a href="setting.php" class="nav-item " data-title="Settings">
+                <a href="setting.php" class="nav-item" data-title="Settings">
                     <div class="icon"><i class="fa-solid fa-gears"></i></div>
                     <span>Settings</span>
                 </a>
@@ -135,20 +156,19 @@ try {
                     </button>
                     <h1>Audit Trail</h1>
                 </div>
-                
-                <div class="report-dropdown">
-                    <button onclick="toggleDropdown()" class="btn-report">
-                        <i class="fa-solid fa-file-export"></i> Generate Report <i class="fa-solid fa-caret-down"></i>
+                <div class="header-right">
+                    <button class="btn-report-trigger" id="openModalBtn">
+                        <i class="fa-solid fa-file-pdf"></i> Generate Report
                     </button>
-                    <div id="reportDropdown" class="dropdown-content">
-                        <a href="#" onclick="exportToExcel()"><i class="fa-solid fa-file-excel" style="color: #217346;"></i> Excel (.xlsx)</a>
-                        <a href="#" onclick="exportToCSV()"><i class="fa-solid fa-file-csv" style="color: #1d723a;"></i> CSV (.csv)</a>
-                        <a href="#" onclick="exportToPDF()"><i class="fa-solid fa-file-pdf" style="color: #d9383a;"></i> PDF (.pdf)</a>
-                    </div>
                 </div>
             </header>
 
-            <div class="audit-table-card" style="margin: 20px;">
+            <div class="audit-table-card" id="printable-report" style="margin: 20px;">
+                <div class="print-header-info" style="display:none;">
+                    <h2>AUDIT TRAIL REPORT</h2>
+                    <p>Period: <?= !empty($start_date) ? e($start_date) . ' to ' . e($end_date) : 'All Time History' ?></p>
+                    <hr style="margin: 15px 0;">
+                </div>
                 <h3><i class="fa-solid fa-clock-rotate-left" style="color: #f28c28; margin-right: 10px;"></i> Audit Logs</h3>
                 <table id="auditTable">
                     <thead>
@@ -168,13 +188,13 @@ try {
                             <?php foreach ($logs as $log): ?>
                             <tr>
                                 <td><?php echo date('M d, Y h:i A', strtotime($log['created_at'])); ?></td>
-                                <td><strong><?php echo htmlspecialchars($log['worker_name']); ?></strong></td>
-                                <td><?php echo htmlspecialchars($log['product_name']); ?></td>
+                                <td><strong><?php echo e($log['worker_name']); ?></strong></td>
+                                <td><?php echo e($log['product_name']); ?></td>
                                 <td><?php echo $log['qty_taken']; ?></td>
                                 <td class="text-success"><?php echo $log['qty_sold']; ?></td>
                                 <td class="text-danger"><?php echo $log['qty_returned']; ?></td>
                                 <td>₱<?php echo number_format($log['received_amount'], 2); ?></td>
-                                <td><span class="status-badge"><?php echo $log['status']; ?></span></td>
+                                <td><span class="status-badge"><?php echo e($log['status']); ?></span></td>
                             </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
@@ -188,59 +208,55 @@ try {
         </main>
     </div>
 
+    <!-- Generate Report Modal -->
+    <div class="report-modal" id="reportModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Generate Audit Trail Report</h3>
+                <i class="fa-solid fa-xmark close-btn" id="closeModalBtn"></i>
+            </div>
+            <form method="GET" action="audit_trail.php">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" name="start_date" value="<?= e($start_date ?: date('Y-m-01')) ?>" required>
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" name="end_date" value="<?= e($end_date ?: date('Y-m-d')) ?>" required>
+                </div>
+                <button type="submit" name="print" value="1" class="btn-gen" style="background:#0f172a; margin-bottom: 10px;">
+                    <i class="fa-solid fa-print"></i> Print / Export PDF
+                </button>
+                <button type="submit" name="export" value="csv" class="btn-gen btn-excel">
+                    <i class="fa-solid fa-file-excel"></i> Export Filtered to Excel/CSV
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script>
-    const sidebar = document.querySelector('.sidebar');
-    const toggleBtn = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
 
-    toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-    });
-
-    function toggleDropdown() {
-        document.getElementById("reportDropdown").classList.toggle("show");
-    }
-
-    window.onclick = function(event) {
-        if (!event.target.matches('.btn-report') && !event.target.matches('.btn-report *')) {
-            var dropdowns = document.getElementsByClassName("dropdown-content");
-            for (var i = 0; i < dropdowns.length; i++) {
-                var openDropdown = dropdowns[i];
-                if (openDropdown.classList.contains('show')) {
-                    openDropdown.classList.remove('show');
-                }
-            }
-        }
-    }
-
-    function exportToExcel() {
-        const table = document.getElementById("auditTable");
-        const workbook = XLSX.utils.table_to_book(table, { sheet: "Audit Logs" });
-        XLSX.writeFile(workbook, "Audit_Trail_Report.xlsx");
-    }
-
-    function exportToCSV() {
-        const table = document.getElementById("auditTable");
-        const workbook = XLSX.utils.table_to_book(table);
-        XLSX.writeFile(workbook, "Audit_Trail_Report.csv", { bookType: 'csv' });
-    }
-
-    function exportToPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'mm', 'a4'); 
-        
-        doc.text("Audit Trail Report", 14, 15);
-        doc.setFontSize(10);
-        
-        doc.autoTable({
-            html: '#auditTable',
-            startY: 22,
-            theme: 'striped',
-            headStyles: { fillColor: [242, 140, 40] }, 
-            styles: { fontSize: 9 }
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
         });
-        
-        doc.save("Audit_Trail_Report.pdf");
-    }
+
+        const reportModal = document.getElementById('reportModal');
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        openModalBtn.addEventListener('click', () => reportModal.classList.add('active'));
+        closeModalBtn.addEventListener('click', () => reportModal.classList.remove('active'));
+        window.addEventListener('click', (e) => {
+            if (e.target === reportModal) reportModal.classList.remove('active');
+        });
+
+        <?php if (isset($_GET['print']) && $_GET['print'] === '1'): ?>
+            window.addEventListener('load', () => {
+                window.print();
+            });
+        <?php endif; ?>
     </script>
 </body>
 </html>

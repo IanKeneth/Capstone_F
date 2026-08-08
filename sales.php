@@ -137,7 +137,7 @@ try {
                             <th>ID</th>
                             <th>Type</th>
                             <th>Product</th>
-                            <th>Customer/Worker</th>
+                            <th>Worker</th>
                             <th>Qty</th>
                             <th>Unit Price</th>
                             <th>Subtotal</th>

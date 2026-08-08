@@ -139,6 +139,6 @@ class DispatchController {
 
         // Insert log
         $log = $this->pdo->prepare("INSERT INTO inventory_logs (product_id, quantity_change, action, notes, admin_name) VALUES (?, ?, 'Removed', ?, ?)");
-        $log->execute([$pid, $qty, "Added to dispatch session #{$sid} ({$worker})", $admin]);
+        $log->execute([$pid, $qty, "From  dispatch session #{$sid} ({$worker})", $admin]);
     }
 }

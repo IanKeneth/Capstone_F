@@ -33,21 +33,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_settlement'])) {
                 }
 
                 $qty_sold = $qty_taken - $return_qty;
-                // FIX: Get price from hidden input field
                 $price_at_time = (float)($_POST['unit_prices'][$r_item_id] ?? 0); 
                 $item_total_sale = $qty_sold * $price_at_time;
 
+                // Update dispatch item
                 $stmtUpd = $pdo->prepare("UPDATE dispatch_items SET qty_returned = ?, qty_sold = ? WHERE id = ?");
                 $stmtUpd->execute([$return_qty, $qty_sold, $r_item_id]);
 
+                //  RECORD IN (Stock Returned to Inventory)
                 if ($return_qty > 0) {
                     $pdo->prepare("UPDATE products SET quantity = quantity + ? WHERE id = ?")
                         ->execute([$return_qty, $pid]);
 
                     $pdo->prepare("INSERT INTO inventory_logs (product_id, quantity_change, action, notes, admin_name) VALUES (?, ?, 'Added', ?, ?)")
-                        ->execute([$pid, $return_qty, "Returned from Session #$sid", $admin_name]);
+                        ->execute([$pid, $return_qty, "Returned from Session #$sid ({$worker_name})", $admin_name]);
                 }
 
+                //RECORD OUT (Final Net Sold Items)
+                if ($qty_sold > 0) {
+                    $pdo->prepare("INSERT INTO inventory_logs (product_id, quantity_change, action, notes, admin_name) VALUES (?, ?, 'Removed', ?, ?)")
+                        ->execute([$pid, $qty_sold, "Sold from Session #$sid ({$worker_name})", $admin_name]);
+                }
+
+                // Audit Trail Entry
                 $audit = $pdo->prepare("INSERT INTO audit_trail (session_id, worker_name, product_id, product_name, qty_taken, qty_sold, qty_returned, received_amount, status) 
                                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $audit->execute([$sid, $worker_name, $pid, $p_name, $qty_taken, $qty_sold, $return_qty, $item_total_sale, 'Completed Remittance']);
@@ -116,9 +124,8 @@ if ($sid > 0) {
                 <div style="margin-left: auto; font-weight: bold;">Settlement: ₱<span class="row-settlement"><?= number_format($subtotal, 2) ?></span></div>
                 
                 <input type="hidden" name="product_ids[<?= $item['item_id'] ?>]" value="<?= $item['p_id'] ?>">
-                <input type="hidden" name="product_names[<?= $item['item_id'] ?>]" value="<?= $item['product_name'] ?>">
+                <input type="hidden" name="product_names[<?= $item['item_id'] ?>]" value="<?= htmlspecialchars($item['product_name']) ?>">
                 <input type="hidden" name="qtys_taken[<?= $item['item_id'] ?>]" value="<?= $item['qty_taken'] ?>">
-                <!-- FIX: Added missing unit price hidden field -->
                 <input type="hidden" name="unit_prices[<?= $item['item_id'] ?>]" value="<?= $item['price_at_time'] ?>">
             </div>
         <?php endforeach; ?>
