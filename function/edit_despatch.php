@@ -63,7 +63,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_item'])) {
 
             // Log stock movement if any change occurred
             if ($difference !== 0) {
-                $logAction = $difference > 0 ? "Increased Dispatch" : "Decreased Dispatch";
+                // Fixed: Shortened log strings to avoid SQL truncation error
+                $logAction = $difference > 0 ? "Increased" : "Decreased";
+                
                 $logStmt = $pdo->prepare("INSERT INTO inventory_logs (product_id, admin_name, action, quantity_change, notes) VALUES (?, ?, ?, ?, ?)");
                 $logStmt->execute([
                     $product_id, 
@@ -85,7 +87,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_item'])) {
         $message = "<div class='alert alert-danger'><i class='fa-solid fa-triangle-exclamation'></i> " . htmlspecialchars($e->getMessage()) . "</div>";
     }
 
-
     $stmt = $pdo->prepare("SELECT di.*, p.product_name, p.wholesale_price, p.quantity as stock_on_shelf FROM dispatch_items di JOIN products p ON di.product_id = p.id WHERE di.id = ?");
     $stmt->execute([$form_id]);
     $item = $stmt->fetch();
@@ -99,14 +100,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_item'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Dispatch Item</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-   <style>
+    <style>
     :root {
         --primary-orange: #f28b30;
         --dark-orange: #d9741e;
-        --bg-gray: #f0f0f0;
+        --bg-gray: #f4f6f9;
         --text-dark: #333333;
         --text-muted: #666666;
-        --input-border: #cccccc;
+        --border-color: #e2e8f0;
     }
 
     * {
@@ -116,173 +117,166 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_item'])) {
     }
 
     body {
-        margin: 0;
-        padding: 0;
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        min-height: 100dvh;
         background-color: var(--bg-gray);
         font-family: 'Segoe UI', Arial, sans-serif;
-        overflow-x: hidden;
+        padding: 20px;
     }
 
-    
-    .login-container {
-        position: relative;
-        width: 92vw;
-        max-width: 440px;
-        aspect-ratio: 1 / 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 60px 35px; 
-        text-align: center;
-        z-index: 1; 
-    }
-
-    .login-container::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url('../assets/img/sale.png');
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: contain;
-        mix-blend-mode: multiply;
-        opacity: 0.35;
-        z-index: -1;
-        pointer-events: none;
-    }
-
-    .login-form-wrapper {
-        width: 100%;
-        max-width: 320px;
-    }
-
-    .brand-section {
-        margin-bottom: 15px;
-    }
-
-    .brand-name {
-        font-size: 22px;
-        font-weight: 700;
-        color: var(--dark-orange);
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-    }
-
-    .input-group {
-        position: relative;
-        margin-bottom: 14px;
-        display: flex;
-        align-items: center;
+    /* Edit Card Layout */
+    .edit-card {
         background: #ffffff;
-        border-radius: 50px; 
-        border: 1px solid var(--input-border);
-        padding: 2px 16px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        width: 100%;
+        max-width: 480px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        overflow: hidden;
     }
 
-    .input-group:focus-within {
+    .card-header {
+        background: var(--primary-orange);
+        color: #ffffff;
+        padding: 18px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-header h2 {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .card-body {
+        padding: 24px;
+    }
+
+    /* Info Groups */
+    .info-group {
+        background: #f8fafc;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .info-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-label {
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .info-value {
+        color: var(--text-dark);
+        font-weight: 600;
+    }
+
+    /* Form Inputs */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 15px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
         border-color: var(--primary-orange);
     }
 
-    .input-icon {
-        color: #333333;
+    /* Buttons */
+    .btn-container {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 11px;
+        border-radius: 6px;
         font-size: 14px;
-        width: 20px;
-        text-align: center;
-    }
-
-    .divider {
-        height: 18px;
-        width: 1px;
-        background-color: #dddddd;
-        margin: 0 10px;
-    }
-
-    .input-group input {
-        width: 100%;
-        border: none;
-        background: transparent;
-        padding: 10px 0;
-        font-size: 14px;
-        color: var(--text-dark);
-        outline: none;
-    }
-
-    .input-group input::placeholder {
-        color: #aaaaaa;
-        text-transform: uppercase;
-        font-size: 12px;
-        letter-spacing: 0.5px;
-    }
-
-    .password-toggle {
-        color: #888888;
-        cursor: pointer;
-        padding-left: 8px;
-        font-size: 14px;
-    }
-
-    .forgot-link-wrapper {
-        text-align: right;
-        margin: -8px 10px 14px 0;
-    }
-
-    .forgot-password-link {
-        color: var(--text-dark);
-        font-size: 12px;
         font-weight: 600;
+        text-align: center;
         text-decoration: none;
+        cursor: pointer;
+        border: none;
+        transition: background-color 0.2s;
     }
 
-    .btn-login {
+    .btn-cancel {
+        background-color: #e2e8f0;
+        color: #475569;
+    }
+
+    .btn-cancel:hover {
+        background-color: #cbd5e1;
+    }
+
+    .btn-submit {
         background-color: var(--primary-orange);
         color: #ffffff;
-        border: none;
-        padding: 12px;
-        width: 100%;
-        border-radius: 50px;
-        font-size: 16px;
-        font-weight: 600;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        cursor: pointer;
-        box-shadow: 0 4px 10px rgba(242, 139, 48, 0.2);
     }
 
-
-    @media (max-width: 400px) {
-        .login-container {
-            width: 96vw;
-            padding: 50px 25px;
-        }
-
-        .login-form-wrapper {
-            max-width: 280px;
-        }
-
-        .brand-name {
-            font-size: 18px;
-        }
-
-        .input-group input {
-            font-size: 13px;
-            padding: 8px 0;
-        }
-
-        .btn-login {
-            padding: 10px;
-            font-size: 14px;
-        }
+    .btn-submit:hover {
+        background-color: var(--dark-orange);
     }
-</style>
+
+    /* Alerts */
+    .alert {
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .alert-success {
+        background-color: #dcfce7;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+
+    .alert-danger {
+        background-color: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+    </style>
 </head>
 <body>
 
@@ -348,7 +342,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_item'])) {
                 </div>
             </form>
         <?php else: ?>
-            <p style="text-align: center; color: #64748b;">Item not found or has been deleted.</p>
+            <p style="text-align: center; color: #64748b; margin-bottom: 20px;">Item not found or has been deleted.</p>
             <div class="btn-container">
                 <a href="../dispatchers.php" class="btn btn-cancel">Back to Dispatchers</a>
             </div>
