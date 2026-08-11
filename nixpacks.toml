@@ -1,0 +1,5 @@
+[providers]
+providers = ['php']
+
+[nix]
+nixpkgs = ['php82', 'php82Extensions.mysqli', 'php82Extensions.pdo_mysql']
