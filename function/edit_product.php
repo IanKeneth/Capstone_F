@@ -36,18 +36,22 @@ if (isset($_POST['update_product'])) {
 
     $image_name = $product['image_path']; 
 
-    if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === 0) {
+    if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
         $target_dir = "../uploads/";
         $file_tmp = $_FILES["product_image"]["tmp_name"];
         $check = getimagesize($file_tmp);
+        
         if ($check !== false) {
             $file_ext = strtolower(pathinfo($_FILES["product_image"]["name"], PATHINFO_EXTENSION));
             $image_name = time() . "_" . bin2hex(random_bytes(4)) . "_" . preg_replace("/[^a-zA-Z0-9]/", "_", $name) . "." . $file_ext;
             
             if (move_uploaded_file($file_tmp, $target_dir . $image_name)) {
-                if ($product['image_path'] && $product['image_path'] != 'default-product.png') {
+                // Delete old image file if it exists and is not the default image
+                if ($product['image_path'] && $product['image_path'] !== 'default-product.png') {
                     $old_path = $target_dir . $product['image_path'];
-                    if (file_exists($old_path)) { unlink($old_path); }
+                    if (file_exists($old_path)) { 
+                        @unlink($old_path); 
+                    }
                 }
             }
         }
@@ -123,7 +127,8 @@ if (isset($_POST['update_product'])) {
     <form method="POST" enctype="multipart/form-data">
         
         <div style="text-align: center;">
-            <img src="../uploads/<?php echo $product['image_path'] ?: 'default-product.png'; ?>" class="image-preview" id="preview">
+            <!-- Cache-busting timestamp added to preview image -->
+            <img src="../uploads/<?php echo e($product['image_path'] ?: 'default-product.png'); ?>?v=<?php echo time(); ?>" class="image-preview" id="preview">
             <div class="form-group">
                 <label>Product Image</label>
                 <input type="file" name="product_image" class="form-control" accept="image/*" onchange="previewImage(this)">
@@ -152,7 +157,7 @@ if (isset($_POST['update_product'])) {
 
         <div class="form-group">
             <label>Wholesale Price (₱)</label>
-            <input type="number" step="0.01" name="wholesale_price" class="form-control" value="<?php echo e($product['wholesale_price']); ?>" required>
+            <input type="number" step="0.01" id="wholesale_price" name="wholesale_price" class="form-control" value="<?php echo e($product['wholesale_price']); ?>" oninput="validateProfit()" required>
         </div>
 
         <div class="form-group">
@@ -162,13 +167,12 @@ if (isset($_POST['update_product'])) {
                 id="retail_price"
                 name="retail_price" 
                 class="form-control" 
-                step="0.10" 
+                step="0.01" 
                 min="0.01"
                 value="<?php echo e($product['retail_price']); ?>" 
                 oninput="validateProfit()"
                 required
             >
-            <input type="hidden" id="wholesale_price" value="<?php echo e($product['wholesale_price']); ?>">
             
             <small id="profit-warning" style="display:none; color: #e74c3c; margin-top: 5px; font-weight: bold;">
                 <i class="fa-solid fa-circle-exclamation"></i> Warning: Selling below wholesale price!
@@ -208,22 +212,23 @@ if (isset($_POST['update_product'])) {
 
     function validateProfit() {
         const retailInput = document.getElementById('retail_price');
-        const wholesalePrice = parseFloat(document.getElementById('wholesale_price').value) || 0;
+        const wholesaleInput = document.getElementById('wholesale_price');
+        
+        const wholesalePrice = parseFloat(wholesaleInput.value) || 0;
         const currentRetail = parseFloat(retailInput.value) || 0;
         const warning = document.getElementById('profit-warning');
-        const saveBtn = document.querySelector('button[type="submit"]'); 
 
         if (currentRetail < wholesalePrice) {
             warning.style.display = 'block';
             retailInput.style.borderColor = '#e74c3c';
             retailInput.style.backgroundColor = '#fff5f5';
-
         } else {
             warning.style.display = 'none';
-            retailInput.style.borderColor = '#ced4da';
+            retailInput.style.borderColor = '#e2e8f0';
             retailInput.style.backgroundColor = '#fff';
         }
     }
+
     document.addEventListener('DOMContentLoaded', validateProfit);
 </script>
 
