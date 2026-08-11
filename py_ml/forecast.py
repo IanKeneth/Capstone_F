@@ -1,14 +1,23 @@
+import os
 import mysql.connector
 import pandas as pd
 from datetime import datetime, timedelta
 from sklearn.linear_model import LinearRegression
 
 def run_ml_forecast():
+    # Reads Railway environment variables, falls back to local if not set
+    host = os.getenv('MYSQLHOST', 'altaria.proxy.rlwy.net')
+    user = os.getenv('MYSQLUSER', 'root')
+    password = os.getenv('MYSQLPASSWORD', 'YarfSiaympdWkYInJcczySGNAcFBVghi')
+    database = os.getenv('MYSQLDATABASE', 'railway')
+    port = int(os.getenv('MYSQLPORT', '35571'))
+
     db = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="capstone_1"
+        host=host,
+        user=user,
+        password=password,
+        database=database,
+        port=port
     )
     cursor = db.cursor()
 
@@ -26,7 +35,10 @@ def run_ml_forecast():
     
     if len(df) < 1:
         print("Not enough historical data to train the machine learning model.")
+        cursor.close()
+        db.close()
         return
+
     df['time_index'] = range(1, len(df) + 1)
     
     X = df[['time_index']]
@@ -56,7 +68,7 @@ def run_ml_forecast():
     
     cursor.close()
     db.close()
-    print(f"Success!  ML prediction for {next_month_str}: ₱{predicted_val}")
+    print(f"Success! ML prediction for {next_month_str}: ₱{predicted_val}")
 
 if __name__ == "__main__":
     run_ml_forecast()
