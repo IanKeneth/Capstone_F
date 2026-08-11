@@ -129,6 +129,8 @@ foreach($logisticsRes as $row) {
     $workerReturnValues[] = (int)$row['returned'];
 }
 
+// Triggers forecast.py inside py_ml folder automatically
+exec("python3 " . __DIR__ . "/py_ml/forecast.py 2>&1");
 //ML Forecast Prediction Query
 $nextMonthStr = date('Y-m', strtotime("+1 month"));
 $mlPredictionQuery = "SELECT predicted_revenue FROM ml_predictions WHERE target_period = :next_month LIMIT 1";
