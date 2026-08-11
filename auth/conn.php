@@ -1,16 +1,15 @@
 <?php
-// Force PHP to use your exact local timezone
 date_default_timezone_set('Asia/Manila');
 
-// Fetch database credentials from Railway environment variables, fallback to local
-$host     = getenv('MYSQLHOST') ?: "localhost";
+// Reads Railway environment variables in production, falls back to local credentials
+$host     = getenv('MYSQLHOST') ?: "127.0.0.1";
 $dbname   = getenv('MYSQLDATABASE') ?: "capstone_1";
 $username = getenv('MYSQLUSER') ?: "root";
 $password = getenv('MYSQLPASSWORD') ?: "";
 $port     = getenv('MYSQLPORT') ?: "3306";
 
 try {
-    // Explicitly pass port and host over TCP to prevent 'No such file or directory' Unix socket errors
+    // Explicitly including port forces TCP/IP connection instead of Unix sockets
     $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
     $pdo = new PDO($dsn, $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -19,12 +18,6 @@ try {
     
 } catch(PDOException $e) {
     die("Connection failed: " . $e->getMessage());
-}
-    
-if (!function_exists('e')) {
-    function e($value): string {
-        return htmlspecialchars((string)($value ?? ''), ENT_QUOTES, 'UTF-8');
-    }
 }
 require __DIR__ . '/../vendor/autoload.php';
 
