@@ -33,8 +33,9 @@ def run_ml_forecast():
     
     df = pd.read_sql(query, db)
     
-    if len(df) < 1:
-        print("Not enough historical data to train the machine learning model.")
+    # Changed from < 1 to == 0 so it runs even with 1 historical record
+    if len(df) == 0:
+        print("No sales data found in the database.")
         cursor.close()
         db.close()
         return
