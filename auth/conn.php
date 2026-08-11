@@ -1,14 +1,18 @@
 <?php
-//Force PHP to use your exact local timezone
+// Force PHP to use your exact local timezone
 date_default_timezone_set('Asia/Manila');
 
-$host = "localhost";
-$dbname = "capstone_1";
-$username = "root";
-$password = "";
+// Fetch database credentials from Railway environment variables, fallback to local
+$host     = getenv('MYSQLHOST') ?: "localhost";
+$dbname   = getenv('MYSQLDATABASE') ?: "capstone_1";
+$username = getenv('MYSQLUSER') ?: "root";
+$password = getenv('MYSQLPASSWORD') ?: "";
+$port     = getenv('MYSQLPORT') ?: "3306";
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    // Explicitly pass port and host over TCP to prevent 'No such file or directory' Unix socket errors
+    $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+    $pdo = new PDO($dsn, $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     $pdo->exec("SET time_zone = '+08:00';");
@@ -22,7 +26,6 @@ if (!function_exists('e')) {
         return htmlspecialchars((string)($value ?? ''), ENT_QUOTES, 'UTF-8');
     }
 }
-
 require __DIR__ . '/../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
