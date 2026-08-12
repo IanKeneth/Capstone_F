@@ -312,7 +312,7 @@ if ($forecast === false) {
                     <div class="value">₱<?= number_format($dailySales, 2) ?></div>
                 </div>
                 <div class="stat-card" style="border-left: 5px solid #f28c28;">
-                    <h3 style="color:#f28c28; font-size: 0.8rem;">5-MONTH REVENUE</h3>
+                    <h3 style="color:#f28c28; font-size: 0.8rem;">MONTH REVENUE</h3>
                     <div class="value">₱<?= number_format(array_sum($monthlyValues), 2) ?></div>
                 </div>
                 <div class="stat-card" style="border-left: 5px solid #4e73df;">
