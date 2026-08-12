@@ -136,14 +136,22 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price, quantity 
 
             <?php if (isset($_GET['error'])): ?>
                 <div class="alert-box alert-error">
-                    <i class="fa-solid fa-triangle-exclamation"></i> <?= htmlspecialchars($_GET['error']) ?>
+                    <i class="fa-solid fa-triangle-exclamation"></i> <?php echo htmlspecialchars($_GET['error']); ?>
                 </div>
             <?php endif; ?>
 
-            <?php if (isset($_GET['success'])): ?>
+            <?php if (isset($_GET['msg']) || isset($_GET['success'])): ?>
                 <div class="alert-box alert-success">
                     <i class="fa-solid fa-circle-check"></i> 
-                    <?= $_GET['success'] === 'added' ? 'Product added successfully!' : 'Dispatch session recorded successfully!' ?>
+                    <?php 
+                        if (isset($_GET['msg']) && $_GET['msg'] === 'deleted') {
+                            echo "Item removed and stock restored successfully!";
+                        } elseif (isset($_GET['success']) && $_GET['success'] === 'added') {
+                            echo "Product added successfully!";
+                        } else {
+                            echo "Dispatch session recorded successfully!";
+                        }
+                    ?>
                 </div>
             <?php endif; ?>
 
@@ -157,20 +165,20 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price, quantity 
             </div>
 
             <?php foreach($grouped_data as $sid => $data): ?>
-            <div class="worker-group" data-worker="<?= htmlspecialchars(strtolower($data['info']['name'])) ?>" style="margin-bottom: 25px;">
+            <div class="worker-group" data-worker="<?php echo htmlspecialchars(strtolower($data['info']['name'])); ?>" style="margin-bottom: 25px;">
                 <div class="worker-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <div>
-                        <span style="color: var(--text); font-weight: 700;">Worker: <?= htmlspecialchars($data['info']['name']) ?></span>
+                        <span style="color: var(--text); font-weight: 700;">Worker: <?php echo htmlspecialchars($data['info']['name']); ?></span>
                         <span class="status-badge" style="margin-left:10px; background: #dcfce7; color: #15803d; padding: 3px 8px; border-radius: 12px; font-size: 12px;">Active</span>
                     </div>
                     <div>
                         <button type="button" 
-                                onclick="openAddProductModal(<?= $sid ?>, '<?= base64_encode(json_encode(array_column($data['items'], 'product_name'))) ?>')" 
+                                onclick="openAddProductModal(<?php echo $sid; ?>, '<?php echo base64_encode(json_encode(array_column($data['items'], 'product_name'))); ?>')" 
                                 class="action-pill" 
                                 style="background: #22c55e; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">
                             + PRODUCT
                         </button>
-                        <a href="function/afternoon_remit.php?id=<?= $sid ?>" class="action-pill" style="background: var(--primary, #2563eb); color:white; padding: 6px 12px; text-decoration: none; border-radius: 6px;">REMIT</a>
+                        <a href="function/afternoon_remit.php?id=<?php echo $sid; ?>" class="action-pill" style="background: var(--primary, #2563eb); color:white; padding: 6px 12px; text-decoration: none; border-radius: 6px;">REMIT</a>
                     </div>
                 </div>
 
@@ -191,22 +199,25 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price, quantity 
                         foreach($data['items'] as $item): 
                             $subtotal = $item['price_at_time'] * $item['qty_taken'];
                             $grand_total += $subtotal;
+                            $delete_id = $item['id'] ?? $item['di_id'];
                         ?>
                         <tr>
-                            <td style="padding: 8px;"><?= htmlspecialchars($item['product_name']) ?></td>
-                            <td style="padding: 8px;">₱<?= number_format($item['price_at_time'], 2) ?></td>
-                            <td style="padding: 8px;"><?= $item['qty_taken'] ?></td>
-                            <td style="padding: 8px;">₱<?= number_format($subtotal, 2) ?></td>
-                            <td style="padding: 8px; color:#94a3b8;"><?= $item['inventory_qty'] ?></td>
+                            <td style="padding: 8px;"><?php echo htmlspecialchars($item['product_name']); ?></td>
+                            <td style="padding: 8px;">₱<?php echo number_format($item['price_at_time'], 2); ?></td>
+                            <td style="padding: 8px;"><?php echo $item['qty_taken']; ?></td>
+                            <td style="padding: 8px;">₱<?php echo number_format($subtotal, 2); ?></td>
+                            <td style="padding: 8px; color:#94a3b8;"><?php echo $item['inventory_qty']; ?></td>
                             <td style="text-align: center; padding: 8px;">
-                                <a href="function/edit_despatch.php?id=<?= $item['di_id'] ?>" class="fa-solid fa-pencil" style="color:#666; margin-right:10px; cursor:pointer; text-decoration:none;"></a>
-                                <a href="function/delete_item.php?id=<?= $item['di_id'] ?>" onclick="return confirm('Remove product?')" style="color: #ef4444;"><i class="fa-solid fa-trash-can"></i></a>
+                                <a href="function/edit_despatch.php?id=<?php echo $delete_id; ?>" class="fa-solid fa-pencil" style="color:#666; margin-right:10px; cursor:pointer; text-decoration:none;"></a>
+                                <a href="function/delete_item.php?id=<?php echo $delete_id; ?>" onclick="return confirm('Remove product?')" style="color: #ef4444;">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
                             </td>
                         </tr>
                         <?php endforeach; ?>
                         <tr class="total-row" style="font-weight: bold; background: #f8fafc;">
                             <td colspan="3" style="text-align: right; padding: 10px;">Total Amount Accountable:</td>
-                            <td colspan="3" style="padding: 10px;">₱<?= number_format($grand_total, 2) ?></td>
+                            <td colspan="3" style="padding: 10px;">₱<?php echo number_format($grand_total, 2); ?></td>
                         </tr>
                     </tbody>
                 </table>
@@ -227,7 +238,7 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price, quantity 
             <div class="form-body" style="padding:15px 0;">
                 <label style="margin-bottom: 5px; display:block; font-weight:600;">Worker Name:</label>
                 <input type="text" name="worker_name" required style="width:100%; padding:10px; margin-bottom:15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;">
-                <input type="hidden" name="date_today" value="<?= date('Y-m-d') ?>">
+                <input type="hidden" name="date_today" value="<?php echo date('Y-m-d'); ?>">
                 
                 <div style="display:flex; width:100%; justify-content: space-between; align-items:center; margin-bottom:10px;">
                     <label style="margin: 0; font-weight:600;">Products:</label>
@@ -241,7 +252,7 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price, quantity 
                                 <select name="product_ids[]" required style="border: 1px solid #ddd; border-radius: 8px; width:98%; padding:8px;" onchange="updateDropdowns()">
                                     <option value="">-- Select Product --</option>
                                     <?php foreach($all_products as $p): ?>
-                                        <option value="<?= $p['id'] ?>"><?= htmlspecialchars($p['product_name']) ?> (₱<?= $p['wholesale_price'] ?>)</option>
+                                        <option value="<?php echo $p['id']; ?>"><?php echo htmlspecialchars($p['product_name']); ?> (₱<?php echo $p['wholesale_price']; ?>)</option>
                                     <?php endforeach; ?>
                                 </select>
                             </td>
@@ -275,8 +286,8 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price, quantity 
                 <select name="new_product_id" id="filteredSelect" required style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; border:1px solid #ddd; border-radius:6px;">
                     <option value="">-- Choose Product --</option>
                     <?php foreach($all_products as $p): ?>
-                        <option value="<?= $p['id'] ?>" data-pname="<?= htmlspecialchars($p['product_name']) ?>">
-                            <?= htmlspecialchars($p['product_name']) ?> (₱<?= $p['wholesale_price'] ?>)
+                        <option value="<?php echo $p['id']; ?>" data-pname="<?php echo htmlspecialchars($p['product_name']); ?>">
+                            <?php echo htmlspecialchars($p['product_name']); ?> (₱<?php echo $p['wholesale_price']; ?>)
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -288,9 +299,7 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price, quantity 
     </div>
 </div>
 
-<!-- Complete Self-Contained JavaScript -->
 <script>
-// Toggle Modal Display
 function toggleModal(modalId, show) {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -298,7 +307,6 @@ function toggleModal(modalId, show) {
     }
 }
 
-// Open Add Product Modal and Filter Out Existing Products Safely
 function openAddProductModal(sessionId, encodedExistingProducts) {
     const inputSession = document.getElementById('modal_session_id');
     if (inputSession) {
@@ -330,7 +338,6 @@ function openAddProductModal(sessionId, encodedExistingProducts) {
     toggleModal('addProductModal', true);
 }
 
-// Hide already selected products from other Morning Pickup dropdowns
 function updateDropdowns() {
     const selects = document.querySelectorAll('#morningRows select[name="product_ids[]"]');
     const selectedValues = Array.from(selects)
@@ -351,7 +358,6 @@ function updateDropdowns() {
     });
 }
 
-// Add a new row to the Morning Pickup modal
 function addNewRow() {
     const tbody = document.getElementById('morningRows');
     const firstRow = tbody.querySelector('tr');
@@ -372,7 +378,6 @@ function addNewRow() {
     updateDropdowns();
 }
 
-// Remove a row from the Morning Pickup modal
 function removeRow(btn) {
     const tbody = document.getElementById('morningRows');
     if (tbody.querySelectorAll('tr').length > 1) {
@@ -383,7 +388,6 @@ function removeRow(btn) {
     }
 }
 
-// DOM Events (Sidebar Toggle & Worker Search Filter)
 document.addEventListener('DOMContentLoaded', () => {
     const sidebarBtn = document.getElementById('sidebarToggle');
     if (sidebarBtn) {
@@ -405,6 +409,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 group.style.display = workerName.includes(searchTerm) ? "" : "none";
             });
         });
+    }
+
+    const alerts = document.querySelectorAll('.alert-box');
+    if (alerts.length > 0) {
+        setTimeout(() => {
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 4000);
     }
 });
 </script>
