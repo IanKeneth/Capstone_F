@@ -36,16 +36,16 @@ try {
 <div class="container">
     <aside class="sidebar">
         <div class="sidebar-header">
-<<<<<<< HEAD
+
                 <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
                 
             </div>
             <nav style="flex-grow: 1;">
-=======
+
             <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
         </div>
         <nav style="flex-grow: 1;">
->>>>>>> dbee581c05d40c078ef95186012f54de8ba80c7a
+
             <a href="index.php" class="nav-item" data-title="Dashboard">
                 <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
                 <span>Dashboard</span>
@@ -62,13 +62,12 @@ try {
                 <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
                 <span>Dispatchers</span>
             </a>
-<<<<<<< HEAD
+
             <a href="balance.php" class="nav-item " data-title="Worker Balances">
                 <div class="icon"><i class="fa-solid fa-scale-unbalanced"></i></div>
                 <span>Worker Balances</span>
             </a>
-=======
->>>>>>> dbee581c05d40c078ef95186012f54de8ba80c7a
+
             <a href="retailer.php" class="nav-item active" data-title="Retailer">
                 <div class="icon"><i class="fa-solid fa-shop"></i></div>
                 <span>Retailer</span>
