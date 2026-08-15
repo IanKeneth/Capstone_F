@@ -27,7 +27,7 @@ try {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel</title>
+    <title>Admin Panel - Retailer Orders</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/retailer.css">
 </head>
@@ -36,10 +36,16 @@ try {
 <div class="container">
     <aside class="sidebar">
         <div class="sidebar-header">
+<<<<<<< HEAD
                 <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
                 
             </div>
             <nav style="flex-grow: 1;">
+=======
+            <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
+        </div>
+        <nav style="flex-grow: 1;">
+>>>>>>> dbee581c05d40c078ef95186012f54de8ba80c7a
             <a href="index.php" class="nav-item" data-title="Dashboard">
                 <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
                 <span>Dashboard</span>
@@ -56,10 +62,13 @@ try {
                 <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
                 <span>Dispatchers</span>
             </a>
+<<<<<<< HEAD
             <a href="balance.php" class="nav-item " data-title="Worker Balances">
                 <div class="icon"><i class="fa-solid fa-scale-unbalanced"></i></div>
                 <span>Worker Balances</span>
             </a>
+=======
+>>>>>>> dbee581c05d40c078ef95186012f54de8ba80c7a
             <a href="retailer.php" class="nav-item active" data-title="Retailer">
                 <div class="icon"><i class="fa-solid fa-shop"></i></div>
                 <span>Retailer</span>
@@ -81,20 +90,26 @@ try {
 
     <main class="main-content">
         <header class="header">
-                <div class="header-left">
-                    <button id="sidebarToggle" class="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
-                    <h1 style="white-space: nowrap; margin-right: 20px;">Retailer Orders</h1>
-                </div>
-            </header>
+            <div class="header-left">
+                <button id="sidebarToggle" class="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
+                <h1 style="white-space: nowrap; margin-right: 20px;">Retailer Orders</h1>
+            </div>
+        </header>
         <section class="content-area">
+
         <?php if (isset($_GET['status'])): ?>
             <?php if ($_GET['status'] === 'success'): ?>
                 <div class="out" style="background: #dcfce7; color: #15803d; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
-                    Order saved  successfully!
+                    Order saved successfully!
                 </div>
+            <<?php elseif ($_GET['status'] === 'deleted'): ?>
+                <div class="out" style="background: #dcfce7; color: #15803d; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                    Order deleted successfully!
+                </div>
+
             <?php elseif ($_GET['status'] === 'error'): ?>
                 <div class="out" style="background: #fee2e2; color: #b91c1c; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
-                    Error: <?= htmlspecialchars($_GET['msg']) ?>
+                    Error: <?= htmlspecialchars($_GET['msg'] ?? 'An error occurred.') ?>
                 </div>
             <?php endif; ?>
         <?php endif; ?>
@@ -103,7 +118,6 @@ try {
                 <button class="btn-add-order" onclick="toggleModal('orderModal', true)">+ Add Retail Orders</button>
                 <div class="table-container">
                     <table class="main-table">
-
                         <thead>
                             <tr>
                                 <th>ORDER ID</th>
@@ -115,7 +129,6 @@ try {
                                 <th>ACTION</th>
                             </tr>
                         </thead>
-
                         <tbody>
                             <?php foreach($orders as $row): ?>
                             <tr>
@@ -129,8 +142,10 @@ try {
                                     <a href="function/edit_retail.php?id=<?= $row['id'] ?>">
                                         <i class="fa-solid fa-pencil" style="color:#666; margin-right:10px; cursor:pointer;"></i>
                                     </a>
-                                    <i class="fa-solid fa-trash-can" style="color:#e74c3c; cursor:pointer;"></i>
-                                </td>
+                                   <a href="function/delete_retail.php?id=<?= $row['id'] ?>" onclick="return confirm('Are you sure you want to delete this order?');">
+                                            <i class="fa-solid fa-trash-can" style="color:#e74c3c; cursor:pointer;"></i>
+                                        </a>
+                                    </td>
                             </tr>
                             <?php endforeach; ?>
                             
@@ -139,7 +154,6 @@ try {
                                 <tr style="height:48px;"><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
                             <?php endfor; ?>
                         </tbody>
-
                     </table>
                 </div>
             </div>
@@ -147,6 +161,7 @@ try {
     </main>
 </div>
 
+<!-- Modal Component -->
 <div id="orderModal" class="modal-overlay">
     <div class="order-modal">
         <div class="order-modal-header">
@@ -168,18 +183,18 @@ try {
             </select>
 
             <div style="display: flex; gap: 15px; width: 100%; margin-bottom: 15px;">
-            <div style="flex: 1;">
-                <label>Retail Price</label>
-                <input type="text" id="viewPrice" value="40.00" readonly 
-                style="width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; background: #f9f9f9; color: #777; text-align: center; box-sizing: border-box;">
+                <div style="flex: 1;">
+                    <label>Retail Price</label>
+                    <input type="text" id="viewPrice" value="0.00" readonly 
+                    style="width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; background: #f9f9f9; color: #777; text-align: center; box-sizing: border-box;">
+                </div>
+                
+                <div style="flex: 1;">
+                    <label>Qty:</label>
+                    <input type="number" name="qty" id="viewQty" value="1" min="1" oninput="calc()" 
+                    style="width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; text-align: center; box-sizing: border-box;">
+                </div>
             </div>
-            
-            <div style="flex: 1;">
-                <label>Qty:</label>
-                <input type="number" name="qty" id="viewQty" value="1" min="1" oninput="calc()" 
-                style="width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; text-align: center; box-sizing: border-box;">
-            </div>
-        </div>
 
             <label>Subtotal:</label>
             <div class="subtotal-box" id="viewSub">₱ 0.00</div>
@@ -194,7 +209,6 @@ try {
     function toggleModal(id, show) { 
         document.getElementById(id).style.display = show ? 'flex' : 'none'; 
     }
-    function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
 
     function calc() {
         const sel = document.getElementById('prodSelect');
@@ -206,9 +220,9 @@ try {
         document.getElementById('viewSub').innerText = "₱ " + total.toLocaleString(undefined, {minimumFractionDigits: 2});
         document.getElementById('hiddenSub').value = total.toFixed(2);
     }
+
     document.addEventListener("DOMContentLoaded", function() {
-    const alerts = document.querySelectorAll('.out');
-        
+        const alerts = document.querySelectorAll('.out');
         alerts.forEach(function(alert) {
             setTimeout(function() {
                 alert.style.opacity = '0';
@@ -217,12 +231,15 @@ try {
                 }, 500); 
             }, 4000);
         });
-    });
-    document.getElementById('sidebarToggle').addEventListener('click', () => {
-        document.querySelector('.sidebar').classList.toggle('active');
-    });
-        document.getElementById('sidebarToggle').addEventListener('click', () => {
-        document.querySelector('.sidebar').classList.toggle('collapsed');
+
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                const sidebar = document.querySelector('.sidebar');
+                sidebar.classList.toggle('active');
+                sidebar.classList.toggle('collapsed');
+            });
+        }
     });
 </script>
 
