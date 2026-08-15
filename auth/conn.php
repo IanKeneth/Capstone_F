@@ -1,22 +1,30 @@
 <?php
 date_default_timezone_set('Asia/Manila');
 
-// Reads Railway environment variables in production, falls back to local credentials
-$host = getenv('MYSQLHOST') ?: 'localhost';
-$port = getenv('MYSQLPORT') ?: '3306';
-$dbname = getenv('MYSQLDATABASE') ?: 'railway';
-$user = getenv('MYSQLUSER') ?: 'root';
-$pass = getenv('MYSQLPASSWORD') ?: '';
+// Helper function to reliably read environment variables across all PHP setups
+function env($key, $default = '') {
+    $val = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
+    return ($val !== false && $val !== null && $val !== '') ? $val : $default;
+}
+
+$host     = env('MYSQLHOST', '127.0.0.1');
+$dbname   = env('MYSQLDATABASE', 'capstone_1');
+$username = env('MYSQLUSER', 'root');
+$password = env('MYSQLPASSWORD', 'YarfSiaympdWkYInJcczySGNAcFBVghi');
+$port     = env('MYSQLPORT', '3306');
+
 try {
-    // Explicitly including port forces TCP/IP connection instead of Unix sockets
     $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
-    $pdo = new PDO($dsn, $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
+    $pdo = new PDO($dsn, $username, $password, [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES   => false,
+    ]);
+
     $pdo->exec("SET time_zone = '+08:00';");
-    
-} catch(PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+
+} catch (PDOException $e) {
+    die("Database Connection Failed: " . $e->getMessage());
 }
 require __DIR__ . '/../vendor/autoload.php';
 
