@@ -35,6 +35,20 @@ try {
             'Retail' AS sale_type
         FROM retail_orders ro
         JOIN products p ON ro.product_id = p.id)
+
+        UNION ALL
+
+        (SELECT 
+            s.id AS sale_id, 
+            s.product AS product_name, 
+            s.worker AS customer_name, 
+            NULL AS qty, 
+            NULL AS unit_price, 
+            s.subtotal AS total, 
+            s.created_at AS sale_date,
+            'Balance' AS sale_type
+        FROM sales s
+        WHERE s.type = 'BALANCE')
         
         ORDER BY sale_date DESC";
         
@@ -67,17 +81,49 @@ try {
     <script src="https://cdn.jsdelivr.net/gh/linways/table-to-excel@v1.0.4/dist/tableToExcel.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
+    <style>
+        .type-balance {
+            background-color: #fff3ed;
+            color: #f28c28;
+            border: 1px solid #f28c28;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        .type-wholesale {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        .type-retail {
+            background-color: #dcfce7;
+            color: #15803d;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        .text-na {
+            color: #94a3b8;
+            font-style: italic;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <aside class="sidebar">
-           <div class="sidebar-header">
+            <div class="sidebar-header">
                 <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
-                
             </div>
         
-             <nav style="flex-grow: 1;">
-                <a href="index.php " class="nav-item " data-title="Dashboard">
+            <nav style="flex-grow: 1;">
+                <a href="index.php" class="nav-item" data-title="Dashboard">
                     <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
                     <span>Dashboard</span>
                 </a>
@@ -93,11 +139,15 @@ try {
                     <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
                     <span>Dispatchers</span>
                 </a>
+                <a href="balance.php" class="nav-item" data-title="Worker Balances">
+                    <div class="icon"><i class="fa-solid fa-scale-unbalanced"></i></div>
+                    <span>Worker Balances</span>
+                </a>
                 <a href="retailer.php" class="nav-item" data-title="Retailer">
                     <div class="icon"><i class="fa-solid fa-shop"></i></div>
                     <span>Retailer</span>
                 </a>
-                <a href="audit_trail.php" class="nav-item " data-title="Audit Trail">
+                <a href="audit_trail.php" class="nav-item" data-title="Audit Trail">
                     <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
                     <span>Audit Trail</span>
                 </a>
@@ -105,29 +155,27 @@ try {
                     <div class="icon"><i class="fa-solid fa-coins"></i></div>
                     <span>Sales History</span>
                 </a>
-                <a href="setting.php" class="nav-item " data-title="Settings">
+                <a href="setting.php" class="nav-item" data-title="Settings">
                     <div class="icon"><i class="fa-solid fa-gears"></i></div>
                     <span>Settings</span>
                 </a>
             </nav>
-            
         </aside>
 
         <main class="main-content">
-        <header class="header">
-                    <div class="header-left">
-                        <button id="sidebarToggle" class="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
-                        <h1 style="white-space: nowrap; margin-right: 20px;">financial Overview</h1>
-                    </div>
+            <header class="header">
+                <div class="header-left">
+                    <button id="sidebarToggle" class="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
+                    <h1 style="white-space: nowrap; margin-right: 20px;">Financial Overview</h1>
+                </div>
             </header>
 
             <section class="sales-card">
                 <div class="sales-header">
                     <div style="display: flex; gap: 10px;">
-                        <button class="action-btn" style="background:#2c3e50; color:white;" id="exportBtn">
+                        <button class="action-btn" style="background:#f28c28; color:white; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600;" id="exportBtn">
                             <i class="fa-solid fa-file-excel"></i> Export Excel
                         </button>
-                    
                     </div>
                 </div>
 
@@ -137,7 +185,7 @@ try {
                             <th>ID</th>
                             <th>Type</th>
                             <th>Product</th>
-                            <th>Worker</th>
+                            <th>Worker / Customer</th>
                             <th>Qty</th>
                             <th>Unit Price</th>
                             <th>Subtotal</th>
@@ -151,23 +199,47 @@ try {
                             <tr>
                                 <td>#<?= htmlspecialchars($sale['sale_id']) ?></td>
                                 <td>
-                                    <span class="type-tag <?= $sale['sale_type'] == 'Wholesale' ? 'type-wholesale' : 'type-retail' ?>">
-                                        <?= $sale['sale_type'] ?>
+                                    <?php 
+                                        $typeClass = 'type-retail';
+                                        if ($sale['sale_type'] === 'Wholesale') {
+                                            $typeClass = 'type-wholesale';
+                                        } elseif ($sale['sale_type'] === 'Balance') {
+                                            $typeClass = 'type-balance';
+                                        }
+                                    ?>
+                                    <span class="type-tag <?= $typeClass ?>">
+                                        <?= htmlspecialchars($sale['sale_type']) ?>
                                     </span>
                                 </td>
                                 <td><strong><?= htmlspecialchars($sale['product_name']) ?></strong></td>
                                 <td><?= htmlspecialchars($sale['customer_name']) ?></td>
-                                <td><?= number_format($sale['qty']) ?></td>
-                                <td>₱<?= number_format($sale['unit_price'], 2) ?></td>
+                                
+                                <!-- Quantity Column -->
+                                <td>
+                                    <?php if ($sale['sale_type'] === 'Balance'): ?>
+                                        <span class="text-na">N/A</span>
+                                    <?php else: ?>
+                                        <?= number_format($sale['qty']) ?>
+                                    <?php endif; ?>
+                                </td>
+
+                                <!-- Unit Price Column -->
+                                <td>
+                                    <?php if ($sale['sale_type'] === 'Balance'): ?>
+                                        <span class="text-na">N/A</span>
+                                    <?php else: ?>
+                                        ₱<?= number_format($sale['unit_price'], 2) ?>
+                                    <?php endif; ?>
+                                </td>
+
                                 <td class="amount-text">₱<?= number_format($sale['total'], 2) ?></td>
-                                <td><?= date('M d, Y', strtotime($sale['sale_date'])) ?></td>
+                                <td><?= date('M d, Y h:i A', strtotime($sale['sale_date'])) ?></td>
                             </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr><td colspan="8" style="text-align:center; padding:50px; color:#999;">No records found.</td></tr>
+                            <tr><td colspan="8" style="text-align:center; padding:50px; color:#999;">No sales records found.</td></tr>
                         <?php endif; ?>
                     </tbody>
-
                 </table>
             </section>
         </main>
@@ -180,12 +252,12 @@ try {
             sheet: { name: "Revenue" }
         });
     });
-     document.getElementById('sidebarToggle').addEventListener('click', () => {
-            document.querySelector('.sidebar').classList.toggle('active');
-        });
-         document.getElementById('sidebarToggle').addEventListener('click', () => {
-            document.querySelector('.sidebar').classList.toggle('collapsed');
-        });
+
+    document.getElementById('sidebarToggle').addEventListener('click', () => {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('active');
+        sidebar.classList.toggle('collapsed');
+    });
 </script>
 
 </body>

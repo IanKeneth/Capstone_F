@@ -41,7 +41,7 @@ foreach ($months as $m) {
     $monthlyValues[] = $dataMap[$m] ?? 0;
 }
 
-//Daily Sales Calculation
+// Daily Sales Calculation
 $dailySalesQuery = "SELECT SUM(rev) FROM (
                         SELECT total_collected as rev FROM dispatch_sessions WHERE status='Completed' AND date_today = :today1 
                         UNION ALL 
@@ -51,7 +51,7 @@ $stmtDaily = $pdo->prepare($dailySalesQuery);
 $stmtDaily->execute(['today1' => $today, 'today2' => $today]);
 $dailySales = $stmtDaily->fetchColumn() ?: 0;
 
-//Actual Yearly Sales Calculation (Current Year)
+// Actual Yearly Sales Calculation
 $yearlySalesQuery = "SELECT SUM(rev) FROM (
                         SELECT total_collected as rev FROM dispatch_sessions WHERE status='Completed' AND YEAR(date_today) = :year1 
                         UNION ALL 
@@ -61,11 +61,21 @@ $stmtYearly = $pdo->prepare($yearlySalesQuery);
 $stmtYearly->execute(['year1' => $currentYear, 'year2' => $currentYear]);
 $yearlySales = $stmtYearly->fetchColumn() ?: 0;
 
-//Inventory Metrics
+// Inventory Metrics
 $activeProductCount = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
 $lowStockCount = $pdo->query("SELECT COUNT(*) FROM products WHERE quantity <= 30")->fetchColumn();
 
-//Top Demand Products Query
+// Worker Balances Metrics
+$pendingBalancesQuery = "SELECT DISTINCT worker_name 
+                        FROM worker_balances 
+                        WHERE status = 'Pending' 
+                        ORDER BY worker_name ASC";
+$pendingWorkers = $pdo->query($pendingBalancesQuery)->fetchAll(PDO::FETCH_COLUMN);
+
+$totalPendingBalanceQuery = "SELECT SUM(shortage_amount) FROM worker_balances WHERE status = 'Pending'";
+$totalPendingShortage = $pdo->query($totalPendingBalanceQuery)->fetchColumn() ?: 0;
+
+// Top Demand Products Query
 $topCombinedQuery = "SELECT p.product_name, SUM(all_sales.total_qty) as total_sold
                     FROM (
                         SELECT product_id, SUM(qty) as total_qty 
@@ -89,7 +99,7 @@ foreach ($topProductsRes as $prod) {
     $topProductValues[] = (int)$prod['total_sold'];
 }
 
-//Retail vs Wholesale Channel Comparison
+// Retail vs Wholesale Channel Comparison
 $combinedTopQuery = "SELECT p.product_name, SUM(combined.retail_qty) as r_qty, SUM(combined.wholesale_qty) as w_qty
                     FROM (
                         SELECT product_id, qty as retail_qty, 0 as wholesale_qty FROM retail_orders
@@ -111,7 +121,7 @@ foreach($combinedRes as $row) {
     $compWholesaleValues[] = (int)$row['w_qty'];
 }
 
-//Dispatcher Performance Query
+// Dispatcher Performance Query
 $logisticsQuery = "SELECT ds.worker_name, SUM(di.qty_taken) as taken, SUM(di.qty_sold) as sold, SUM(di.qty_returned) as returned
                 FROM dispatch_items di
                 JOIN dispatch_sessions ds ON di.session_id = ds.id
@@ -129,8 +139,7 @@ foreach($logisticsRes as $row) {
     $workerReturnValues[] = (int)$row['returned'];
 }
 
-
-//ML Forecast Prediction Query
+// ML Forecast Prediction Query
 $nextMonthStr = date('Y-m', strtotime("+1 month"));
 $mlPredictionQuery = "SELECT predicted_revenue FROM ml_predictions WHERE target_period = :next_month LIMIT 1";
 $stmt = $pdo->prepare($mlPredictionQuery);
@@ -145,14 +154,14 @@ if ($forecast === false) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel </title>
+    <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/indix.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         .btn-generate-report {
-            background-color: #4e73df;
+            background-color: #f28c28;
             color: #ffffff;
             border: none;
             padding: 8px 16px;
@@ -167,7 +176,7 @@ if ($forecast === false) {
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .btn-generate-report:hover {
-            background-color: #2e59d9;
+            background-color: #ea580c;
         }
         .btn-generate-report:active {
             transform: scale(0.98);
@@ -182,12 +191,22 @@ if ($forecast === false) {
         .report-header-info h1 {
             margin: 0 0 5px 0;
             font-size: 1.8rem;
-            color: #2e59d9;
+            color: #f28c28;
         }
         .report-header-info p {
             margin: 0;
             color: #5a5c69;
             font-size: 0.85rem;
+        }
+
+        .worker-names-badge {
+            font-size: 0.8rem;
+            color: #e74a3b;
+            font-weight: 600;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         @media print {
@@ -252,40 +271,44 @@ if ($forecast === false) {
             <div class="sidebar-header">
                 <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
             </div>
-            <nav style="flex-grow: 1;">
-                <a href="index.php" class="nav-item active" data-title="Dashboard">
-                    <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
-                    <span>Dashboard</span>
-                </a>
-                <a href="inventory.php" class="nav-item" data-title="Inventory">
-                    <div class="icon"><i class="fa-solid fa-boxes-packing"></i></div>
-                    <span>Inventory</span>
-                </a>
-                <a href="inventory_logs.php" class="nav-item" data-title="Inventory Logs">
-                    <div class="icon"><i class="fa-solid fa-route"></i></div>
-                    <span>Inventory Logs</span>
-                </a>
-                <a href="dispatchers.php" class="nav-item" data-title="Dispatchers">
-                    <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
-                    <span>Dispatchers</span>
-                </a>
-                <a href="retailer.php" class="nav-item" data-title="Retailer">
-                    <div class="icon"><i class="fa-solid fa-shop"></i></div>
-                    <span>Retailer</span>
-                </a>
-                <a href="audit_trail.php" class="nav-item" data-title="Audit Trail">
-                    <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
-                    <span>Audit Trail</span>
-                </a>
-                <a href="sales.php" class="nav-item" data-title="Sales History">
-                    <div class="icon"><i class="fa-solid fa-coins"></i></div>
-                    <span>Sales History</span>
-                </a>
-                <a href="setting.php" class="nav-item" data-title="Settings">
-                    <div class="icon"><i class="fa-solid fa-gears"></i></div>
-                    <span>Settings</span>
-                </a>
-            </nav>
+        <nav style="flex-grow: 1;">
+            <a href="index.php" class="nav-item active" data-title="Dashboard">
+                <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
+                <span>Dashboard</span>
+            </a>
+            <a href="inventory.php" class="nav-item" data-title="Inventory">
+                <div class="icon"><i class="fa-solid fa-boxes-packing"></i></div>
+                <span>Inventory</span>
+            </a>
+            <a href="inventory_logs.php" class="nav-item" data-title="Inventory Logs">
+                <div class="icon"><i class="fa-solid fa-route"></i></div>
+                <span>Inventory Logs</span>
+            </a>
+            <a href="dispatchers.php" class="nav-item" data-title="Dispatchers">
+                <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                <span>Dispatchers</span>
+            </a>
+            <a href="balance.php" class="nav-item " data-title="Worker Balances">
+                <div class="icon"><i class="fa-solid fa-scale-unbalanced"></i></div>
+                <span>Worker Balances</span>
+            </a>
+            <a href="retailer.php" class="nav-item" data-title="Retailer">
+                <div class="icon"><i class="fa-solid fa-shop"></i></div>
+                <span>Retailer</span>
+            </a>
+            <a href="audit_trail.php" class="nav-item" data-title="Audit Trail">
+                <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                <span>Audit Trail</span>
+            </a>
+            <a href="sales.php" class="nav-item" data-title="Sales History">
+                <div class="icon"><i class="fa-solid fa-coins"></i></div>
+                <span>Sales History</span>
+            </a>
+            <a href="setting.php" class="nav-item" data-title="Settings">
+                <div class="icon"><i class="fa-solid fa-gears"></i></div>
+                <span>Settings</span>
+            </a>
+        </nav>
         </aside>
 
         <main class="main-content">
@@ -306,31 +329,55 @@ if ($forecast === false) {
                 <p><strong>Generated On:</strong> <?= date('F j, Y, g:i a') ?> | <strong>System Administrator ID:</strong> <?= htmlspecialchars($_SESSION['admin_id']) ?></p>
             </div>
 
+            <!-- Dashboard Grid with All Stat Cards -->
             <div class="dashboard-grid">
                 <div class="stat-card" style="border-left: 5px solid #36b9cc;">
                     <h3 style="color:#36b9cc; font-size: 0.8rem;">DAILY REVENUE</h3>
                     <div class="value">₱<?= number_format($dailySales, 2) ?></div>
                 </div>
+
                 <div class="stat-card" style="border-left: 5px solid #f28c28;">
                     <h3 style="color:#f28c28; font-size: 0.8rem;">5-MONTH REVENUE</h3>
                     <div class="value">₱<?= number_format(array_sum($monthlyValues), 2) ?></div>
                 </div>
+
                 <div class="stat-card" style="border-left: 5px solid #4e73df;">
                     <h3 style="color:#4e73df; font-size: 0.8rem;">YEARLY REVENUE (<?= $currentYear ?>)</h3>
                     <div class="value">₱<?= number_format($yearlySales, 2) ?></div>
                 </div>
+
+                <!-- Worker Balances Card -->
                 <div class="stat-card" style="border-left: 5px solid #e74a3b;">
-                    <h3 style="color:#e74a3b; font-size: 0.8rem;">STOCK ALERTS</h3>
-                    <div class="value"><?= $lowStockCount ?></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="color:#e74a3b; font-size: 0.8rem; margin: 0;">WORKER BALANCES</h3>
+                        <a href="balance.php" style="color: #f28c28; font-size: 0.75rem; text-decoration: none; font-weight: bold;">View All <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                    <div class="value" style="color: #e74a3b;">₱<?= number_format($totalPendingShortage, 2) ?></div>
+                    <div class="worker-names-badge">
+                        <?php if (count($pendingWorkers) > 0): ?>
+                            <i class="fa-solid fa-user-clock"></i> <?= htmlspecialchars(implode(', ', $pendingWorkers)) ?>
+                        <?php else: ?>
+                            <span style="color: #1cc88a;"><i class="fa-solid fa-circle-check"></i> All balances cleared</span>
+                        <?php endif; ?>
+                    </div>
                 </div>
+
+                <!-- Active Inventory Card -->
                 <div class="stat-card" style="border-left: 5px solid #1cc88a;">
                     <h3 style="color:#1cc88a; font-size: 0.8rem;">ACTIVE INVENTORY</h3>
                     <div class="value"><?= $activeProductCount ?></div>
                     <span class="sub-value" style="font-size: 0.8rem;">Products in stock</span>
                 </div>
+
+                <!-- Low Stock Alert Card -->
+                <div class="stat-card" style="border-left: 5px solid #f6c23e;">
+                    <h3 style="color:#f6c23e; font-size: 0.8rem;">LOW STOCK ALERT</h3>
+                    <div class="value" style="color: #f6c23e;"><?= $lowStockCount ?></div>
+                    <span class="sub-value" style="font-size: 0.8rem; color: #858796;">Products ≤ 30 items</span>
+                </div>
             </div>
 
-            <div class="charts-container">
+            <div class="charts-container" style="margin-top: 25px;">
                 <div class="content-box">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
                         <h2>5-Month Revenue</h2>
@@ -374,8 +421,8 @@ if ($forecast === false) {
             data: {
                 labels: <?= json_encode($monthlyLabels) ?>,
                 datasets: [
-                    { type: 'bar', label: 'Revenue', data: <?= json_encode($monthlyValues) ?>, backgroundColor: 'rgba(78, 115, 223, 0.2)', borderColor: '#4e73df', borderWidth: 1 },
-                    { type: 'line', label: 'Trend', data: <?= json_encode($monthlyValues) ?>, borderColor: '#f28c28', borderWidth: 3, tension: 0.4 }
+                    { type: 'bar', label: 'Revenue', data: <?= json_encode($monthlyValues) ?>, backgroundColor: 'rgba(242, 140, 40, 0.2)', borderColor: '#f28c28', borderWidth: 1 },
+                    { type: 'line', label: 'Trend', data: <?= json_encode($monthlyValues) ?>, borderColor: '#ea580c', borderWidth: 3, tension: 0.4 }
                 ]
             },
             options: { responsive: true, maintainAspectRatio: false }
@@ -404,7 +451,7 @@ if ($forecast === false) {
                 labels: <?= json_encode($compLabels) ?>,
                 datasets: [
                     { label: 'Retail Sales', data: <?= json_encode($compRetailValues) ?>, backgroundColor: '#4e73df' },
-                    { label: 'Wholesale Sales', data: <?= json_encode($compWholesaleValues) ?>, backgroundColor: '#f6c23e' }
+                    { label: 'Wholesale Sales', data: <?= json_encode($compWholesaleValues) ?>, backgroundColor: '#f28c28' }
                 ]
             },
             options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }

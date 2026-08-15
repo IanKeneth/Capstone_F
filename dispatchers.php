@@ -88,7 +88,7 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price, quantity 
         <div class="sidebar-header">
             <img src="assets/img/logo.png" alt="Salescore Logo" class="sidebar-logo">
         </div>
-        <nav style="flex-grow: 1;">
+     <nav style="flex-grow: 1;">
             <a href="index.php" class="nav-item" data-title="Dashboard">
                 <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
                 <span>Dashboard</span>
@@ -104,6 +104,10 @@ $all_products = $pdo->query("SELECT id, product_name, wholesale_price, quantity 
             <a href="dispatchers.php" class="nav-item active" data-title="Dispatchers">
                 <div class="icon"><i class="fa-solid fa-clipboard-list"></i></div>
                 <span>Dispatchers</span>
+            </a>
+            <a href="balance.php" class="nav-item " data-title="Worker Balances">
+                <div class="icon"><i class="fa-solid fa-scale-unbalanced"></i></div>
+                <span>Worker Balances</span>
             </a>
             <a href="retailer.php" class="nav-item" data-title="Retailer">
                 <div class="icon"><i class="fa-solid fa-shop"></i></div>

@@ -30,6 +30,13 @@ def run_ml_forecast():
         ) as combined_sales
         GROUP BY m ORDER BY m ASC;
     """
+    #df = pd.read_sql(query, db)
+        
+     #   if len(df) < 1:
+      #      print("Not enough historical data to train the machine learning model.")
+       #     cursor.close()
+        # db.close()
+         #   return
     
     df = pd.read_sql(query, db)
     
