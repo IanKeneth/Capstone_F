@@ -6,7 +6,7 @@ $host     = getenv('MYSQLHOST') ?: "127.0.0.1";
 $dbname   = getenv('MYSQLDATABASE') ?: "capstone_1";
 $username = getenv('MYSQLUSER') ?: "root";
 $password = getenv('MYSQLPASSWORD') ?: "BumLQaHKTsNBjFyyAkaGFBQkfcWvpMnv";
-$port     = getenv('MYSQLPORT') ?: "25346";
+$port     = getenv('MYSQLPORT') ?: "3306";
 
 try {
     // Explicitly including port forces TCP/IP connection instead of Unix sockets
