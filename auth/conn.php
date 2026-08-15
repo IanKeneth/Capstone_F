@@ -2,12 +2,11 @@
 date_default_timezone_set('Asia/Manila');
 
 // Reads Railway environment variables in production, falls back to local credentials
-$host     = getenv('MYSQLHOST') ?: "127.0.0.1";
-$dbname   = getenv('MYSQLDATABASE') ?: "capstone_1";
-$username = getenv('MYSQLUSER') ?: "root";
-$password = getenv('MYSQLPASSWORD') ?: "BumLQaHKTsNBjFyyAkaGFBQkfcWvpMnv";
-$port     = getenv('MYSQLPORT') ?: "3306";
-
+$host = getenv('MYSQLHOST') ?: 'localhost';
+$port = getenv('MYSQLPORT') ?: '3306';
+$dbname = getenv('MYSQLDATABASE') ?: 'railway';
+$user = getenv('MYSQLUSER') ?: 'root';
+$pass = getenv('MYSQLPASSWORD') ?: '';
 try {
     // Explicitly including port forces TCP/IP connection instead of Unix sockets
     $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
